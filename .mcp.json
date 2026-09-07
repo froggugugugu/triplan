@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.github.com/mcp"
+    },
+    "drawio": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@drawio/mcp"],
+      "env": {}
+    }
+  }
+}

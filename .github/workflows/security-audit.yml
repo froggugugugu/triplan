@@ -1,0 +1,51 @@
+# サプライチェーン対策: 依存パッケージの脆弱性を継続監視する。
+# - PR/push時: high以上の脆弱性があればCIを落とす（新規の混入を止める）
+# - 週次: 定期スキャン（既存依存に新たに公開されたCVEを検知する）
+# - `npm ci` はpackage-lock.jsonと完全一致のインストールのみを許す＝
+#   lockfile改ざん・すり替えの検知を兼ねる
+name: security-audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # 毎週月曜 09:00 JST（00:00 UTC）
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  audit-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      # package-lock.jsonはnpm 11で生成されており、Node 22同梱のnpm 10では
+      # 依存の記録形式が異なりEUSAGE（Missing ... from lock file）になる。
+      # lockの形式に合わせてnpmを上げる（engines.npmと対応）
+      - run: npm install -g npm@11
+      # lockfileとの完全一致インストール（不一致なら失敗＝改ざん検知）
+      - run: npm ci
+      - run: npm audit --audit-level=high
+
+  audit-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm install -g npm@11
+      - run: npm ci
+        working-directory: server
+      # 既知の受容済みリスク: drizzle-kit経由のesbuild（moderate・開発CLIのみ・
+      # 本番ランタイム非含有）。high以上のみをゲートにする
+      - run: npm audit --audit-level=high
+        working-directory: server

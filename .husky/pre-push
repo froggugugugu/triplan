@@ -1,0 +1,1 @@
+npm run check && npx tsc -b --noEmit && npm run test:run && npm run depcruise

@@ -1,0 +1,29 @@
+name: 機能要望
+description: 追加・変更してほしいことを提案する
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 困っていること
+      description: どの業務のどの場面で、何ができなくて困るか
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案
+      description: こうなっていてほしい、という案。画面や操作の具体例があると助かります
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 検討した代替案
+      description: 既存機能や外部ツールでの回避策があれば
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 確認
+      options:
+        - label: このツールは日本のSI商習慣向けで、多言語化・多通貨化はスコープ外であることを理解しています

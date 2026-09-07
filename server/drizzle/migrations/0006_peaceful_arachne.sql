@@ -1,0 +1,1 @@
+ALTER TABLE "assignments" ADD COLUMN "actual_monthly_values" jsonb DEFAULT '{}'::jsonb NOT NULL;

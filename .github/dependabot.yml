@@ -1,0 +1,34 @@
+# サプライチェーン対策: 依存の更新はDependabotのPR経由に一本化する。
+# 直接依存はpackage.jsonで完全一致バージョンに固定（.npmrcのsave-exact）しているため、
+# 更新は必ずこのPR＋CI（テスト・audit）を通ってからmainへ入る
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+    groups:
+      # パッチ・マイナー更新はまとめて1PRに（レビュー負荷の抑制）
+      minor-and-patch:
+        update-types: ['minor', 'patch']
+
+  - package-ecosystem: npm
+    directory: /server
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: ['minor', 'patch']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

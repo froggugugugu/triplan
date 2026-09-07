@@ -1,0 +1,54 @@
+# 本番セルフホスト構成（手順は docs/guide/self-host.md）
+#
+#   cp deploy/env.example deploy/prod.env   # シークレットを必ず変更する
+#   docker compose --env-file deploy/prod.env -f docker-compose.prod.yml up -d --build
+#
+# 開発用の docker-compose.yml（DBのみ）・docker-compose.e2e.yml（E2E用の使い捨てDB）
+# とは独立した3コンテナ構成: web（nginx＋クライアント）／server（API）／db（PostgreSQL）。
+# ブラウザはwebだけに接続し、/api/* はnginxがserverへ中継する（同一オリジン＝CORS不要）。
+# 開発用compose（同一ディレクトリ）とプロジェクト名を分離し、コンテナの取り違えを防ぐ
+name: triplan-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?deploy/prod.env の POSTGRES_PASSWORD を設定し --env-file deploy/prod.env を付けて実行してください}
+      POSTGRES_DB: resource_manager
+    volumes:
+      - triplan-prod-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d resource_manager']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    restart: unless-stopped
+    # JWT_ACCESS_SECRET / JWT_REFRESH_PEPPER / SSO_ENCRYPTION_KEY 等はここから渡す
+    env_file: deploy/prod.env
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/resource_manager
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/client.Dockerfile
+    restart: unless-stopped
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      - server
+
+volumes:
+  triplan-prod-db:

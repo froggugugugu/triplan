@@ -1,0 +1,1 @@
+ALTER TABLE "task_sync_logs" ADD COLUMN "created_count" integer DEFAULT 0 NOT NULL;

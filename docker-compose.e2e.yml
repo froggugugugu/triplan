@@ -1,0 +1,19 @@
+# postgresモードのブラウザE2E専用DB。
+# scripts/… ではなく playwright.postgres.config.ts の globalSetup/Teardown が起動・破棄する。
+# データは毎回使い捨て（tmpfs）で、ポートは開発用(5432)と衝突しない55432を使う
+services:
+  postgres-e2e:
+    image: postgres:16-alpine
+    ports:
+      - '55432:5432'
+    environment:
+      POSTGRES_USER: e2e
+      POSTGRES_PASSWORD: e2e
+      POSTGRES_DB: resource_planner_e2e
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U e2e -d resource_planner_e2e']
+      interval: 2s
+      timeout: 3s
+      retries: 30

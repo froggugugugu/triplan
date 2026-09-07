@@ -1,0 +1,22 @@
+# Dockerビルドコンテキストから除外（イメージに不要なもの・秘密情報）
+node_modules
+server/node_modules
+dist
+coverage
+playwright-report
+test-results
+testreport
+e2e
+e2e-postgres
+.git
+.github
+.claude
+.husky
+input
+output
+docs
+*.log
+.DS_Store
+# 秘密情報は絶対にイメージへ入れない（実行時にenv_fileで渡す）
+server/.env
+deploy/prod.env

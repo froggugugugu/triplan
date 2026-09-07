@@ -1,0 +1,54 @@
+node_modules
+coverage/
+playwright-report/
+test-results/
+.playwright-mcp/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Claude Code internal files
+.claude/tasks/
+.claude/projects/
+.claude/plans/
+.claude/settings.local.json
+.claude/skills/*/plan.md
+
+# --- project-blueprint harness ---
+# Auto memory (per-machine, project-scope)
+.claude/memory/
+# Session logs / ideation (machine-generated, may contain transcripts)
+output/reports/sessions/
+output/brainstorm/
+# Tool raw output (machine-generated; may contain PII/secrets) — keep .gitkeep only
+testreport/**/*.html
+testreport/**/*.json
+testreport/**/*.jsonl
+testreport/**/*.lcov
+testreport/**/*.md
+testreport/**/*.xml
+# スクリーンショット等のバイナリもツール生データ（誤コミットした）
+testreport/**/*.png
+testreport/**/*.jpg
+testreport/**/*.webp
+testreport/**/*.zip
+!testreport/**/.gitkeep
+
+# --- specific to Claude Code ---
+input/specs/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+
+# 本番セルフホスト用の環境変数（秘密情報）
+deploy/prod.env

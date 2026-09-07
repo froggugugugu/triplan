@@ -1,0 +1,46 @@
+name: バグ報告
+description: 期待と違う動作を報告する
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 何が起きたか
+      description: 実際の動作と、期待していた動作
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1. 〜画面を開く
+        2. 〜を入力する
+        3. 〜を押す
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: 動作モード
+      options:
+        - localモード（ブラウザのみ）
+        - postgresモード（APIサーバー＋PostgreSQL）
+        - デモサイト
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: バージョン・コミット
+      placeholder: v0.1.0 / コミットSHA
+  - type: input
+    id: env
+    attributes:
+      label: 環境
+      placeholder: macOS 15 / Chrome 130 / Node 22.12
+  - type: textarea
+    id: logs
+    attributes:
+      label: ログ・スクリーンショット
+      description: ブラウザのコンソールやサーバーのログがあれば貼ってください。**個人情報や実データは伏せてください**

@@ -1,0 +1,73 @@
+# 品質ゲートのCI実行: ローカルのpre-pushフック（lint・型チェック・テスト・
+# 依存方向チェック）と同等の検査をGitHub Actionsでも実行する。
+# - pre-pushはローカル環境にしか存在せず、DependabotのPRをテストで検証する
+#   仕組みがこれまで無かった（security-audit.ymlはCVE監視のみ）
+# - lint/formatはpre-pushの `npm run check`（--write、自動修正あり）と違い、
+#   CIでは書き込みなしの `biome ci` を使う（`npx biome` はパッケージ名
+#   `@biomejs/biome` との不一致で解決に失敗することがあるためバイナリを直接呼ぶ。
+#   docs/development-patterns.md 参照）
+# - E2E（Playwright）は実行時間の観点で本ワークフローに含めない
+#   （必要になったら別ワークフロー / nightly で追加する）
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # package-lock.jsonはnpm 11で生成されており、Node 22同梱のnpm 10では
+      # npm ciがEUSAGE（Missing ... from lock file）になる（security-audit.ymlと同じ対応）
+      - run: npm install -g npm@11
+      - run: npm ci
+      # lint + format検査（書き込みなし。useExhaustiveDependenciesの既知の警告は
+      # エラーではないためゲートしない）
+      - run: ./node_modules/.bin/biome ci .
+      # ユニットテスト（Vitest）
+      - run: npm run test:run
+      # レイヤー依存方向チェック（dependency-cruiser）
+      - run: npm run depcruise
+      # 型チェック + 本番ビルド（tsc -b && vite build）
+      - run: npm run build
+
+  server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+      - run: npm install -g npm@11
+      # server/tsconfig.jsonは ../src/shared/{types,utils} を型検査対象に含む
+      # （集計純関数の単一実装をserverが再利用する設計）ため、shared側の依存
+      # （zod等）が入ったルートのnode_modulesもインストールする。無いとzodの
+      # 型解決が壊れ、z.inferで導出した型が縮退して無関係な型エラーが大量に出る
+      - run: npm ci
+      - run: npm ci
+        working-directory: server
+      # 型チェック（tsc -b）
+      - run: npm run build
+        working-directory: server
+      # レイヤー依存方向チェック
+      - run: npm run depcruise
+        working-directory: server
+      # 統合テスト（Testcontainers。ubuntu-latest同梱のDockerでpostgres:16を起動する）
+      - run: npm run test:run
+        working-directory: server

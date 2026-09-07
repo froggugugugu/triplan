@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使い方の質問・相談
+    url: https://github.com/froggugugugu/triplan/discussions
+    about: 使い方の質問やアイデアの相談は Discussions へ
+  - name: 脆弱性の報告
+    url: https://github.com/froggugugugu/triplan/security/advisories/new
+    about: セキュリティに関わる報告は公開Issueではなく Private Vulnerability Reporting へ
