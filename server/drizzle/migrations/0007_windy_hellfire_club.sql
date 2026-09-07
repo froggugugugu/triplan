@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "evm_unit_price_mode" text;

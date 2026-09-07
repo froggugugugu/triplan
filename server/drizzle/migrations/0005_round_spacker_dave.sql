@@ -1,0 +1,1 @@
+ALTER TABLE "members" ADD COLUMN "capacity_ratio" numeric(4, 3) DEFAULT 1 NOT NULL;

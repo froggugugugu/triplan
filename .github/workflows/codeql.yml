@@ -1,0 +1,32 @@
+# CodeQL静的解析（JavaScript/TypeScript）。PR・push・週次で実行し、
+# 結果はリポジトリの Security → Code scanning に集約される
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  # 手動起動（履歴の作り直し等でpushイベントが起きないときにCIを回す）
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  schedule:
+    # 毎週火曜 09:00 JST（00:00 UTC）
+    - cron: '0 0 * * 2'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript

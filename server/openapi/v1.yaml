@@ -1,0 +1,369 @@
+openapi: 3.0.3
+info:
+  title: triplan 公開API
+  version: 1.0.0
+  description: |
+    triplanの読み取り専用の公開APIです。
+    BIツール・会計システム・スクリプト等の外部システムが、集計済みの「判断の結果」を
+    機械的に取得するために使います（postgresモード専用）。
+
+    - すべてのエンドポイントは読み取り専用（read-only）です
+    - 集計ロジックは画面・CSV出力と同一の実装を共有しており、数値は常に一致します
+    - 金額の単位は「万円」、工数の単位は「人月」です
+    - APIキーは管理画面（管理者→APIキー）で発行します。発行時に一度だけ表示されます
+  contact:
+    name: triplan
+servers:
+  - url: http://localhost:3001
+    description: ローカル環境（VITE_API_BASE_URLに合わせて読み替えてください）
+security:
+  - ApiKeyAuth: []
+paths:
+  /api/v1/billing:
+    get:
+      summary: 請求データ（請求マイルストン×案件）
+      description: |
+        請求マイルストンを検収予定日昇順で返します。請求書発行サービス・会計システムへの
+        受け渡しを想定しています。案件が削除済みのマイルストンは含まれません。
+      parameters:
+        - name: projectId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+          description: 指定した案件のみに絞り込む
+      responses:
+        '200':
+          description: 請求データの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/BillingItem' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/project-finance:
+    get:
+      summary: 案件別収支
+      description: |
+        トップレベル案件ごとの受注金額・概算予算・実コスト・粗利・進捗率です。
+        受注金額が未設定の案件は粗利・利益率がnullになります（0受注に対する粗利は誤解を招くため）。
+        原価4区分（労務費・外注費・直接経費・間接費配賦）と配賦後利益も含みます。
+        労務費＋外注費＝実人件費、直接経費＝実付帯費用（4区分の語彙での再掲）が常に成り立ちます。
+        間接費は部門の間接費実績を部門内案件へ直接工数比例で配賦した参考値です。
+      responses:
+        '200':
+          description: 案件別収支の一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProjectFinanceItem' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/statements/partner-payment:
+    get:
+      summary: 協力会社への支払明細
+      description: |
+        対象月の協力会社への支払明細（契約単価ベース）です。実績モードでは準委任の
+        精算幅（幅内/控除/超過）が自動適用され、行金額の合計は精算額と一致します。
+        契約単価が未入力のメンバーは単価0のまま出力されます（入力漏れの検知）。
+      parameters:
+        - $ref: '#/components/parameters/Month'
+        - $ref: '#/components/parameters/Mode'
+      responses:
+        '200':
+          description: 支払明細の一覧
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatementResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/statements/client:
+    get:
+      summary: 発注元向け明細
+      description: 対象月の発注元向け明細（見積単価ベース、案件→会社→人）です。
+      parameters:
+        - $ref: '#/components/parameters/Month'
+        - $ref: '#/components/parameters/Mode'
+      responses:
+        '200':
+          description: 発注元向け明細の一覧
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatementResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/projects:
+    get:
+      summary: プロジェクト一覧
+      description: |
+        トップレベルプロジェクトの一覧です（コード順）。進捗率はWBS完了チェックの工数加重
+        （週次の手入力があればそれを優先）で、画面・EVMと同一の算出です。
+        金額情報は含みません（受注・予算・粗利は /api/v1/project-finance を使ってください）。
+      responses:
+        '200':
+          description: プロジェクトの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProjectSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/projects/{id}:
+    get:
+      summary: プロジェクト詳細（タスクツリー・スケジュール込み）
+      description: |
+        単一プロジェクトの詳細です。配下タスクはフラット配列（parentIdで親子構造を復元可能）、
+        スケジュールは工程別の開始・終了日です。外部システムからの進捗報告参照を想定しています。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+          description: トップレベルプロジェクトのID（/api/v1/projectsで取得）
+      responses:
+        '200':
+          description: プロジェクト詳細
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProjectDetail' }
+        '404':
+          description: 対象が存在しない（またはトップレベルでない）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/projects/{id}/evm:
+    get:
+      summary: EVM（PV/EV/AC週次系列）
+      description: |
+        対象プロジェクトの年度内週次のEVM系列です。画面（EVMパネル）と同一の実装で算出します。
+        PV=凍結ベースラインの月次計画コストを配分の形として使いBACへスケール（未凍結時は
+        スケジュール期間の直線按分）、EV=進捗率×BAC（週次手入力優先→WBS完了チェックの工数加重）、
+        AC=アサイン実績×人件費単価。金額の単位は万円です。
+        スケジュールもベースラインも無い場合はeligible=falseで空のweeksを返します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: EVM系列
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EvmResponse' }
+        '404':
+          description: 対象が存在しない（またはトップレベルでない）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/alerts:
+    get:
+      summary: アラート一覧
+      description: |
+        アラートセンター・日次ダイジェスト通知と同一判定のアラート一覧を重大度順に返します
+        （納期超過・遅延予測・納期接近／請求マイルストンの検収予定日の接近・経過／
+        SaaS更新期限／稼働超過／ベースライン乖離／予算超過）。
+      responses:
+        '200':
+          description: アラートの一覧（critical→warning→info順）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Alert' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: '管理画面で発行したAPIキー（rpk_...）。Authorization: Bearer rpk_... でも可'
+  parameters:
+    Month:
+      name: month
+      in: query
+      required: false
+      schema: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$', example: '2026-01' }
+      description: 対象月（YYYY-MM）。省略時はサーバーの当月
+    Mode:
+      name: mode
+      in: query
+      required: false
+      schema: { type: string, enum: [actual, plan], default: actual }
+      description: actual=実績（例外入力優先・未入力月は計画どおり）／plan=計画
+  responses:
+    Unauthorized:
+      description: APIキーが未指定・無効
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    BadRequest:
+      description: パラメータ不正
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+    BillingItem:
+      type: object
+      properties:
+        projectCode: { type: string, example: P001 }
+        projectName: { type: string }
+        clientName: { type: string, description: 発注元名（未設定は空文字） }
+        label: { type: string, example: 中間金 }
+        amount: { type: number, description: 請求額（万円） }
+        plannedAcceptanceDate: { type: string, format: date, description: 検収予定日 }
+        status:
+          type: string
+          enum: [予定, 検収済, 請求済, 入金済]
+        note: { type: string }
+    ProjectFinanceItem:
+      type: object
+      properties:
+        code: { type: string, example: P001 }
+        name: { type: string }
+        divisionName: { type: string, description: 担当部門名（未設定は空文字） }
+        clientName: { type: string }
+        contractType: { type: string, description: 請負/準委任/派遣/混在（未設定は空文字） }
+        masterDueDate: { type: string, description: マスター納期YYYY-MM-DD（未設定は空文字） }
+        contractAmount: { type: number, nullable: true, description: 受注金額（万円）。未設定はnull }
+        estimateBudget: { type: number, description: 概算予算（万円）=WBS総工数×概算単価×係数 }
+        actualPersonnelCost: { type: number, description: 実人件費（万円） }
+        actualExpenseCost: { type: number, description: 実付帯費用（万円） }
+        actualCostTotal: { type: number, description: 実コスト計（万円） }
+        grossProfit: { type: number, nullable: true, description: 粗利（万円）。受注金額未設定はnull }
+        profitMarginRate: { type: number, nullable: true, description: 利益率（%・小数1桁） }
+        progressRate: { type: number, description: 進捗率（%・整数。WBS完了チェックの工数加重） }
+        laborCost: { type: number, nullable: true, description: 労務費（万円）=内部リソースのアサイン実コスト。労務費+外注費=実人件費 }
+        subcontractCost: { type: number, nullable: true, description: 外注費（万円）=外部リソース（協力会社）のアサイン実コスト }
+        directExpense: { type: number, nullable: true, description: 直接経費（万円）=案件紐づき実績明細合計（実付帯費用と同値） }
+        allocatedOverhead: { type: number, nullable: true, description: 間接費配賦（万円）=部門の間接費実績（一般経費・SaaS・AI利用費）の直接工数比例配賦 }
+        netProfitAfterOverhead: { type: number, nullable: true, description: 配賦後利益（万円）=粗利−間接費配賦。受注金額未設定はnull }
+    StatementLine:
+      type: object
+      properties:
+        companyId: { type: string, nullable: true }
+        companyName: { type: string }
+        memberId: { type: string }
+        memberName: { type: string }
+        memberRole: { type: string }
+        projectId: { type: string }
+        projectCode: { type: string }
+        projectName: { type: string }
+        clientName: { type: string, nullable: true }
+        ratio: { type: number, description: 配分（人月） }
+        unitPrice: { type: number, description: 単価（万円。支払面=契約単価/発注元面=見積単価） }
+        amount: { type: number, description: 金額（万円）。準委任精算適用時は按分後の精算額 }
+        settlementKind:
+          type: string
+          nullable: true
+          enum: [within, deduction, overage]
+          description: 準委任精算の判定（幅内/控除/超過）。適用外の行は存在しない
+        settlementActualHours: { type: number, nullable: true, description: メンバー×月の実績時間（h） }
+        settlementBaseAmount: { type: number, nullable: true, description: 精算の基準額（万円） }
+    StatementResponse:
+      type: object
+      properties:
+        month: { type: string, example: '2026-01' }
+        mode: { type: string, enum: [actual, plan] }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/StatementLine' }
+    ProjectSummary:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string, example: P001 }
+        name: { type: string }
+        status: { type: string, enum: [not_started, active, completed] }
+        confidence: { type: string, nullable: true, enum: [S, A, B, C], description: 確度（S=確定〜C=低） }
+        priority: { type: string, nullable: true, enum: [high, medium, low] }
+        clientName: { type: string, nullable: true, description: 発注元名 }
+        contractType: { type: string, nullable: true, description: 請負/準委任/派遣/混在 }
+        masterDueDate: { type: string, nullable: true, format: date, description: 契約上のマスター納期 }
+        divisionName: { type: string, nullable: true, description: 担当部門名 }
+        progressRate: { type: number, description: 進捗率（%・整数。WBS完了チェックの工数加重、週次手入力優先） }
+        taskCount: { type: number, description: 最下層タスク数 }
+        completedTaskCount: { type: number, description: 完了済みの最下層タスク数 }
+    TaskItem:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string, example: P001-01 }
+        name: { type: string }
+        parentId: { type: string, nullable: true, description: 親ノードID（親子構造の復元用） }
+        level: { type: number, description: 階層レベル（1〜5） }
+        completed: { type: boolean, description: WBS完了チェック（最下層タスクのみ操作対象） }
+        completedAt: { type: string, nullable: true, format: date, description: 完了日 }
+        completionCriteria: { type: string, nullable: true, description: 完了条件 }
+    ScheduleItem:
+      type: object
+      properties:
+        phaseKey: { type: string, example: phase-1 }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+    ProjectDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProjectSummary'
+        - type: object
+          properties:
+            tasks:
+              type: array
+              items: { $ref: '#/components/schemas/TaskItem' }
+            schedule:
+              type: array
+              items: { $ref: '#/components/schemas/ScheduleItem' }
+    EvmWeekPoint:
+      type: object
+      properties:
+        week: { type: string, example: '2026-W15', description: ISO 8601週番号 }
+        pv: { type: number, description: 計画値（万円・累積） }
+        ev: { type: number, description: 出来高（万円・累積） }
+        ac: { type: number, description: 実コスト（万円・累積、人件費） }
+    EvmResponse:
+      type: object
+      properties:
+        projectId: { type: string, format: uuid }
+        code: { type: string }
+        name: { type: string }
+        eligible: { type: boolean, description: falseの場合weeksは空（reasonに理由） }
+        reason: { type: string, description: eligible=falseの理由（それ以外は無し) }
+        fiscalYear: { type: number, example: 2026 }
+        unitPriceMode: { type: string, enum: [frozen, latest], description: PV算出の単価モード }
+        bacAmount: { type: number, description: BAC（完成時総予算、万円）。ベースラインがあればそのBAC }
+        baseline:
+          type: object
+          nullable: true
+          description: 有効なベースライン（未凍結はnull）
+          properties:
+            version: { type: number }
+            approvedAt: { type: string, format: date }
+            reason: { type: string }
+            bacAmount: { type: number }
+        weeks:
+          type: array
+          items: { $ref: '#/components/schemas/EvmWeekPoint' }
+    Alert:
+      type: object
+      properties:
+        key: { type: string, description: 一意キー（判定種別＋対象ID） }
+        severity: { type: string, enum: [critical, warning, info] }
+        category: { type: string, example: 納期 }
+        message: { type: string }

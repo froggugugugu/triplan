@@ -1,0 +1,1 @@
+ALTER TABLE "csv_mapping_profiles" ADD COLUMN "options" jsonb;

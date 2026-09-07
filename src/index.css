@@ -1,0 +1,230 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/noto-sans-jp/400.css";
+@import "@fontsource/noto-sans-jp/500.css";
+@import "@fontsource/noto-sans-jp/700.css";
+
+/*
+ * shadcn/ui用のCSS変数定義
+ *
+ * カラートークン（primary, success, warning, info）およびスペーシング設計は
+ * デジタル庁デザインシステムウェブサイト（https://design.digital.go.jp/dads/）の
+ * コンテンツを参考に加工して作成しています（2026-08-13、Linear/Notion系の配色へ
+ * トークン値を調整。値の完全刷新ではなく、参考に加工したベースからの発展的な調整）。
+ * 利用規約: https://design.digital.go.jp/dads/introduction/notices/
+ */
+@theme {
+  /* ライトモード用カラー: canvas（背景）とsurface（カード面）を分離した二層構造 */
+  --color-background: #f7f7f8;
+  --color-foreground: #17171a;
+  --color-card: #ffffff;
+  --color-card-foreground: #17171a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #17171a;
+  --color-primary: #4a56c9;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f0f0f3;
+  --color-secondary-foreground: #17171a;
+  --color-muted: #f0f0f3;
+  /* ライトのmuted-foregroundは、半透明の色付き背景（budget-planned等を10%で
+     重ねたもの）の上でもAA 4.5:1を満たす濃さにしている。旧値#6b6b76は
+     白カード上で4.54、背景#f7f7f8上では4.26しかなくaxeのcolor-contrast違反に
+     なった。ダーク側(#9c9ca6)は同条件で5.65〜7.09あるため据え置き */
+  --color-muted-foreground: #63636e;
+  --color-accent: #f0f0f3;
+  --color-accent-foreground: #17171a;
+  --color-destructive: #b1362d;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e3e3e7;
+  --color-input: #e3e3e7;
+  --color-ring: #4a56c9;
+
+  /* リソース管理専用カラー */
+  --color-success: #157a52;
+  --color-warning: #9a6a17;
+  --color-info: #26688f;
+
+  /* 予算管理: 予算＝青系／支出（実績）＝赤系の視覚区別用（bg-budget-planned/10等の薄色バリアントで使用） */
+  --color-budget-planned: #3a56c4;
+  --color-budget-actual: #c04a52;
+
+  /* 角丸 */
+  --radius-lg: 0.625rem;
+  --radius-md: calc(var(--radius-lg) - 2px);
+  --radius-sm: calc(var(--radius-lg) - 4px);
+
+  /* 書体: 英数字はInter Variable、日本語はNoto Sans JP（いずれもセルフホスト、CDN非依存） */
+  --font-sans:
+    "Inter Variable", "Noto Sans JP", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+}
+
+/* ダークモード用CSS変数 - prefers-color-scheme
+   **`@theme`をメディアクエリの中に置かないこと**（実バグとして発見）。
+   Tailwind CSS 4の`@theme`はトップレベル専用で、`@media`の中に書くと
+   メディアクエリが剥がれて`:root`へ無条件に展開される。結果、ダーク値が
+   ライトの既定値を上書きし、**OSがライト設定でも常にダーク表示**になっていた
+   （既定は`theme: 'system'`なので初回起動が必ずダークになる）。
+   トークンの上書きは通常のCSS宣言で足りる（ユーティリティ生成はL18の@themeが担う）。
+   `:not(.light)`は、利用者が明示的にライトを選んだときにOS設定で上書きしないため */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-background: #0e0e10;
+    --color-foreground: #f1f1f3;
+    --color-card: #18181b;
+    --color-card-foreground: #f1f1f3;
+    --color-popover: #18181b;
+    --color-popover-foreground: #f1f1f3;
+    --color-primary: #7c86e6;
+    --color-primary-foreground: #14141a;
+    --color-secondary: #1e1e22;
+    --color-secondary-foreground: #f1f1f3;
+    --color-muted: #1e1e22;
+    --color-muted-foreground: #9c9ca6;
+    --color-accent: #1e1e22;
+    --color-accent-foreground: #f1f1f3;
+    --color-destructive: #e08078;
+    --color-destructive-foreground: #14141a;
+    --color-border: #29292e;
+    --color-input: #29292e;
+    --color-ring: #7c86e6;
+    --color-success: #4bbf94;
+    --color-warning: #d9a94f;
+    --color-info: #6bb3d8;
+    --color-budget-planned: #7e93ec;
+    --color-budget-actual: #e0858c;
+  }
+}
+
+/* color-scheme for native elements */
+:root {
+  color-scheme: light;
+  /* app-storeのfontSize設定（sm/base/lg/xl）を反映。rem基準のTailwindユーティリティ全体
+     （文字サイズ・余白・アイコンサイズ等）がこの値を基準にスケールする。
+     フォールバック値14pxはapp-storeのデフォルト'sm'と一致させている（`initialize()`が
+     未呼び出しの場合でもCSS側だけで正しいデフォルト表示になるようにするため） */
+  font-size: var(--app-font-size, 14px);
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+  }
+}
+
+/* ベーススタイル */
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Class-based dark mode overrides */
+:root.dark {
+  --color-background: #0e0e10;
+  --color-foreground: #f1f1f3;
+  --color-card: #18181b;
+  --color-card-foreground: #f1f1f3;
+  --color-popover: #18181b;
+  --color-popover-foreground: #f1f1f3;
+  --color-primary: #7c86e6;
+  --color-primary-foreground: #14141a;
+  --color-secondary: #1e1e22;
+  --color-secondary-foreground: #f1f1f3;
+  --color-muted: #1e1e22;
+  --color-muted-foreground: #9c9ca6;
+  --color-accent: #1e1e22;
+  --color-accent-foreground: #f1f1f3;
+  --color-destructive: #e08078;
+  --color-destructive-foreground: #14141a;
+  --color-border: #29292e;
+  --color-input: #29292e;
+  --color-ring: #7c86e6;
+  --color-success: #4bbf94;
+  --color-warning: #d9a94f;
+  --color-info: #6bb3d8;
+  --color-budget-planned: #7e93ec;
+  --color-budget-actual: #e0858c;
+}
+
+/* SVAR Gantt テーマオーバーライド: shadcn/ui CSS変数に追従 */
+.schedule-gantt-container :is(.wx-willow-theme, .wx-willow-dark-theme) {
+  --wx-background: var(--color-background);
+  --wx-background-alt: var(--color-muted);
+  --wx-background-hover: var(--color-accent);
+  --wx-color-font: var(--color-foreground);
+  --wx-border: 1px solid var(--color-border);
+  --wx-gantt-border-color: var(--color-border);
+  --wx-gantt-border: 1px solid var(--color-border);
+  --wx-gantt-select-color: var(--color-accent);
+  --wx-grid-header-font-color: var(--color-muted-foreground);
+  --wx-grid-body-font-color: var(--color-foreground);
+  --wx-grid-body-row-border: 1px solid var(--color-border);
+  --wx-grid-body-cell-border: 1px solid var(--color-border);
+  --wx-timescale-font-color: var(--color-muted-foreground);
+  --wx-timescale-border: 1px solid var(--color-border);
+  --wx-table-border: 1px solid var(--color-border);
+  --wx-table-cell-border: 1px solid var(--color-border);
+  --wx-table-header-border: 1px solid var(--color-border);
+  --wx-table-header-cell-border: 1px solid var(--color-border);
+  --wx-gantt-holiday-background: var(--color-muted);
+  --wx-gantt-holiday-color: var(--color-muted-foreground);
+  --wx-gantt-icon-color: var(--color-muted-foreground);
+  --wx-gantt-link-color: var(--color-muted-foreground);
+  --wx-gantt-link-marker-background: var(--color-muted);
+  --wx-gantt-link-marker-color: var(--color-muted-foreground);
+  --wx-gantt-progress-border-color: var(--color-border);
+  --wx-tooltip-background: var(--color-popover);
+  --wx-tooltip-font-color: var(--color-popover-foreground);
+}
+
+/* Landing page animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
+/* Force light mode override */
+:root.light {
+  --color-background: #f7f7f8;
+  --color-foreground: #17171a;
+  --color-card: #ffffff;
+  --color-card-foreground: #17171a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #17171a;
+  --color-primary: #4a56c9;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f0f0f3;
+  --color-secondary-foreground: #17171a;
+  --color-muted: #f0f0f3;
+  --color-muted-foreground: #63636e;
+  --color-accent: #f0f0f3;
+  --color-accent-foreground: #17171a;
+  --color-destructive: #b1362d;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e3e3e7;
+  --color-input: #e3e3e7;
+  --color-ring: #4a56c9;
+  --color-success: #157a52;
+  --color-warning: #9a6a17;
+  --color-info: #26688f;
+  --color-budget-planned: #3a56c4;
+  --color-budget-actual: #c04a52;
+}

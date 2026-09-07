@@ -1,0 +1,2 @@
+ALTER TABLE "app_settings" ADD COLUMN "summary_budget_progress_gap_threshold" double precision;--> statement-breakpoint
+ALTER TABLE "app_settings" ADD COLUMN "summary_spi_warning_threshold" double precision;
