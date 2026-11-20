@@ -81,9 +81,9 @@ export type EstimateWbsDetail = z.infer<typeof EstimateWbsDetailSchema>
 
 /** 整合検証（superRefine）前の素のフィールド定義。サーバーの部分更新スキーマ等、`.partial()`が要る場面で使う */
 export const EstimateSnapshotFieldsSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   /** トップレベル案件（`level===0`）。案件削除でカスケード削除 */
-  projectId: z.string().uuid(),
+  projectId: z.guid(),
   /** 案件内の連番（1=最初の記録）。凍結のたびに最大値+1で採番 */
   version: z.number().int().min(1),
   stage: EstimateStageSchema,
@@ -100,7 +100,7 @@ export const EstimateSnapshotFieldsSchema = z.object({
   /** `method='wbs'`のときのみ */
   wbs: EstimateWbsDetailSchema.nullable().optional(),
   /** 変更起因の改定なら紐づける（弱参照。CR削除後も版は残る） */
-  changeRequestId: z.string().uuid().nullable(),
+  changeRequestId: z.guid().nullable(),
   note: z.string().max(1000).nullable().optional(),
   /** postgresモードはサーバーが`req.user`からスタンプ。localモードはnull */
   authorName: z.string().max(100).nullable(),

@@ -7,7 +7,7 @@ import { z } from 'zod'
  * CSV経路（Phase 1）とWebhook経路（Phase 2）で共用する。
  */
 export const TaskSyncLogSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   syncedAt: z.string().datetime(),
   // 経路: 'csv'＝完了CSV取込（Phase 1）／'webhook'＝Webhook受信（Phase 2）
   channel: z.string().min(1).max(50),

@@ -26,9 +26,9 @@ export type ChangeRequestDeltaType = z.infer<
 >
 
 export const ChangeRequestSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   // トップレベル案件（level===0）のみ対象
-  projectId: z.string().uuid(),
+  projectId: z.guid(),
   // 変更内容の表題（"追加画面3本の開発" 等）
   title: z.string().min(1).max(200),
   // 発生日（業務上の日付）

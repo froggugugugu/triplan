@@ -16,8 +16,8 @@ import { z } from 'zod'
  * 監査証跡との整合コストが利便性に見合わないため。差分を見て手で直す運用）。
  */
 export const AssignmentSnapshotEntrySchema = z.object({
-  taskId: z.string().uuid(),
-  memberId: z.string().uuid(),
+  taskId: z.guid(),
+  memberId: z.guid(),
   /** キー: "YYYY-MM"、値: 月次配分率。計画値（`monthlyValues`）のみを記録する */
   monthlyValues: z.record(z.string(), z.number().min(0)),
 })
@@ -26,9 +26,9 @@ export type AssignmentSnapshotEntry = z.infer<
 >
 
 export const AssignmentSnapshotSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   /** 対象のトップレベル案件（level===0） */
-  projectId: z.string().uuid(),
+  projectId: z.guid(),
   /** 利用者が付ける名前（「10月キックオフ時点」等） */
   label: z.string().min(1).max(100),
   takenAt: z.string().datetime(),

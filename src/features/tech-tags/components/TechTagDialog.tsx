@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import {
+  type TechTagFormInput,
   type TechTagFormValues,
   techTagFormSchema,
 } from '@/infrastructure/validation/schemas'
@@ -58,7 +59,7 @@ export function TechTagDialog({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<TechTagFormValues>({
+  } = useForm<TechTagFormInput, unknown, TechTagFormValues>({
     resolver: zodResolver(techTagFormSchema),
     defaultValues: {
       name: '',

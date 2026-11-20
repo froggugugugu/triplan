@@ -20,7 +20,7 @@ export const PaymentTermsSchema = z.object({
 export type PaymentTerms = z.infer<typeof PaymentTermsSchema>
 
 export const CompanySchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(100),
   sortOrder: z.number().int().min(0),
   isInternal: z.boolean().optional().default(false), // 内部リソース（自社）として人件費計上する会社か

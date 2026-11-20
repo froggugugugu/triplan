@@ -16,6 +16,7 @@ import type {
 } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import {
+  type MemberFormInput,
   type MemberFormValues,
   memberFormSchema,
 } from '@/infrastructure/validation/schemas'
@@ -134,7 +135,7 @@ export function TeamMemberDialog({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<MemberFormValues>({
+  } = useForm<MemberFormInput, unknown, MemberFormValues>({
     resolver: zodResolver(memberFormSchema),
     defaultValues: {
       name: '',
@@ -577,12 +578,12 @@ export function TeamMemberDialog({
 }
 
 interface MemberBasicFieldsProps {
-  register: UseFormRegister<MemberFormValues>
+  register: UseFormRegister<MemberFormInput>
   // 稼働率上限はNumericInput（value/onValueChange形式）で扱うため、registerではなく
   // watch/setValueで橋渡しする（development-patterns.md §6.3）
-  watch: UseFormWatch<MemberFormValues>
-  setValue: UseFormSetValue<MemberFormValues>
-  errors: FieldErrors<MemberFormValues>
+  watch: UseFormWatch<MemberFormInput>
+  setValue: UseFormSetValue<MemberFormInput>
+  errors: FieldErrors<MemberFormInput>
   roles: string[]
   sectionId: string | null
   setSectionId: (id: string | null) => void

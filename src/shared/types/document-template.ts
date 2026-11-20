@@ -14,7 +14,7 @@ import { z } from 'zod'
  * `WbsTemplateNode.documentTemplateIds`から参照される（WBSテンプレートへの紐づけ）。
  */
 export const DocumentTemplateSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(200),
   // 対象工程の表示名（自由記述）。一覧のグルーピング・WBSテンプレート紐づけ時の絞り込みに使う。
   // null = 工程横断（どの工程にも属さない汎用テンプレート）

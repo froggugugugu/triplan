@@ -4,11 +4,11 @@ import { z } from 'zod'
  * 技術タグスキーマ
  */
 export const TechTagSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(50),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-  categoryId: z.string().uuid(),
-  subCategoryId: z.string().uuid().nullable().default(null),
+  categoryId: z.guid(),
+  subCategoryId: z.guid().nullable().default(null),
   note: z.string().max(200).nullable().default(null),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

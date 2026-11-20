@@ -79,7 +79,7 @@ export const CONFIDENCE_OPTIONS = [
  * 案件スキーマ
  */
 export const ProjectSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   code: z.string().min(1).max(50),
   name: z.string().min(1).max(200),
   description: z.string().max(2000).optional(),
@@ -87,7 +87,7 @@ export const ProjectSchema = z.object({
   purpose: z.string().max(2000).optional(),
   // 完了条件。WBSグリッドで「説明」列の右隣に表示・編集する
   completionCriteria: z.string().max(2000).optional(),
-  parentId: z.string().uuid().nullable(),
+  parentId: z.guid().nullable(),
   level: ProjectLevelSchema,
   status: z.enum(['not_started', 'active', 'completed']).default('not_started'),
   confidence: z.enum(['S', 'A', 'B', 'C']).nullable().default(null),
@@ -103,7 +103,7 @@ export const ProjectSchema = z.object({
   completedAt: DateOnlySchema.nullable().optional(),
   // 担当部門（Division）ID。未割当を許容するためoptional/nullable。
   // トップレベル案件（level===0）のみ設定対象とし、タスク（level>0）では使用しない
-  divisionId: z.string().uuid().nullable().optional(),
+  divisionId: z.guid().nullable().optional(),
   // 発注元（対外クライアント）名。トップレベル案件（level===0）のみ設定対象。
   // 既存のCompanyは協力会社（コスト側の外注先）専用マスタのため、対外クライアントは
   // 別概念として自由記述で保持する（専用マスタ化は過剰設計のため見送り、【仮定】）
@@ -142,7 +142,7 @@ export const ProjectSchema = z.object({
   // **FK制約は張らない弱参照**（接続は業務テーブルではなくサーバー専用エンティティで、
   // 相互参照を作るとimportのTRUNCATE CASCADEの影響範囲が読みにくくなる。
   // 存在しないidはUI側が未設定として扱う）。トップレベル案件（level===0）のみ設定対象
-  externalConnectionId: z.string().uuid().nullable().optional(),
+  externalConnectionId: z.guid().nullable().optional(),
   // EVMのPV算出における単価の扱い（非公開の設計文書）。
   // 'frozen'（既定）＝凍結時点の単価で固定、'latest'＝最新の単価履歴で再計算。
   // 単価改定の影響をコスト差異（CV）として扱うか、計画の前提変更として扱うかの切替。

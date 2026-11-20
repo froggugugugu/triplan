@@ -30,12 +30,12 @@ export const projectFormSchema = z.object({
     .string()
     .max(2000, '完了条件は2000文字以内で入力してください')
     .optional(),
-  parentId: z.string().uuid().nullable(),
+  parentId: z.guid().nullable(),
   level: z.number().int().min(0).max(5),
   status: z.enum(['not_started', 'active', 'completed']).default('not_started'),
   confidence: z.enum(['S', 'A', 'B', 'C']).nullable().default(null),
   // 担当部門ID。トップレベル案件（level===0）のみ設定対象
-  divisionId: z.string().uuid().nullable().optional(),
+  divisionId: z.guid().nullable().optional(),
   // 発注元（対外クライアント）名。トップレベル案件（level===0）のみ設定対象
   clientName: z
     .string()
@@ -53,7 +53,7 @@ export const projectFormSchema = z.object({
   // EVMのPV算出における単価の扱い。トップレベル案件（level===0）のみ設定対象
   evmUnitPriceMode: z.enum(['frozen', 'latest']).optional(),
   // 起票先の既定接続。level===0のみ対象、未設定はnull
-  externalConnectionId: z.string().uuid().nullable().optional(),
+  externalConnectionId: z.guid().nullable().optional(),
   // 案件レベルの契約形態。トップレベル案件（level===0）のみ設定対象
   contractType: z
     .enum(['請負', '準委任', '派遣', '混在'])
@@ -70,6 +70,8 @@ export const projectFormSchema = z.object({
   phaseKey: z.string().max(50).nullable().optional(),
 })
 export type ProjectFormValues = z.infer<typeof projectFormSchema>
+/** フォームの入力側の型（`.default()`を持つ項目は省略可）。`useForm`の第1型引数に渡す */
+export type ProjectFormInput = z.input<typeof projectFormSchema>
 
 /**
  * 単価履歴エントリフォームスキーマ
@@ -127,8 +129,8 @@ export const memberFormSchema = z
       .nullable()
       .optional()
       .transform((v) => v || null),
-    sectionId: z.string().uuid().nullable().default(null),
-    companyId: z.string().uuid().nullable().optional().default(null),
+    sectionId: z.guid().nullable().default(null),
+    companyId: z.guid().nullable().optional().default(null),
     contractType: ContractTypeSchema.nullable().optional().default(null),
     role: z.string().max(100, '役割は100文字以内で入力してください'),
     // 月間稼働率の上限（未設定＝1.0）。時短勤務・兼務・部分参画のメンバーは1.0未満を設定する
@@ -138,7 +140,7 @@ export const memberFormSchema = z
       .max(1, '稼働率上限は1.0以下で入力してください')
       .optional(),
     isActive: z.boolean(),
-    techTagIds: z.array(z.string().uuid()).optional(),
+    techTagIds: z.array(z.guid()).optional(),
     startDate: z.string().nullable().default(null),
     endDate: z.string().nullable().default(null),
     unitPriceHistory: z.array(unitPriceEntryFormSchema).default([]),
@@ -160,6 +162,8 @@ export const memberFormSchema = z
     },
   )
 export type MemberFormValues = z.infer<typeof memberFormSchema>
+/** フォームの入力側の型（`.default()`を持つ項目は省略可）。`useForm`の第1型引数に渡す */
+export type MemberFormInput = z.input<typeof memberFormSchema>
 
 /**
  * 技術タグフォームのバリデーションスキーマ
@@ -172,8 +176,8 @@ export const techTagFormSchema = z.object({
   color: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, '有効なカラーコードを入力してください'),
-  categoryId: z.string().uuid('カテゴリは必須です'),
-  subCategoryId: z.string().uuid().nullable().default(null),
+  categoryId: z.guid('カテゴリは必須です'),
+  subCategoryId: z.guid().nullable().default(null),
   note: z
     .string()
     .max(200, '備考は200文字以内で入力してください')
@@ -181,6 +185,8 @@ export const techTagFormSchema = z.object({
     .default(null),
 })
 export type TechTagFormValues = z.infer<typeof techTagFormSchema>
+/** フォームの入力側の型（`.default()`を持つ項目は省略可）。`useForm`の第1型引数に渡す */
+export type TechTagFormInput = z.input<typeof techTagFormSchema>
 
 export const techTagCategoryFormSchema = z.object({
   name: z
@@ -193,7 +199,7 @@ export type TechTagCategoryFormValues = z.infer<
 >
 
 export const techTagSubCategoryFormSchema = z.object({
-  categoryId: z.string().uuid('カテゴリは必須です'),
+  categoryId: z.guid('カテゴリは必須です'),
   name: z
     .string()
     .min(1, 'サブカテゴリ名は必須です')
@@ -224,7 +230,7 @@ export const saasContractFormSchema = z
       .max(100, 'グレード・プランは100文字以内で入力してください')
       .nullable()
       .optional(),
-    divisionId: z.string().uuid('対象部門は必須です'),
+    divisionId: z.guid('対象部門は必須です'),
     contractType: z.enum(['annual', 'monthly']),
     amount: z.number().min(0, '金額は0以上で入力してください'),
     headcount: z
@@ -257,6 +263,8 @@ export const saasContractFormSchema = z
     path: ['nextRenewalDate'],
   })
 export type SaasContractFormValues = z.infer<typeof saasContractFormSchema>
+/** フォームの入力側の型（`.default()`を持つ項目は省略可）。`useForm`の第1型引数に渡す */
+export type SaasContractFormInput = z.input<typeof saasContractFormSchema>
 
 /**
  * 部門予算内訳フォームのバリデーションスキーマ
@@ -283,7 +291,7 @@ export const budgetBreakdownFormSchema = z
       .number()
       .positive('係数は0より大きい値を入力してください')
       .optional(),
-    projectId: z.string().uuid().nullable().optional(),
+    projectId: z.guid().nullable().optional(),
   })
   .refine((data) => data.category !== 'general_expense' || !data.projectId, {
     message: '一般経費区分ではプロジェクトを選択できません',
@@ -351,7 +359,7 @@ export type AiUsageProviderFormValues = z.infer<
  * 送信直前に現在レベル（getCurrentLevel、未評価の場合は'none'）から導出して渡す
  */
 export const skillEvaluationFormSchema = z.object({
-  techTagId: z.string().uuid('技術タグを選択してください'),
+  techTagId: z.guid('技術タグを選択してください'),
   evaluatorType: z.enum(['self', 'manager']),
   afterLevel: z.enum(SKILL_LEVELS),
   evaluatedAt: z
@@ -371,7 +379,7 @@ export type SkillEvaluationFormValues = z.infer<
  * 成長ロードマップ目標設定フォームのバリデーションスキーマ
  */
 export const skillRoadmapGoalFormSchema = z.object({
-  techTagId: z.string().uuid('技術タグを選択してください'),
+  techTagId: z.guid('技術タグを選択してください'),
   targetLevel: z.enum(SKILL_LEVELS),
   targetDate: z
     .string()
@@ -391,7 +399,7 @@ export type SkillRoadmapGoalFormValues = z.infer<
  * progressRateは0〜100の割合（%）で入力を受け、送信時に0.0〜1.0へ変換する
  */
 export const projectProgressFormSchema = z.object({
-  projectId: z.string().uuid('プロジェクトを選択してください'),
+  projectId: z.guid('プロジェクトを選択してください'),
   weekKey: z
     .string()
     .regex(/^\d{4}-W\d{2}$/, '有効なISO週番号（YYYY-Www）を指定してください'),
