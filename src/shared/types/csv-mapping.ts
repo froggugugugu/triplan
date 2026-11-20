@@ -21,7 +21,7 @@ export const CsvMappingColumnSchema = z.object({
 export type CsvMappingColumn = z.infer<typeof CsvMappingColumnSchema>
 
 export const CsvMappingProfileSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   /** 例: "○○会計ソフト向け仕訳"。用途が分かる名前をユーザーが付ける */
   name: z.string().min(1).max(100),
   /**
@@ -59,7 +59,7 @@ export type CreateCsvMappingProfile = z.infer<
 
 export const UpdateCsvMappingProfileSchema =
   CreateCsvMappingProfileSchema.partial().extend({
-    id: z.string().uuid(),
+    id: z.guid(),
   })
 export type UpdateCsvMappingProfile = z.infer<
   typeof UpdateCsvMappingProfileSchema

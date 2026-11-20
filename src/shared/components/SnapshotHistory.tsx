@@ -81,7 +81,7 @@ export function SnapshotHistory() {
     // クライアント側バリデーション
     const tagResult = SnapshotTagSchema.safeParse(tagInput)
     if (!tagResult.success) {
-      setTagError(tagResult.error.errors[0]?.message ?? 'タグが不正です')
+      setTagError(tagResult.error.issues[0]?.message ?? 'タグが不正です')
       return
     }
 

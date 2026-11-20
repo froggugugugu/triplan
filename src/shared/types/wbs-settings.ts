@@ -10,7 +10,7 @@ export const EffortColumnSchema = z.object({
   enabled: z.boolean(),
   order: z.number().int().min(0),
   backgroundColor: ThemeColorSchema.optional(), // hex color (supports light/dark modes)
-  techTagIds: z.array(z.string().uuid()).optional(), // 紐付けた技術タグIDリスト
+  techTagIds: z.array(z.guid()).optional(), // 紐付けた技術タグIDリスト
 })
 export type EffortColumn = z.infer<typeof EffortColumnSchema>
 
@@ -69,8 +69,8 @@ export type WbsSettings = z.infer<typeof WbsSettingsSchema>
 // で永続化していたWbsSettings（settingsMap: Record<projectId, WbsSettings>）を、
 // 他ストアと同じDataAdapter/Database経由の永続化へ移行するためのレコード型）
 export const WbsSettingsEntrySchema = z.object({
-  id: z.string().uuid(),
-  projectId: z.string().uuid(),
+  id: z.guid(),
+  projectId: z.guid(),
   effortColumns: z.array(EffortColumnSchema).max(10),
   levelColors: z.record(z.string(), ThemeColorSchema).optional(),
   lastModified: z.string().datetime(),

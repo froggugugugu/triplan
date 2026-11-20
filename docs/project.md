@@ -72,7 +72,7 @@ Node.js 22以上・npm 11以上が必要（2026-08-22にNode 20から引き上�
 | グリッド       | AG Grid 33                                    |
 | ガントチャート | @svar-ui/react-gantt 2.7（2.7以降はDOMのid属性値に「:」が前置される。`normalizeGanttId`で剥がす） |
 | チャート       | Recharts 2.15                                 |
-| バリデーション | Zod 3.24, React Hook Form 7                   |
+| バリデーション | Zod 4.6（id検証は`z.guid()`＝v3の`.uuid()`と同じ緩い判定。v4の`.uuid()`はRFC準拠のみ受理）, React Hook Form 7, @hookform/resolvers 5 |
 | ルーティング   | React Router DOM 7                            |
 | ガイドツアー   | React Joyride 3.2（RC版3.0.0-7から移行）  |
 | D&D            | react-dnd 16                                  |
@@ -92,7 +92,7 @@ Node.js 22以上・npm 11以上が必要（2026-08-22にNode 20から引き上�
 | フレームワーク | Fastify 5, Node.js 22+, TypeScript 5.9 |
 | データベース | PostgreSQL 16+, Drizzle ORM 0.45      |
 | 認証         | Argon2（パスワードハッシュ）, Jose JWT 6.2 |
-| バリデーション | Zod 3.24                              |
+| バリデーション | Zod 4.6                               |
 | テスト       | Vitest 4, Testcontainers PostgreSQL    |
 | 開発ツール   | tsx 4.23, drizzle-kit 0.31             |
 | 圧縮         | @fastify/compress 9.2（全レスポンス、閾値1KB、br/gzip/deflate） |

@@ -75,7 +75,7 @@ export const AuthProviderSchema = z.enum([
 export type AuthProvider = z.infer<typeof AuthProviderSchema>
 
 export const AuthUserSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   email: z.string().email(),
   name: z.string().min(1).max(100),
   role: UserRoleSchema,
@@ -86,7 +86,7 @@ export const AuthUserSchema = z.object({
    * 「自分の担当タスク」（/my-tasks）を出すための接続点で、未紐づけならnull。
    * ログインレスポンスにも含めるため、認証直後から自分の担当を引ける
    */
-  memberId: z.string().uuid().nullable().optional(),
+  memberId: z.guid().nullable().optional(),
   createdAt: z.string().datetime().optional(),
   updatedAt: z.string().datetime().optional(),
 })

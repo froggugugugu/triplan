@@ -61,7 +61,7 @@ export const snapshotStorage = {
     if (!tagResult.success) {
       return {
         success: false,
-        error: tagResult.error.errors[0]?.message ?? 'タグが不正です',
+        error: tagResult.error.issues[0]?.message ?? 'タグが不正です',
       }
     }
 

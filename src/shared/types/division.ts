@@ -4,7 +4,7 @@ import { z } from 'zod'
  * 部門スキーマ
  */
 export const DivisionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(100),
   sortOrder: z.number().int().min(0),
   createdAt: z.string().datetime(),

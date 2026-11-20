@@ -6,8 +6,8 @@ import { DateOnlySchema } from './date-only'
  * 「現在の予算総額」は initialAmount + 紐づく BudgetAdjustment の合計として算出する（ストア側で計算）
  */
 export const DivisionBudgetSchema = z.object({
-  id: z.string().uuid(),
-  divisionId: z.string().uuid(),
+  id: z.guid(),
+  divisionId: z.guid(),
   fiscalYear: z.number().int().min(2000).max(2100),
   initialAmount: z.number().min(0),
   createdAt: z.string().datetime(),
@@ -40,8 +40,8 @@ export type BudgetAdjustmentType = z.infer<typeof BudgetAdjustmentTypeSchema>
  * 予算調整履歴スキーマ（追記専用。更新・削除APIは設けない）
  */
 export const BudgetAdjustmentSchema = z.object({
-  id: z.string().uuid(),
-  budgetId: z.string().uuid(),
+  id: z.guid(),
+  budgetId: z.guid(),
   amount: z.number().min(0),
   // 未指定は増額として扱う（defaultで自動付与）
   // （bufferActualAmountと同じパターン。マイグレーション関数の追加は不要）
@@ -78,7 +78,7 @@ export type BudgetBreakdownCategory = z.infer<
  * addBudgetBreakdownActualRecord等の専用アクション経由で行う。
  */
 export const BudgetBreakdownActualRecordSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   purchasedAt: DateOnlySchema,
   itemLabel: z.string().min(1).max(500),
   amount: z.number().min(0),
@@ -95,8 +95,8 @@ export type BudgetBreakdownActualRecord = z.infer<
  * DivisionBudget.initialAmount は 内訳合計 + AI利用費予算合計 + SaaS年間コスト合計 から自動算出される
  */
 export const BudgetBreakdownSchema = z.object({
-  id: z.string().uuid(),
-  budgetId: z.string().uuid(),
+  id: z.guid(),
+  budgetId: z.guid(),
   category: BudgetBreakdownCategorySchema,
   label: z.string().min(1).max(200),
   amount: z.number().min(0),
@@ -106,7 +106,7 @@ export const BudgetBreakdownSchema = z.object({
   estimateAmount: z.number().min(0).optional(),
   coefficient: z.number().positive().optional(),
   // 案件（Project）へのリンク（任意。project_personnel/project_expenseのみ使用）
-  projectId: z.string().uuid().nullable().optional(),
+  projectId: z.guid().nullable().optional(),
   // 月次実績（"YYYY-MM"キー）。専用アクション経由でのみ更新する
   monthlyActuals: z.record(z.string(), z.number().min(0)).optional(),
   // 実績明細（購入日・品目・金額の配列）。専用アクション経由でのみ更新する
@@ -139,8 +139,8 @@ export type UpdateBudgetBreakdown = z.infer<typeof UpdateBudgetBreakdownSchema>
  * （SaasContractとは異なり金額を自身のフィールドに持たない、名称のみの軽量マスタ）。
  */
 export const AiUsageProviderSchema = z.object({
-  id: z.string().uuid(),
-  divisionId: z.string().uuid(),
+  id: z.guid(),
+  divisionId: z.guid(),
   name: z.string().min(1).max(100),
   // グレード・プラン（例: "Team", "Enterprise"）。任意
   plan: z.string().max(100).nullable().optional(),
@@ -167,12 +167,12 @@ export type UpdateAiUsageProvider = z.infer<typeof UpdateAiUsageProviderSchema>
  * actualAmount が null の月は「未記録」として扱い、0円と区別する
  */
 export const AiUsageEntrySchema = z.object({
-  id: z.string().uuid(),
-  divisionId: z.string().uuid(),
+  id: z.guid(),
+  divisionId: z.guid(),
   // 課単位の予算設定（任意）。null/未設定 = 部門全体としての予算
-  sectionId: z.string().uuid().nullable().optional(),
+  sectionId: z.guid().nullable().optional(),
   // プロバイダ単位の予算設定（任意）。null/未設定 = プロバイダ未分類（プロバイダ未登録の部門はこの状態が正常）
-  providerId: z.string().uuid().nullable().optional(),
+  providerId: z.guid().nullable().optional(),
   fiscalYear: z.number().int().min(2000).max(2100),
   month: z.string().regex(/^\d{4}-\d{2}$/),
   budgetAmount: z.number().min(0),
@@ -194,14 +194,14 @@ export type UpdateAiUsageEntry = z.infer<typeof UpdateAiUsageEntrySchema>
  * 配分・微調整するために使用する。
  */
 export const AiUsageMemberAllocationSchema = z.object({
-  id: z.string().uuid(),
-  divisionId: z.string().uuid(),
+  id: z.guid(),
+  divisionId: z.guid(),
   fiscalYear: z.number().int().min(2000).max(2100),
   month: z.string().regex(/^\d{4}-\d{2}$/),
-  memberId: z.string().uuid(),
+  memberId: z.guid(),
   // プロバイダ単位の配分（任意）。null/未設定 = プロバイダ未分類
   // （プロバイダ未登録の部門はこの状態が正常。AiUsageEntry.providerIdと同じパターン）
-  providerId: z.string().uuid().nullable().optional(),
+  providerId: z.guid().nullable().optional(),
   monthlyBudget: z.number().min(0),
   bufferAmount: z.number().min(0),
   actualAmount: z.number().min(0),
@@ -265,12 +265,12 @@ export type SaasAmountHistoryEntry = z.infer<
  * SaaS契約スキーマ
  */
 export const SaasContractSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(100),
   // グレード・プラン（例: "Business", "Enterprise"）。任意。
   // 同一サービス（name）で複数プランを契約している場合の区別に使う
   plan: z.string().max(100).nullable().optional(),
-  divisionId: z.string().uuid(),
+  divisionId: z.guid(),
   contractType: SaasContractTypeSchema,
   amount: z.number().min(0),
   headcount: z.number().int().min(1).nullable().optional(), // 利用人数（人数×単価の内訳計算用、任意）

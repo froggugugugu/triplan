@@ -44,9 +44,9 @@ const MAX_TASKS_PER_REQUEST = 50
 const THROTTLE_MS = 1000
 
 const executeBodySchema = z.object({
-  connectionId: z.string().uuid(),
-  rootProjectId: z.string().uuid(),
-  taskIds: z.array(z.string().uuid()).min(1),
+  connectionId: z.guid(),
+  rootProjectId: z.guid(),
+  taskIds: z.array(z.guid()).min(1),
 })
 
 function sleep(ms: number): Promise<void> {

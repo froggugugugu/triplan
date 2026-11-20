@@ -26,9 +26,9 @@ export type SkillEvaluatorType = z.infer<typeof SkillEvaluatorTypeSchema>
  * 「現在のレベル」はevaluatedAt最新のafterLevelから導出する（getCurrentSkillLevel参照）。
  */
 export const SkillEvaluationSchema = z.object({
-  id: z.string().uuid(),
-  memberId: z.string().uuid(),
-  techTagId: z.string().uuid(),
+  id: z.guid(),
+  memberId: z.guid(),
+  techTagId: z.guid(),
   evaluatorType: SkillEvaluatorTypeSchema,
   beforeLevel: SkillLevelSchema,
   afterLevel: SkillLevelSchema,
@@ -50,9 +50,9 @@ export type CreateSkillEvaluation = z.infer<typeof CreateSkillEvaluationSchema>
  * レコードが「現在の目標」で、それ以前のレコードはそのまま履歴（アーカイブ）として残る。
  */
 export const SkillRoadmapGoalSchema = z.object({
-  id: z.string().uuid(),
-  memberId: z.string().uuid(),
-  techTagId: z.string().uuid(),
+  id: z.guid(),
+  memberId: z.guid(),
+  techTagId: z.guid(),
   targetLevel: SkillLevelSchema,
   targetDate: z.string().regex(/^\d{4}-\d{2}$/), // 達成予定時期 "YYYY-MM"
   note: z.string().max(500).nullable().optional(),

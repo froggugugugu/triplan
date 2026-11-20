@@ -47,8 +47,8 @@ export type PhaseDependency = z.infer<typeof PhaseDependencySchema>
 // で永続化していたPhaseSettings（settingsMap: Record<projectId, PhaseSettings>）を、
 // 他ストアと同じDataAdapter/Database経由の永続化へ移行するためのレコード型）
 export const PhaseSettingsEntrySchema = z.object({
-  id: z.string().uuid(),
-  projectId: z.string().uuid(),
+  id: z.guid(),
+  projectId: z.guid(),
   phases: z.array(PhaseDefinitionSchema).max(15),
   lastModified: z.string().datetime(),
 })

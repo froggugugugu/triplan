@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { calcSaasAmountFromHeadcount } from '@/features/budget/utils/expense-budget-utils'
 import {
+  type SaasContractFormInput,
   type SaasContractFormValues,
   saasContractFormSchema,
 } from '@/infrastructure/validation/schemas'
@@ -58,7 +59,7 @@ export function SaasContractDialog({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<SaasContractFormValues>({
+  } = useForm<SaasContractFormInput, unknown, SaasContractFormValues>({
     resolver: zodResolver(saasContractFormSchema),
     defaultValues: {
       name: '',

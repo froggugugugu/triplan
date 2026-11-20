@@ -240,7 +240,7 @@ export function registerCrudRoutes(
       const rawId = (req.body as Record<string, unknown> | null)?.id
       let clientId: string | undefined
       if (rawId !== undefined) {
-        const idResult = z.string().uuid().safeParse(rawId)
+        const idResult = z.guid().safeParse(rawId)
         if (!idResult.success) {
           return reply.code(400).send({ error: 'idの形式が不正です' })
         }

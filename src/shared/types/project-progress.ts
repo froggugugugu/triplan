@@ -7,8 +7,8 @@ import { z } from 'zod'
  * EVM（PV/EV/AC）のEV算出に使用する。
  */
 export const ProjectProgressEntrySchema = z.object({
-  id: z.string().uuid(),
-  projectId: z.string().uuid(),
+  id: z.guid(),
+  projectId: z.guid(),
   // キー: "YYYY-Www"（ISO週番号）、値: 0.0〜1.0の進捗率
   weeklyProgress: z.record(z.string(), z.number().min(0).max(1)),
   createdAt: z.string().datetime(),

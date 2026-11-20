@@ -12,9 +12,9 @@ import { z } from 'zod'
  * 監査証跡が自動で拾うため、追跡性はそちらで担保する。
  */
 export const AssignmentNoteSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   /** 対象のトップレベル案件（level===0） */
-  projectId: z.string().uuid(),
+  projectId: z.guid(),
   body: z.string().min(1).max(2000),
   /**
    * 投稿者名。postgresモードはサーバーが`req.user`からスタンプする
@@ -39,5 +39,5 @@ export const UpdateAssignmentNoteSchema = AssignmentNoteSchema.omit({
   createdAt: true,
 })
   .partial()
-  .extend({ id: z.string().uuid() })
+  .extend({ id: z.guid() })
 export type UpdateAssignmentNote = z.infer<typeof UpdateAssignmentNoteSchema>
