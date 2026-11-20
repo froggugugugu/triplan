@@ -27,10 +27,11 @@ sources:
 
 ## 開発者向け
 
-- [project.md](project.md) — ルーティング・ストア一覧・コマンド・技術スタック
-- [architecture.md](architecture.md) — ディレクトリ構成・テスト一覧
-- [data-model.md](data-model.md) — データモデル（Zodスキーマ・バリデーション）
-- [development-patterns.md](development-patterns.md) — コード規約・落とし穴集
+- [project.md](project.md) — 概要・コマンド・技術スタック・ルーティングとストアの索引
+- [architecture.md](architecture.md) — レイヤー構成の概観・テスト配置・ドキュメント責務
+- [data-model.md](data-model.md) — エンティティ索引・データモデル共通の原則
+- [development-patterns.md](development-patterns.md) — コード規約・落とし穴の索引
+- 詳細リファレンスは `reference/` 配下（[project](reference/project/routing.md)・[architecture](reference/architecture/directory-features-a.md)・[data-model](reference/data-model/database.md)・[patterns](reference/patterns/design-system.md)）。入口は上の4ファイルの索引表
 
 > このサイトはリポジトリの `docs/` フォルダから生成されています。
 > GitHub Pagesの設定: リポジトリ Settings → Pages → Branch: `main`・Folder: `/docs`
