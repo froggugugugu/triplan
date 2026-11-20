@@ -42,12 +42,12 @@ export type ContractUnitPriceEntry = z.infer<
  * 担当者スキーマ
  */
 export const MemberSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(100),
   // メールアドレス（null/未設定 = 未設定）。通知・外部ツール連携（Backlog/Asana等）のキーとして使用
   email: z.string().email().nullable().optional(),
-  sectionId: z.string().uuid().nullable(), // 課ID（null = 未所属）
-  companyId: z.string().uuid().nullable().optional(), // 所属会社ID（null/未設定 = 未設定）
+  sectionId: z.guid().nullable(), // 課ID（null = 未所属）
+  companyId: z.guid().nullable().optional(), // 所属会社ID（null/未設定 = 未設定）
   contractType: ContractTypeSchema.nullable().optional(), // 契約形態（null/未設定 = 未設定）
   role: z.string().max(100),
   // 月間稼働率の上限（0より大きく1.0以下、未設定＝1.0）。時短勤務・兼務・部分参画の
@@ -56,7 +56,7 @@ export const MemberSchema = z.object({
   // `.default()`を付けると型が必須になり、既存のMemberリテラルが全て壊れるため付けない）
   capacityRatio: z.number().gt(0).max(1).optional(),
   isActive: z.boolean(),
-  techTagIds: z.array(z.string().uuid()).optional(), // 紐付けた技術タグIDリスト
+  techTagIds: z.array(z.guid()).optional(), // 紐付けた技術タグIDリスト
   startDate: z.string().nullable(), // 開始日 "YYYY-MM-DD"（null = 未設定）
   endDate: z.string().nullable(), // 終了日 "YYYY-MM-DD"（null = 現在も在籍）
   unitPriceHistory: z.array(UnitPriceEntrySchema), // 単価履歴（予算見積もり用、空配列可）

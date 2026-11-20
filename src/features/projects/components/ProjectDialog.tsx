@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
+  type ProjectFormInput,
   type ProjectFormValues,
   projectFormSchema,
 } from '@/infrastructure/validation/schemas'
@@ -161,7 +162,7 @@ export function ProjectDialog({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<ProjectFormValues>({
+  } = useForm<ProjectFormInput, unknown, ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
       code: autoCode,
@@ -340,7 +341,7 @@ export function ProjectDialog({
             <div className="space-y-2">
               <Label>ステータス</Label>
               <Combobox
-                value={watch('status')}
+                value={watch('status') ?? 'not_started'}
                 onValueChange={(v) =>
                   setValue(
                     'status',

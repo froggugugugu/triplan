@@ -4,7 +4,7 @@ import { z } from 'zod'
  * 技術タグカテゴリ（大分類）スキーマ
  */
 export const TechTagCategorySchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(100),
   sortOrder: z.number().int().min(0),
   createdAt: z.string().datetime(),
@@ -29,8 +29,8 @@ export type UpdateTechTagCategory = z.infer<typeof UpdateTechTagCategorySchema>
  * 技術タグサブカテゴリ（中分類）スキーマ
  */
 export const TechTagSubCategorySchema = z.object({
-  id: z.string().uuid(),
-  categoryId: z.string().uuid(),
+  id: z.guid(),
+  categoryId: z.guid(),
   name: z.string().min(1).max(100),
   sortOrder: z.number().int().min(0),
   createdAt: z.string().datetime(),

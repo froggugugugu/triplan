@@ -19,8 +19,8 @@ export const PersonnelPlanCategorySchema = z.enum(PERSONNEL_PLAN_CATEGORIES)
 export type PersonnelPlanCategory = z.infer<typeof PersonnelPlanCategorySchema>
 
 export const PersonnelPlanEntrySchema = z.object({
-  id: z.string().uuid(),
-  divisionId: z.string().uuid(),
+  id: z.guid(),
+  divisionId: z.guid(),
   fiscalYear: z.number().int().min(2000).max(2100),
   category: PersonnelPlanCategorySchema,
   monthlyHeadcount: z.record(z.string(), z.number().min(0)),

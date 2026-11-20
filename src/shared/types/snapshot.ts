@@ -19,7 +19,7 @@ export type SnapshotTag = z.infer<typeof SnapshotTagSchema>
  * スナップショットメタデータスキーマ
  */
 export const SnapshotMetaSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   tag: SnapshotTagSchema,
   version: z.string(),
   createdAt: z.string().datetime(),

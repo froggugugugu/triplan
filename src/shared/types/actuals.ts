@@ -18,7 +18,7 @@ const MONTH_KEY_PATTERN = /^\d{4}-\d{2}$/
  * 部門別の確定が必要になった場合はdivisionIdカラム追加で拡張する（設計ゲート決定事項1）。
  */
 export const MonthlyActualsConfirmationSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   month: z.string().regex(MONTH_KEY_PATTERN),
   confirmedAt: z.string().datetime(),
 })
@@ -44,7 +44,7 @@ export type ImportSkippedReason = z.infer<typeof ImportSkippedReasonSchema>
  * 「いつ・どのファイルから・何件適用し・何件なぜスキップしたか」の追跡性を担保する。
  */
 export const ActualsImportLogSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   importedAt: z.string().datetime(),
   fileName: z.string().min(1).max(255),
   // 取込対象になった月（"YYYY-MM"）の一覧
@@ -72,7 +72,7 @@ export type CreateActualsImportLog = z.infer<
  * monthはuniqueにしない（同月にclose→reopen→closeが積まれる）。
  */
 export const MonthlyCloseEventSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   month: z.string().regex(MONTH_KEY_PATTERN),
   action: z.enum(['close', 'reopen']),
   // reopen時はUI/ストアで必須を強制（スキーマ上はclose時の省略を許すためnullable）

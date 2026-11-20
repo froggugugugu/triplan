@@ -19,7 +19,7 @@ export const WbsTemplateNodeSchema: z.ZodType<WbsTemplateNode> = z.lazy(() =>
   z.object({
     name: z.string().min(1).max(200),
     completionCriteria: z.string().max(2000).optional(),
-    documentTemplateIds: z.array(z.string().uuid()).optional(),
+    documentTemplateIds: z.array(z.guid()).optional(),
     children: z.array(WbsTemplateNodeSchema).optional(),
   }),
 )
@@ -30,7 +30,7 @@ export const WbsTemplateNodeSchema: z.ZodType<WbsTemplateNode> = z.lazy(() =>
  * プロジェクト配下のタスクツリーへ変換される。
  */
 export const WbsTemplateSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: z.string().min(1).max(100),
   nodes: z.array(WbsTemplateNodeSchema),
   createdAt: z.string().datetime(),

@@ -21,7 +21,7 @@ const updateUserBodySchema = z.object({
   isActive: z.boolean().optional(),
   // 業務データ上の担当者との紐づけ。
   // undefined=変更なし／null=解除／uuid=紐づけ の3値（notificationChannelsと同じ整理）
-  memberId: z.string().uuid().nullable().optional(),
+  memberId: z.guid().nullable().optional(),
 })
 
 function toPublicUser(user: typeof users.$inferSelect) {

@@ -4,8 +4,8 @@ import { z } from 'zod'
  * 課スキーマ
  */
 export const SectionSchema = z.object({
-  id: z.string().uuid(),
-  divisionId: z.string().uuid(),
+  id: z.guid(),
+  divisionId: z.guid(),
   name: z.string().min(1).max(100),
   sortOrder: z.number().int().min(0),
   createdAt: z.string().datetime(),

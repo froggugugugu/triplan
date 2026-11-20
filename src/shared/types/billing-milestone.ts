@@ -32,9 +32,9 @@ export const BILLING_MILESTONE_STATUS_LABELS: Record<
 }
 
 export const BillingMilestoneSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   // トップレベル案件（level===0）のみ対象
-  projectId: z.string().uuid(),
+  projectId: z.guid(),
   // マイルストン名（"基本設計完了" / "中間金" / "検収時" 等）
   label: z.string().min(1).max(200),
   // 請求額（万円）
@@ -59,7 +59,7 @@ export type CreateBillingMilestone = z.infer<
 
 export const UpdateBillingMilestoneSchema =
   CreateBillingMilestoneSchema.partial().extend({
-    id: z.string().uuid(),
+    id: z.guid(),
   })
 export type UpdateBillingMilestone = z.infer<
   typeof UpdateBillingMilestoneSchema

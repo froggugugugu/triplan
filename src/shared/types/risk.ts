@@ -24,9 +24,9 @@ export const RiskStatusSchema = z.enum(['open', 'realized', 'closed'])
 export type RiskStatus = z.infer<typeof RiskStatusSchema>
 
 export const RiskEntrySchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   /** 対象のトップレベル案件（level===0）。案件削除でカスケード削除 */
-  projectId: z.string().uuid(),
+  projectId: z.guid(),
   /** リスクの内容（「○○の仕様が未確定」等） */
   title: z.string().min(1).max(200),
   probability: RiskLevelSchema,
@@ -39,7 +39,7 @@ export const RiskEntrySchema = z.object({
    */
   response: z.string().max(2000).nullable().optional(),
   /** オーナー（弱参照。削除済み・退職メンバーはUI側が「（不明）」表示） */
-  ownerMemberId: z.string().uuid().nullable().optional(),
+  ownerMemberId: z.guid().nullable().optional(),
   /** 対応期限。アラートセンターの期限超過・接近判定の起点 */
   dueDate: DateOnlySchema.nullable().optional(),
   note: z.string().max(1000).nullable().optional(),
@@ -61,5 +61,5 @@ export const UpdateRiskEntrySchema = RiskEntrySchema.omit({
   createdAt: true,
 })
   .partial()
-  .extend({ id: z.string().uuid() })
+  .extend({ id: z.guid() })
 export type UpdateRiskEntry = z.infer<typeof UpdateRiskEntrySchema>

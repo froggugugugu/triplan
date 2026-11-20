@@ -10,6 +10,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
+  type MemberFormInput,
   type MemberFormValues,
   memberFormSchema,
 } from '@/infrastructure/validation/schemas'
@@ -107,7 +108,7 @@ export function MemberDialog({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<MemberFormValues>({
+  } = useForm<MemberFormInput, unknown, MemberFormValues>({
     resolver: zodResolver(memberFormSchema),
     defaultValues: {
       name: member?.name ?? '',

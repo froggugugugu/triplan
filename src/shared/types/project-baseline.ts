@@ -8,7 +8,7 @@ import { DateOnlySchema } from './date-only'
  * 後から切り替えられる（非公開の設計文書）。
  */
 export const BaselineAllocationSchema = z.object({
-  memberId: z.string().uuid(),
+  memberId: z.guid(),
   // キー: "YYYY-MM"、値: 月次アサイン率（0.0〜。同一メンバーが複数タスクに
   // アサインされている場合は合算済みの値を保持する）
   monthlyValues: z.record(z.string(), z.number().min(0)),
@@ -25,9 +25,9 @@ export type BaselineAllocation = z.infer<typeof BaselineAllocationSchema>
  * 詳細な設計背景は 非公開の設計文書・§3.1 を参照。
  */
 export const ProjectBaselineSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   // トップレベル案件（level===0）のみ対象
-  projectId: z.string().uuid(),
+  projectId: z.guid(),
   // 案件内の連番（1 = 当初計画）
   version: z.number().int().min(1),
   // 凍結日（業務上の承認日）

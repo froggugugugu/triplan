@@ -44,15 +44,17 @@ export function diffChangedFields(
   before: Record<string, unknown>,
   patch: Record<string, unknown>,
 ): Record<string, FieldChange> | null {
-  const changes: Record<string, FieldChange> = {}
+  // フィールド名はリクエスト由来。`changes[field] = ...`の代入だと`__proto__`等で
+  // プロトタイプを書き換えうるため、エントリ配列から自前プロパティとして組み立てる
+  const changes: Array<[string, FieldChange]> = []
   for (const [field, after] of Object.entries(patch)) {
     if (IGNORED_FIELDS.has(field)) continue
-    const previous = before[field]
+    const previous = Object.hasOwn(before, field) ? before[field] : undefined
     if (isEqual(previous, after)) continue
-    changes[field] = {
-      before: normalize(previous),
-      after: normalize(after),
-    }
+    changes.push([
+      field,
+      { before: normalize(previous), after: normalize(after) },
+    ])
   }
-  return Object.keys(changes).length > 0 ? changes : null
+  return changes.length > 0 ? Object.fromEntries(changes) : null
 }

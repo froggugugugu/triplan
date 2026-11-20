@@ -28,7 +28,7 @@ const RETENTION_DAYS_OPTIONS = ['365', '180', '90'] as const
 const querySchema = z.object({
   entity: z.string().max(50).optional(),
   entityId: z.string().max(100).optional(),
-  actorId: z.string().uuid().optional(),
+  actorId: z.guid().optional(),
   action: z.enum(['create', 'update', 'delete']).optional(),
   /** 監査ログは単調増加するため既定100件・最大500件で打ち切る */
   limit: z.coerce.number().int().min(1).max(500).default(100),
