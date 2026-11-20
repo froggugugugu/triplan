@@ -189,6 +189,34 @@ async function withDbErrorHandling<T>(
   }
 }
 
+/**
+ * 部分更新（PATCH）のボディを検証し、**リクエストに無かったキーを結果から落とす**。
+ *
+ * zod 4は`.default()`を持つフィールドを`.partial()`で任意化しても、キーが無ければ
+ * 既定値を出力へ補う（zod 3は補わなかった）。そのまま使うと「nameだけのPATCH」が
+ * `status: 'not_started'`等を伴ってUPDATEされ、送っていないフィールドが黙って
+ * 既定値へ戻る。監査証跡にも起きていない変更が記録される。
+ */
+function safeParsePatch(schema: z.ZodType, body: unknown) {
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) return parsed
+  if (
+    typeof body !== 'object' ||
+    body === null ||
+    typeof parsed.data !== 'object' ||
+    parsed.data === null
+  ) {
+    return parsed
+  }
+  const sent = body as Record<string, unknown>
+  const data = Object.fromEntries(
+    Object.entries(parsed.data as Record<string, unknown>).filter(([key]) =>
+      Object.hasOwn(sent, key),
+    ),
+  )
+  return { ...parsed, data }
+}
+
 export function registerCrudRoutes(
   fastify: FastifyInstance,
   options: CrudRouteOptions,
@@ -299,7 +327,7 @@ export function registerCrudRoutes(
     `${path}/:id`,
     { preHandler: [fastify.authenticate, writeGuard] },
     async (req, reply) => {
-      const parsed = updateSchema.safeParse(req.body)
+      const parsed = safeParsePatch(updateSchema, req.body)
       if (!parsed.success) return sendValidationError(reply, parsed.error)
 
       const { id } = req.params
@@ -495,7 +523,7 @@ export function registerCrudRoutes(
         patch: Record<string, unknown>
       }> = []
       for (const { id, patch } of patches) {
-        const parsed = updateSchema.safeParse(patch)
+        const parsed = safeParsePatch(updateSchema, patch)
         if (!parsed.success) return sendValidationError(reply, parsed.error)
         try {
           const resolvedPatch = options.beforeUpdate
