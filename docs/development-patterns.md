@@ -218,7 +218,7 @@ const newItems = data.newField ?? []  // undefinedの場合のフォールバッ
 
 ```typescript
 // データスキーマ（永続化用）
-export const ProjectSchema = z.object({ id: z.string().uuid(), ... })
+export const ProjectSchema = z.object({ id: z.guid(), ... })
 export type Project = z.infer<typeof ProjectSchema>
 
 // フォーム用（id, timestamp除外）
@@ -324,7 +324,7 @@ await page.getByRole('link', { name: /アサイン/ }).click()
 | [reference/patterns/pitfalls-stores-persistence.md](reference/patterns/pitfalls-stores-persistence.md) | ストア・永続化・DataAdapter | 15 | Zustandセレクタ・購読漏れ、persistの既定値変更、シードの二重発火、楽観的更新のロールバック、Zodの後方互換、appSettings追加の6箇所 |
 | [reference/patterns/pitfalls-testing.md](reference/patterns/pitfalls-testing.md) | テスト・E2E | 16 | シードデータのUUID形式・年度ずれ、AG GridのDOM重複、Testing Libraryのクエリ、jsdomの制約、cmdkのdetach、トースト検証の偽陰性 |
 | [reference/patterns/pitfalls-server-auth.md](reference/patterns/pitfalls-server-auth.md) | サーバー・DB・認証・権限・外部API | 10 | ON DELETE CASCADEと404、TRUNCATE CASCADE、timestamptzの精度、CORSプリフライト、リフレッシュトークン競合、読み取り403、権限のズレ、Jira ADF |
-| [reference/patterns/pitfalls-tooling-deps.md](reference/patterns/pitfalls-tooling-deps.md) | ツール・依存更新・ビルド | 9 | Biome（check・biome-ignore・依存配列）、npm audit／npm ci／dependabot、メジャー更新の意味反転、サーバーtscのshared検査 |
+| [reference/patterns/pitfalls-tooling-deps.md](reference/patterns/pitfalls-tooling-deps.md) | ツール・依存更新・ビルド | 10 | Biome（check・biome-ignore・依存配列）、npm audit／npm ci／dependabot、メジャー更新の意味反転、サーバーtscのshared検査、zod 3→4の挙動差 |
 | [reference/patterns/pitfalls-domain-design.md](reference/patterns/pitfalls-domain-design.md) | ドメインロジック・設計 | 8 | 年度月変換、EVMのPVスケール、デモデータの妥当性、shared→features依存の回避、O(n²)の索引構築、列定義の正本化、語彙の一括置換 |
 
 ### 分野を問わず効く教訓
