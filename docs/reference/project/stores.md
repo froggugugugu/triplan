@@ -19,6 +19,8 @@
 | `estimate-store`         | 見積スナップショット（`estimateSnapshots`）の追記専用CRUD。`recordEstimate`（版を案件内で自動採番。方法と根拠の整合をZodで検証し、通らなければ何も書かずnull）・`revokeLatestEstimate`（最新版のみ削除）・`getEstimateHistory`/`getLatestEstimate`。投稿者名はサーバーがスタンプ |
 | `project-baseline-store` | 計画のスナップショット（`projectBaselines`）のCRUD、`freezeBaseline`（版を自動採番して凍結）・`revokeLatestBaseline`（最新版のみ取り消し可）アクション、`getActiveBaseline`/`getBaselineHistory`セレクタ。EVMのPV（計画値）の基準線。非公開の設計文書参照 |
 | `risk-store`             | リスク登録簿（`riskEntries`）のCRUD（非公開の設計文書）。確率×影響の3段階評価・対応方針・オーナー（弱参照）・対応期限。追記専用にしない（評価の見直しが本質、変更履歴は監査証跡が拾う）。重大度は保存せず`deriveRiskSeverity`で都度導出 |
+| `org-design-store` | 組織設計の案（`orgDesignDrafts`）。`createDraft`（現在の課・所属を`createDesignFromCurrentOrg`で複製）・`duplicateDraft`・`renameDraft`（trim後1〜100文字以外はfalse）・`saveDesign`（teams/placementsのみ更新、楽観ロック）・`deleteDraft`。**本番の team-store / members-store へは書き込まない** |
+| `member-preference-store` | 担当者の希望（`memberPreferences`）。`savePreference`は1担当者1件のupsert（`CreateMemberPreferenceSchema`で検証し、了解日なし等は保存せずfalse）・`deletePreference`（了解の取り下げ）。postgresモードはサーバーが閲覧範囲を絞って返す |
 | `change-request-store`   | 変更管理（`changeRequests`）のCRUD。`approveChangeRequest`は受注額差分・新納期を対象Projectの`contractAmount`/`masterDueDate`へ自動反映（工数差分はWBSへの手動反映＋再凍結を促す）。承認/却下済みは削除不可（追跡性の保持）。PROPOSAL §4.4 |
 | `billing-milestone-store` | 請求マイルストン（`billingMilestones`）のCRUD・ステータス遷移（予定→検収済→請求済→入金済）。売上計上・受注残の算出は`features/projects/utils/billing-milestone-utils.ts`。PROPOSAL §4.3 |
 | `efforts-store`          | WBS工数データ管理                                            |

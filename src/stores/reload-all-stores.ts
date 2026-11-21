@@ -12,7 +12,9 @@ import { useCsvMappingStore } from './csv-mapping-store'
 import { useDocumentTemplateStore } from './document-template-store'
 import { useEffortsStore } from './efforts-store'
 import { useEstimateStore } from './estimate-store'
+import { useMemberPreferenceStore } from './member-preference-store'
 import { useMembersStore } from './members-store'
+import { useOrgDesignStore } from './org-design-store'
 import { usePersonnelPlanStore } from './personnel-plan-store'
 import { useProjectBaselineStore } from './project-baseline-store'
 import { useProjectProgressStore } from './project-progress-store'
@@ -61,6 +63,8 @@ export function reloadAllStores(): void {
   useDocumentTemplateStore.getState().loadDocumentTemplates()
   useProjectBaselineStore.getState().loadProjectBaselines()
   useRiskStore.getState().loadRiskEntries()
+  useOrgDesignStore.getState().loadOrgDesignDrafts()
+  useMemberPreferenceStore.getState().loadMemberPreferences()
   useEstimateStore.getState().loadEstimateSnapshots()
   useChangeRequestStore.getState().loadChangeRequests()
   useBillingMilestoneStore.getState().loadBillingMilestones()

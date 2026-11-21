@@ -1637,3 +1637,76 @@ export const estimateSnapshots = pgTable(
 
 export type EstimateSnapshotRow = typeof estimateSnapshots.$inferSelect
 export type NewEstimateSnapshotRow = typeof estimateSnapshots.$inferInsert
+
+// ============================================================================
+// 組織設計の試算（/org-design）
+// ============================================================================
+
+/**
+ * 組織設計の案。本番の課（sections）・所属（members.section_id）は書き換えない
+ * スナップショット。teams / placements は案の中だけで意味を持つため jsonb で保持する
+ * （案内のチームIDは本番テーブルを参照しない）。
+ */
+export const orgDesignDrafts = pgTable('org_design_drafts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  fiscalYear: integer('fiscal_year').notNull(),
+  teams: jsonb('teams')
+    .$type<
+      Array<{
+        id: string
+        sourceSectionId: string | null
+        divisionId: string
+        name: string
+        sortOrder: number
+        productIds: string[]
+        techTagIds: string[]
+      }>
+    >()
+    .notNull()
+    .default([]),
+  placements: jsonb('placements')
+    .$type<Record<string, string | null>>()
+    .notNull()
+    .default({}),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .default(sql`now()`),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .default(sql`now()`),
+})
+
+export type OrgDesignDraftRow = typeof orgDesignDrafts.$inferSelect
+export type NewOrgDesignDraftRow = typeof orgDesignDrafts.$inferInsert
+
+/**
+ * 担当者の希望（1on1で本人の了解を得たもののみ・自由記述なし）。1担当者1行（UNIQUE）。
+ * 担当者の削除で希望も消す（本人のいない希望を残さない。業務テーブル同士のためFK＋CASCADE）。
+ * 閲覧は people:sensitive-read 保持者と本人のみ（routes/entities/org-design.ts で行を絞る）。
+ */
+export const memberPreferences = pgTable('member_preferences', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  memberId: uuid('member_id')
+    .notNull()
+    .unique()
+    .references(() => members.id, { onDelete: 'cascade' }),
+  desiredProductIds: jsonb('desired_product_ids')
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  desiredTechTagIds: jsonb('desired_tech_tag_ids')
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  consentedAt: date('consented_at', { mode: 'string' }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .default(sql`now()`),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .default(sql`now()`),
+})
+
+export type MemberPreferenceRow = typeof memberPreferences.$inferSelect
+export type NewMemberPreferenceRow = typeof memberPreferences.$inferInsert

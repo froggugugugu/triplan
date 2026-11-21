@@ -104,6 +104,15 @@ export interface CrudRouteOptions {
     row: Record<string, unknown>,
     role: Role,
   ) => Record<string, unknown>
+  /**
+   * GET（一覧）の行をリクエスト元ユーザーで絞り込む（行レベルの閲覧制御）。redactRowより前に適用する。
+   * 担当者の希望（memberPreferences）で「権限保持者は全件・それ以外は本人分のみ」を実現するために使う。
+   * ユーザーが取れない場合はフェイルクローズで空配列を返す
+   */
+  filterRows?: (
+    rows: Record<string, unknown>[],
+    user: AuthenticatedUser,
+  ) => Promise<Record<string, unknown>[]> | Record<string, unknown>[]
 }
 
 /** ヘッダーの値が日時として解釈できなかったことを表す番兵 */
@@ -244,7 +253,12 @@ export function registerCrudRoutes(
     },
     async (req, reply) => {
       const rows = await db.select().from(table)
-      const normalized = rows.map(normalize)
+      let normalized = rows.map(normalize)
+      if (options.filterRows) {
+        normalized = req.user
+          ? await options.filterRows(normalized, req.user)
+          : []
+      }
       const redact = options.redactRow
       if (redact && req.user) {
         const role = req.user.role as Role

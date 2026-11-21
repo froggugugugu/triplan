@@ -26,6 +26,8 @@
 | `project-progress-store.test.ts` | project-progress-storeの`setWeeklyProgress`（upsert: 新規作成・既存週上書き・他週非干渉。`DataAdapter`経由の楽観的更新・確定idの安定性・追加/更新失敗時のロールバック含む）・`getProjectProgressEntry`セレクタ |
 | `projects-store.test.ts`    | projects-storeのCRUD（`DataAdapter`経由・楽観的更新、`addProject`戻り値idの同期的な連鎖利用（`applyWbsTemplate`のparentId連鎖を支える契約）・`updateProjectsBatch`の`bulkUpdate()`初採用・deleteProjectの再帰カスケード削除、失敗時ロールバック含む）・ツリー管理。**反証**: 子孫のremove()が404で失敗してもロールバックしない（親の`ON DELETE CASCADE`で既に削除済み扱い、実Postgresで発見したバグの回帰テスト） |
 | `risk-store.test.ts`        | risk-storeのCRUD（`DataAdapter`経由・楽観的更新、クライアント生成idの安定性・追加/更新/削除失敗時のロールバック・楽観ロック期待値=2回目の更新がサーバー確定値を送る回帰反証・存在しないidの更新は何もしない・他案件のリスクを混ぜないセレクタ。非公開の設計文書） |
+| `org-design-store.test.ts` | 案の作成（現組織の複製）・複製・改名・保存（楽観ロック期待値）・削除。**反証**: 案の作成・移動で本番の課・所属が変わらない／作成・保存・削除の失敗でロールバック／空白だけの名前は拒否 |
+| `member-preference-store.test.ts` | 1担当者1件のupsert・削除。**反証**: 了解日なしは保存せずアダプタを呼ばない／作成・削除失敗でロールバック |
 | `schedule-settings-store.test.ts` | schedule-settings-storeの`loadScheduleSettings`（`DataAdapter`経由の読み込み、旧Zustand persistキー`schedule-settings-storage`からのレガシー移行: DataAdapter側0件かつレガシーキーにデータがある場合のみ移行・複数案件分の一括移行・DataAdapter側に既存データがある場合は移行しない反証・不正JSON形式の防御的処理・同一tick内2回呼び出しでも移行は1回のみ実行される反証（single-flightガード）・移行失敗時のロールバック）・`getSettings`（未登録案件はデフォルト設定にフォールバック）・`updatePhaseName`/`togglePhaseEnabled`/`reorderPhase`（楽観的更新、既存レコードなら該当工程のみ更新・他工程非干渉、別案件非干渉、失敗時ロールバック、reorderPhaseの不正な工程キー指定は無変更の反証）。17ストアDataAdapter配線の第11弾 |
 | `skill-store.test.ts`       | skill-storeの`skillEvaluations`/`skillRoadmapGoals`追記専用CRUD（`DataAdapter`経由・楽観的更新、idの安定性、追加失敗時のロールバック含む）・現在レベル/現在目標導出セレクタ |
 | `task-sync-store.test.ts`   | task-sync-storeの`addTaskSyncLog`（追記・idの安定性・失敗ロールバック+トースト）・`loadTaskSyncLogs` |

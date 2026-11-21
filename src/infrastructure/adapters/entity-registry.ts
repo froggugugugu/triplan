@@ -19,8 +19,10 @@ import type {
   EffortEntry,
   EstimateSnapshot,
   Member,
+  MemberPreference,
   MonthlyActualsConfirmation,
   MonthlyCloseEvent,
+  OrgDesignDraft,
   PersonnelPlanEntry,
   PhaseDependency,
   PhaseSettingsEntry,
@@ -78,6 +80,8 @@ export interface EntityMap {
   projectProgressEntries: ProjectProgressEntry
   projectBaselines: ProjectBaseline
   riskEntries: RiskEntry
+  orgDesignDrafts: OrgDesignDraft
+  memberPreferences: MemberPreference
   estimateSnapshots: EstimateSnapshot
   changeRequests: ChangeRequest
   billingMilestones: BillingMilestone
@@ -133,6 +137,8 @@ export const ENTITY_TO_DB_FIELD: Record<EntityName, keyof Database> = {
   projectProgressEntries: 'projectProgressEntries',
   projectBaselines: 'projectBaselines',
   riskEntries: 'riskEntries',
+  orgDesignDrafts: 'orgDesignDrafts',
+  memberPreferences: 'memberPreferences',
   estimateSnapshots: 'estimateSnapshots',
   changeRequests: 'changeRequests',
   billingMilestones: 'billingMilestones',

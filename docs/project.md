@@ -168,6 +168,8 @@ Node.js 22以上・npm 11以上が必要（2026-08-22にNode 20から引き上�
 | `project-baseline-store` | 計画のスナップショット（EVMのPV基準線・追記専用） |
 | `estimate-store` | 見積スナップショット（追記専用・最新版のみ取り消し可） |
 | `risk-store` | リスク登録簿 |
+| `org-design-store` | 組織設計の試算の案（本番の課・所属は読むだけ） |
+| `member-preference-store` | 担当者の希望（本人了解済み・1担当者1件） |
 | `change-request-store` / `billing-milestone-store` | 変更管理／請求マイルストン |
 | `actuals-store` | 月次実績の確定マーク・CSV取込履歴・月次締めイベント |
 | `task-sync-store` | 外部完了同期ログ（追記専用） |

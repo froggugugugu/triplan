@@ -191,6 +191,37 @@ export function runAdapterContractTests(
       expect(settings.orgLevel2Label).toBe('チーム')
     })
 
+    // 組織設計の案は teams / placements をネストした構造（postgres は jsonb）で持つ。
+    // 未配置（null）を含む配置と、チーム内配列が両モードで同じ形のまま往復することを固定する
+    it('orgDesignDrafts: チームと配置（未配置=null）がネスト構造のまま往復できる', async () => {
+      const teamId = crypto.randomUUID()
+      const placedId = crypto.randomUUID()
+      const unplacedId = crypto.randomUUID()
+      const now = new Date().toISOString()
+      const created = await adapter.create('orgDesignDrafts', {
+        name: '案A',
+        fiscalYear: 2026,
+        teams: [
+          {
+            id: teamId,
+            sourceSectionId: null,
+            divisionId: crypto.randomUUID(),
+            name: '決済チーム',
+            sortOrder: 0,
+            productIds: [crypto.randomUUID()],
+            techTagIds: [],
+          },
+        ],
+        placements: { [placedId]: teamId, [unplacedId]: null },
+        createdAt: now,
+        updatedAt: now,
+      })
+      const listed = await adapter.list('orgDesignDrafts')
+      const found = listed.find((d) => d.id === created.id)
+      expect(found?.teams[0]?.productIds).toHaveLength(1)
+      expect(found?.placements).toEqual({ [placedId]: teamId, [unplacedId]: null })
+    })
+
     it('capabilities.modeが実装ごとに正しく設定されている', () => {
       expect(['local', 'postgres']).toContain(adapter.capabilities.mode)
     })

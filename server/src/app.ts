@@ -18,6 +18,7 @@ import csvMappingRoutes from './routes/entities/csv-mapping.js'
 import documentTemplatesRoutes from './routes/entities/document-templates.js'
 import estimateSnapshotsRoutes from './routes/entities/estimate-snapshots.js'
 import membersRoutes from './routes/entities/members.js'
+import orgDesignRoutes from './routes/entities/org-design.js'
 import organizationRoutes from './routes/entities/organization.js'
 import personnelPlanRoutes from './routes/entities/personnel-plan.js'
 import projectBaselineRoutes from './routes/entities/project-baselines.js'
@@ -123,6 +124,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await fastify.register(assignmentsRoutes)
   await fastify.register(assignmentNotesRoutes)
   await fastify.register(risksRoutes)
+  await fastify.register(orgDesignRoutes)
   await fastify.register(actualsRoutes)
   await fastify.register(projectsRoutes)
   await fastify.register(scheduleRoutes)

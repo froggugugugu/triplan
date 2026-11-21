@@ -21,6 +21,7 @@ server/
 │   │   ├── resolve-author-name.ts # 投稿者名のサーバースタンプ（req.user→usersの表示名、無ければemail）と
 │   │   │                         timestamp列向けのISO文字列→Date変換（体制メモ・見積の共通化）
 │   │   ├── crud-factory.ts     # 汎用CRUD ルートファクトリ（registerCrudRoutes()。
+│   │   │                         filterRows(rows, user)で一覧の行レベル閲覧制御（ユーザー不明は空配列＝フェイルクローズ）。
 │   │   │                         で**楽観ロック**（X-Expected-Updated-Atヘッダーを
 │   │   │                         UPDATEのWHEREへ畳み込み、食い違えば412。未送出は従来動作・
 │   │   │                         不正値は400）を追加。POST/PATCH/DELETE/batchをトランザクション化し、
@@ -81,6 +82,8 @@ server/
 │   │   └── entities/           # 業務エンティティ別ルート
 │   │       ├── projects.ts     # projects（コード一意性のbeforeCreate/beforeUpdate検証=新たな重複のみ400）, efforts, taskSyncLogs（追記専用=readOnly）
 │   │       ├── members.ts      # members
+│   │       ├── org-design.ts   # orgDesignDrafts（data:read/write）, memberPreferences（書き込み=people:sensitive-read＋data:write、
+│   │       │                     一覧はfilterRowsで権限保持者=全件・他=本人分のみ。filterPreferencesForViewerを単体テスト）
 │   │       ├── organization.ts # divisions, sections, companies
 │   │       ├── actuals.ts      # monthlyActualsConfirmations（month unique・再確定PATCH）,
 │   │       │                     actualsImportLogs（追記専用=readOnly、P1-a）,

@@ -21,6 +21,7 @@
 | `jwt.test.ts`               | `server/src/auth/__tests__/`             | JWT 発行・検証・有効期限・署名検証             |
 | `password.test.ts`          | `server/src/auth/__tests__/`             | Argon2 ハッシュ・検証（安全な比較含む）       |
 | `rbac.test.ts`              | `server/src/auth/__tests__/`             | 5ロール＋権限マトリクス。requireRole/requireEditorOrAbove/requireAdmin・requirePermission（401/403/通過）・全ロール×全権限のマトリクス網羅。**反証**: managerはrequireAdmin不可（管理者権限の分離）／partnerはfinancials:readで403（金額遮断）だがdata:readは通過／未知ロールはフェイルクローズ |
+| `org-design.test.ts` | `server/src/routes/entities/__tests__/` | 担当者の希望の閲覧範囲（`filterPreferencesForViewer`）。admin/managerは全件・他ロールは本人分のみ。**反証**: 担当者に未紐づけは0件／金額を読めるeditor・viewerでも他人の希望は見えない |
 | `crypto.test.ts`            | `server/src/auth/__tests__/`             | AES-256-GCM clientSecret 暗号化・復号化       |
 | `diff.test.ts`              | `server/src/audit/__tests__/`            | 監査証跡の差分抽出。変更フィールドのbefore/after・オブジェクトの構造比較。**反証**: patchに含まれても値が同じなら落とす／updatedAtは常に除外／変更0件はnull（空オブジェクトを残さない）／null と undefined を同一視（未設定→未設定を偽の差分にしない）／Dateと同時刻のISO文字列を同一視（型の違いだけで差分にしない） |
 | `api-key.test.ts`           | `server/src/auth/__tests__/`             | APIキー生成・ハッシュ。rpk_形式・毎回異なる・ハッシュ決定論。**反証**: ハッシュに平文が含まれない・1文字違いで別ハッシュ |

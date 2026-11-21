@@ -21,9 +21,11 @@ import {
   documentTemplates,
   efforts,
   estimateSnapshots,
+  memberPreferences,
   members,
   monthlyActualsConfirmations,
   monthlyCloseEvents,
+  orgDesignDrafts,
   personnelPlans,
   phaseDependencies,
   projectBaselines,
@@ -94,6 +96,8 @@ const BUSINESS_TABLE_NAMES = [
   'assignment_notes',
   'assignment_snapshots',
   'risk_entries',
+  'member_preferences',
+  'org_design_drafts',
   'estimate_snapshots',
   'efforts',
   'projects',
@@ -212,6 +216,17 @@ export async function importDatabaseData(data: Database): Promise<void> {
       await tx
         .insert(riskEntries)
         .values(withDates(data.riskEntries, ['createdAt', 'updatedAt']))
+    }
+    if (data.orgDesignDrafts?.length) {
+      await tx
+        .insert(orgDesignDrafts)
+        .values(withDates(data.orgDesignDrafts, ['createdAt', 'updatedAt']))
+    }
+    if (data.memberPreferences?.length) {
+      // consentedAtはdate列（mode:'string'）のため日付変換の対象にしない
+      await tx
+        .insert(memberPreferences)
+        .values(withDates(data.memberPreferences, ['createdAt', 'updatedAt']))
     }
     if (data.estimateSnapshots?.length) {
       // takenAtはtext列（ISO文字列を無変換往復）のため日付変換の対象にしない
