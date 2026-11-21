@@ -66,7 +66,7 @@ team 起動時に `.claude/teams/README.md` と `.claude/agents/README.md` が�
 - **AI 管理**: `docs/*.md`(プロジェクト派生情報) / `output/`(成果物) / `testreport/`(ツール生データ)
 - **AI が更新可能なセクション**: `project-config.md` §2(技術スタック)/ §3(コマンド)/ §11(既知の落とし穴)のみ。§1 / §4-§10 / §12 / §13 は人間決定領域(改変不可)
 - **一次更新責務**: `docs/*.md` と `project-config.md` §2/§3 は `/implementing-features` skill が集約。他 skill は発見事項を報告
-- **詳細**(競合防止表 / docs 更新の細則):`/implementing-features` が起動時に `@.claude/rules/document-management.md` を load
+- **詳細**(競合防止表 / docs 更新の細則):`/implementing-features` が起動時に `@.agents/rules/document-management.md` を load
 
 ## アーキテクチャガバナンス
 
@@ -79,7 +79,7 @@ team 起動時に `.claude/teams/README.md` と `.claude/agents/README.md` が�
 - TDD(`project-config.md` §6 で有効化時)、ユニット + E2E
 - カバレッジ目標は `project-config.md` §6
 - **5 つの品質ゲート**: PRD / 設計 / タスク分解 / 実装 / 検証(各 phase で人間介入可)
-- 各 phase skill が起動時に `@.claude/quality-gates.md` を load し、ゲート基準を参照する
+- 各 phase skill が起動時に `@.agents/quality-gates.md` を load し、ゲート基準を参照する
 
 ## 並行開発
 
@@ -128,7 +128,7 @@ team 起動時に `.claude/teams/README.md` と `.claude/agents/README.md` が�
 ## Git 操作
 
 - `--no-verify` 禁止 / `--force` 原則禁止 / フック失敗時はフックを無効化せず原因修正
-- Conventional Commits 必須(詳細は `/review-fix` / `/implementing-features` skill が `@.claude/rules/git-conventions.md` を load)
+- Conventional Commits 必須(詳細は `/review-fix` / `/implementing-features` skill が `@.agents/rules/git-conventions.md` を load)
 
 ## フェーズ別出力スタイル
 
@@ -157,7 +157,7 @@ team 起動時に `.claude/teams/README.md` と `.claude/agents/README.md` が�
 ### 4. 詳細手順(必要時のみ load)
 
 自己改善ループ / 完了前検証 / エレガンス追求 / 自律バグ修正 / タスク管理 / 基本原則は
-`.claude/rules/workflow-advanced.md` を必要 skill が load する。
+`.agents/rules/workflow-advanced.md` を必要 skill が load する。
 
 ## プロジェクト固有情報(常時 load)
 

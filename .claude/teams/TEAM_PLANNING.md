@@ -57,7 +57,7 @@
 - ユーザーストーリー・受け入れ基準・優先度を構造化する
 - 曖昧な要件は「【要確認】」としてPLに報告する
 - **ソースコードは変更しない**
-- 参考: `.claude/learnings/L0001-brainstorm-before-prd.md`
+- 参考: `.agents/learnings/L0001-brainstorm-before-prd.md`
 
 ### アーキテクト
 
@@ -133,9 +133,11 @@ PL: 成果物の整合性確認 → 実装チームへ引き継ぎ
 
 ## 技術スタック参照
 
-チーム全員が`.claude/CLAUDE.md`を読み、プロジェクトの技術スタック・規約に従うこと。
+チーム全員が `CLAUDE.md` とそれが取り込む `AGENTS.md` を読み、プロジェクトの技術スタック・規約に従うこと。
 
-## 関連参照(必要に応じて Claude が load)
+## 関連参照
 
-@.claude/teams/README.md
-@.claude/agents/README.md
+起動したら最初に次の 2 ファイルを Read する:
+
+- `.claude/teams/README.md` — チーム選定・起動パターン・subagent dispatch ガイド
+- `.claude/agents/README.md` — subagent の使い分けと権限

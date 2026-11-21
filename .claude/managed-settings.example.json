@@ -1,0 +1,74 @@
+{
+  "_comment": [
+    "組織展開用 managed-settings.json の例(本テンプレートの project settings を組織ポリシーで固定する場合)。",
+    "配置先: macOS /Library/Application Support/ClaudeCode/managed-settings.json、",
+    "        Linux /etc/claude-code/managed-settings.json、または MDM / server-managed settings。",
+    "managed settings は user / project / local より優先され、個人が上書きできない。",
+    "このファイル自体は Claude Code に読まれない(参照用)。必要なキーだけ写して値を差し替えること。",
+    "auto mode の trusted infrastructure(autoMode.environment)は /auto-mode-setup で下書きを作り、ここに転記する。",
+    "sandbox.credentials は必須: 認証情報に組み込みの deny リストは無く、既定では ~/.aws や ~/.ssh も読める。failIfUnavailable / allowUnsandboxedCommands は公式の組織向け推奨値。autoAllowBashIfSandboxed: v2.1.325 以降サンドボックス内の Bash も権限フローに従うため、サンドボックスを境界として確認なしで走らせるならここ(最上位の managed source)で true にする。毎回確認させるなら false。",
+    "isolatePeerMachines / crossSessionInbound: 他セッションからのメッセージ(指示に見える文面が届く)を制御する。無人実行では permissions.deny に SendMessage / ListAgents も足す。requiredMinimumVersion 2.1.314 は blockWritesOutsideWorkingDirectories(作業ディレクトリ外への Write / Edit を全モードで拒否)が効く最小版(onFailure: block は 2.1.295)。autoMode の各リストを書くときは \"$defaults\" を残す。"
+  ],
+  "permissions": {
+    "deny": [
+      "Bash(curl *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)"
+    ],
+    "disableBypassPermissionsMode": "disable",
+    "blockReadsOutsideWorkingDirectories": true,
+    "blockWritesOutsideWorkingDirectories": true
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowedDomains": [
+        "registry.npmjs.org",
+        "github.com",
+        "api.anthropic.com"
+      ]
+    },
+    "credentials": {
+      "files": [
+        {
+          "path": "~/.aws/credentials",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.ssh",
+          "mode": "deny"
+        }
+      ],
+      "envVars": [
+        {
+          "name": "GITHUB_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "NPM_TOKEN",
+          "mode": "deny"
+        }
+      ]
+    }
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector.example.com:4317",
+    "OTEL_LOG_TOOL_DETAILS": "1"
+  },
+  "claudeMd": "完了報告には必ず検証コマンドの結果(pass/fail 件数)を添えること。force push は禁止。",
+  "isolatePeerMachines": true,
+  "crossSessionInbound": "hold",
+  "requiredMinimumVersion": "2.1.314",
+  "cleanupPeriodDays": 30,
+  "companyAnnouncements": [
+    "このリポジトリは project-blueprint ハーネスで運用しています。ガードレールは .agents/guardrails.md を参照。"
+  ]
+}

@@ -160,7 +160,7 @@
 - **`constitution.md`** — 7 つの不変原則（`scan-harness.sh` が hash 監視で改竄検出）
 - **`.claude/agents/`** — 単発専門家（explorer / researcher / planner / security-reviewer / performance-analyst / doc-synchronizer / doc-writer / test-writer）
 - **`.claude/teams/`** — マルチエージェント編成テンプレート（`TEAM_PJM.md` がフルライフサイクル推奨）
-- **`.claude/quality-gates.md` / `.claude/pitfalls.md` / `.claude/guardrails.md`** — 品質ゲート定義・落とし穴集・安全機構一覧
+- **`.agents/quality-gates.md` / `.agents/pitfalls.md` / `.agents/guardrails.md`** — 品質ゲート定義・落とし穴集・安全機構一覧
 - **成果物フロー** — `input/requirements/`（人間入力）→ AI 処理 → `output/{prd,design,tasks,reports}/`（レビュー対象）。ツール生データは `testreport/`（gitignore）
 
 > 安全機構: `.claude/settings.json` に 12 hooks（safety-check / protect-files / scan-harness 等）を配線済み。

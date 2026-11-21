@@ -1,5 +1,6 @@
 ---
 name: phase-implementation
+keep-coding-instructions: true
 description: 実装フェーズ用。TDD・最小差分・検証ファーストに最適化した出力姿勢。
 ---
 

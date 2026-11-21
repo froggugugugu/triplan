@@ -1,0 +1,157 @@
+# ==============================================================================
+# default.rules — Codex のコマンド規則(Claude Code の permissions.deny / ask に対応する層)
+#
+# 対応関係: .claude/settings.json の deny → decision = "forbidden" / ask → decision = "prompt"。
+# 片方を変えたら、もう片方も同じ意図になるよう直す(scripts/validate-harness.sh が対応漏れを検査する)。
+#
+# 規則は「コマンドの先頭からの一致(prefix)」しか書けない。次のものはここでは表現できず、
+# 共有フック(.agents/hooks/safety-check.sh)が正規表現で止める:
+#   - 引数の途中や末尾にある危険フラグ(`git push origin main --force`、`<任意> --no-verify`)
+#   - パイプ先での実行(`curl ... | sh`)
+# シークレットの読取禁止(Claude Code の Read() deny)は .codex/config.toml の権限プロファイルで行う。
+#
+# 確認: codex execpolicy check --pretty --rules .codex/rules/default.rules -- git push origin main
+# 仕様: https://developers.openai.com/codex/rules (rules は experimental)
+# ==============================================================================
+
+# ── 禁止(確認なしで拒否)────────────────────────────────────────────────
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr"]],
+    decision = "forbidden",
+    justification = "再帰の強制削除は禁止。消す対象を個別に指定するか、人間に依頼する",
+    match = ["rm -rf build", "rm -fr tmp"],
+    not_match = ["rm build/a.txt"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "--force-with-lease"]],
+    decision = "forbidden",
+    justification = "強制 push は禁止(履歴を壊す)。必要なら人間が実行する",
+    match = ["git push --force origin main", "git push -f"],
+    not_match = ["git push origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "作業ツリーを破棄する。必要なら人間が実行する",
+    match = ["git reset --hard HEAD~1"],
+    not_match = ["git reset --soft HEAD~1"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean", ["-f", "-fd", "-fdx", "-fx", "-df", "-xf", "-xdf", "-dfx"]],
+    decision = "forbidden",
+    justification = "未追跡ファイルを消す。必要なら人間が実行する",
+    match = ["git clean -fd"],
+    not_match = ["git clean -n"],
+)
+
+prefix_rule(
+    pattern = ["sudo"],
+    decision = "forbidden",
+    justification = "権限昇格は禁止",
+    match = ["sudo ls"],
+)
+
+prefix_rule(
+    pattern = ["chmod", "777"],
+    decision = "forbidden",
+    justification = "誰でも書き込める権限は禁止。必要な最小の権限を指定する",
+    match = ["chmod 777 run.sh"],
+    not_match = ["chmod 755 run.sh"],
+)
+
+prefix_rule(
+    pattern = ["dd"],
+    decision = "forbidden",
+    justification = "ディスクへの直接書込は禁止",
+    match = ["dd if=/dev/zero of=disk.img"],
+)
+
+prefix_rule(
+    pattern = [["mkfs", "mkfs.ext4", "mkfs.xfs", "mkfs.btrfs", "mkfs.vfat"]],
+    decision = "forbidden",
+    justification = "ファイルシステムの作成は禁止",
+    match = ["mkfs.ext4 /dev/sdz1"],
+)
+
+prefix_rule(
+    pattern = ["git", ["commit", "push", "merge"], "--no-verify"],
+    decision = "forbidden",
+    justification = "git フックの迂回は禁止。失敗したフックを直す",
+    match = ["git commit --no-verify -m x"],
+    not_match = ["git commit -m x"],
+)
+
+# ── 毎回確認(外向き・不可逆な操作)──────────────────────────────────────
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "リモートへの push は毎回確認する",
+    match = ["git push origin main"],
+    not_match = ["git status"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "merge"],
+    decision = "prompt",
+    justification = "PR のマージは毎回確認する",
+    match = ["gh pr merge 12 --squash"],
+    not_match = ["gh pr view 12"],
+)
+
+prefix_rule(
+    pattern = ["gh", "release"],
+    decision = "prompt",
+    justification = "リリースの作成・変更は毎回確認する",
+    match = ["gh release create v1.0.0"],
+)
+
+prefix_rule(
+    pattern = ["gh", "repo", "delete"],
+    decision = "prompt",
+    justification = "リポジトリの削除は毎回確認する",
+    match = ["gh repo delete owner/name"],
+)
+
+prefix_rule(
+    pattern = [["npm", "yarn", "pnpm"], "publish"],
+    decision = "prompt",
+    justification = "パッケージの公開は毎回確認する",
+    match = ["npm publish", "pnpm publish --tag next"],
+    not_match = ["npm test"],
+)
+
+prefix_rule(
+    pattern = ["docker", "push"],
+    decision = "prompt",
+    justification = "イメージの push は毎回確認する",
+    match = ["docker push app:latest"],
+    not_match = ["docker build ."],
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["apply", "delete"]],
+    decision = "prompt",
+    justification = "クラスタへの適用・削除は毎回確認する",
+    match = ["kubectl apply -f k8s/"],
+    not_match = ["kubectl get pods"],
+)
+
+prefix_rule(
+    pattern = ["terraform", ["apply", "destroy"]],
+    decision = "prompt",
+    justification = "インフラの適用・破棄は毎回確認する",
+    match = ["terraform apply"],
+    not_match = ["terraform plan"],
+)
+
+prefix_rule(
+    pattern = [["curl", "wget"]],
+    decision = "prompt",
+    justification = "外部への通信は毎回確認する",
+    match = ["curl https://example.com", "wget https://example.com/a"],
+)

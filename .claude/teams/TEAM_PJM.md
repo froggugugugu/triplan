@@ -139,7 +139,7 @@ output/
 - 使用スキル: `/brainstorm <メモ>`(条件付) → `/prd <ファイルパス>` → `/architecture <ファイルパス>`
 - 曖昧な要件は「【要確認】」としてPJMに報告する
 - **ソースコードは変更しない**
-- 参考: `.claude/learnings/L0001-brainstorm-before-prd.md`(適用条件と効果)
+- 参考: `.agents/learnings/L0001-brainstorm-before-prd.md`(適用条件と効果)
 
 ### プランナー
 
@@ -159,6 +159,7 @@ output/
 ### レビュアー
 
 - 実装完了後にコードレビュー・セキュリティスキャン・法務チェックを実施
+- 最初に `verifier` agent で差分を TASK の受け入れ条件と照合し、gap があれば開発者へ戻す(1 タスク 1 回)
 - 使用スキル: `/code-review`, `/security-scan`, `/legal-check`, `/hig-compliance`
 - レポートを`output/reports/`の各サブディレクトリに出力する
 - 具体的なフィードバックを開発者に送る
@@ -313,9 +314,11 @@ PJM が TaskCreate/TaskUpdate で各 Bundle の進捗を追跡する。
 
 ## 技術スタック参照
 
-チーム全員が`.claude/CLAUDE.md`を読み、プロジェクトの技術スタック・規約に従うこと。
+チーム全員が `CLAUDE.md` とそれが取り込む `AGENTS.md` を読み、プロジェクトの技術スタック・規約に従うこと。
 
-## 関連参照(必要に応じて Claude が load)
+## 関連参照
 
-@.claude/teams/README.md
-@.claude/agents/README.md
+起動したら最初に次の 2 ファイルを Read する:
+
+- `.claude/teams/README.md` — チーム選定・起動パターン・subagent dispatch ガイド
+- `.claude/agents/README.md` — subagent の使い分けと権限

@@ -2,10 +2,21 @@
 name: test-writer
 description: テストコードを新規作成・追加するときに使用する。Vitest / Playwright ユニット・E2E テストの作成、境界値・エッジケース網羅、既存テストパターンの踏襲が必要なタスク。テストファイルのみ変更する。
 tools: Read, Edit, Write, Grep, Glob, Bash
-model: claude-sonnet-4-6
-color: magenta
+model: sonnet
+effort: medium
+maxTurns: 40
+memory: project
 skills:
   - e2e-testing
+hooks:
+  PreToolUse:
+    - matcher: "Edit|Write|NotebookEdit"
+      hooks:
+        - type: command
+          command: '"$CLAUDE_PROJECT_DIR"/.agents/hooks/scope-guard.sh tests'
+          timeout: 5
+          onFailure: block
+color: pink
 ---
 
 # Test Writer Agent — テスト作成専門
@@ -79,6 +90,7 @@ Test Files  1 passed (1)
 
 ## 制約
 
+- **書込範囲はフックで強制** — frontmatter の `scope-guard.sh tests` が テストファイル 以外への Edit / Write を exit 2 で止める
 - **実装コード変更禁止** — `src/**/*.ts(x)` の非 test ファイルは変更しない
 - **`project-config.md` / `docs/` を変更しない** — 必要なら `doc-synchronizer` agent を呼ぶ
 - **テスト実行で破壊的コマンド禁止** — `safety-check.sh` フックが発動する

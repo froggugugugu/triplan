@@ -1,0 +1,124 @@
+---
+# Codex スキル CI（テンプレート）
+#
+# openai/codex-action(`codex exec`)でブループリントの skill を PR ごとに実行する。
+# Claude Code 側の claude-skills-ci.yml と同じ役割で、片方だけでも両方でも有効にできる
+# (両方を有効にすると、実装したエージェントとは別のモデルによる確認が毎 PR で入る)。
+#
+# 有効化手順:
+#   1. cp .github/workflows/codex-skills-ci.yml.template .github/workflows/codex-skills-ci.yml
+#   2. GitHub リポジトリの Secrets に OPENAI_API_KEY を追加
+#   3. 利用額の上限を OpenAI 側で設定する
+#
+# セキュリティ:
+#   - PR タイトル/本文などの信頼できない入力を prompt に展開しない（プロンプトインジェクション対策）
+#   - safety-strategy は既定の drop-sudo のまま使う（ジョブから sudo を外し、API キーを守る）
+#   - sandbox: workspace-write は output/ と testreport/ への書込に必要。ネットワークは閉じたままになる
+#   - CI の Codex はこのプロジェクトを信頼済みにしていないため、.codex/(フック・rules・権限プロファイル)は
+#     読み込まれない。CI での保護は上の sandbox と safety-strategy が担う
+#   - fork からの PR では secrets が渡らないため、このワークフローはスキップされる
+
+name: Codex Skills CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codex-skills-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  skills:
+    # ドラフトと fork PR（secrets が無い）はスキップ
+    if: >
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          # 差分レビューのためベースブランチまで取得する
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare output directories
+        run: |
+          mkdir -p output/reports/review output/reports/security testreport/security
+          # drop-sudo のあとも Codex が書けるよう、先に書込権限を付ける
+          chmod -R g+rwX output testreport
+
+      - name: Run code-review skill
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          sandbox: workspace-write
+          prompt: |
+            $code-review このPRの変更差分をレビューし、結果を output/reports/review/ に Markdown で保存してください。
+          output-file: output/reports/review/_ci-stdout.md
+
+      - name: Run security-scan skill
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          sandbox: workspace-write
+          prompt: |
+            $security-scan このリポジトリの依存とコードを監査し、結果を output/reports/security/ に Markdown で保存してください。
+          output-file: output/reports/security/_ci-stdout.md
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-skill-reports
+          path: |
+            output/reports/
+            testreport/
+          retention-days: 14
+
+  post_feedback:
+    needs: skills
+    if: always() && needs.skills.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          name: codex-skill-reports
+          path: reports
+
+      - name: Compose PR comment
+        run: |
+          {
+            echo "## 🤖 Codex Skills CI"
+            echo
+            echo "### code-review"
+            echo
+            cat reports/output/reports/review/_ci-stdout.md 2>/dev/null || echo "_(出力なし)_"
+            echo
+            echo "### security-scan"
+            echo
+            cat reports/output/reports/security/_ci-stdout.md 2>/dev/null || echo "_(出力なし)_"
+            echo
+            echo "---"
+            echo "詳細レポートは Actions の artifact codex-skill-reports を参照。"
+          } > /tmp/codex-ci-comment.md
+          head -c 60000 /tmp/codex-ci-comment.md > /tmp/codex-ci-comment.trimmed.md
+
+      - name: Post PR comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR_NUMBER" --body-file /tmp/codex-ci-comment.trimmed.md

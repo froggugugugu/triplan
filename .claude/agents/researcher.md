@@ -2,9 +2,11 @@
 name: researcher
 description: ライブラリ・フレームワーク・標準仕様・公式ドキュメントなど外部技術情報の調査が必要なときに使用する。「最新の React のベストプラクティスは?」「OWASP の最新指針は?」など、コードベース外の情報源を当たる調査タスクを引き受ける。読み取り専用。
 tools: Read, Grep, Glob, WebSearch, WebFetch, mcp__context7__resolve-library-id, mcp__context7__query-docs
-model: claude-sonnet-4-6
-color: purple
+model: sonnet
+effort: medium
+maxTurns: 30
 memory: project
+color: purple
 ---
 
 # Researcher Agent — 外部技術調査専門
@@ -20,7 +22,7 @@ memory: project
 | -- | ---------- | ------------ |
 | 対象 | リポジトリ内のコード・ファイル | **外部の技術情報源**(公式 docs / 仕様書 / 記事) |
 | ツール | Read / Grep / Glob | + WebSearch / WebFetch / Context7 |
-| モデル | Haiku 4.5(軽量) | Sonnet 4.6(根拠評価が必要) |
+| モデル | `haiku`(軽量) | `sonnet`(根拠評価が必要) |
 | 出力 | パスと行番号 | URL と引用・要約 |
 
 リポジトリ内調査は `explorer` を、外部技術情報の調査は本 agent を使う。

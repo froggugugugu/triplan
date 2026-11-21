@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/notify-claude.sh stop",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/notify-claude.sh stop",
             "timeout": 15
           }
         ]
@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/notify-claude.sh notify",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/notify-claude.sh notify",
             "timeout": 15
           }
         ]
@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/user-prompt-submit.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/user-prompt-submit.sh",
             "timeout": 10
           }
         ]
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/safety-check.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/safety-check.sh",
             "timeout": 10
           }
         ]
@@ -59,7 +59,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/protect-files.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/protect-files.sh",
             "timeout": 10
           }
         ]
@@ -69,7 +69,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scan-harness.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/scan-harness.sh",
             "timeout": 10
           }
         ]
@@ -81,7 +81,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/commit-quality.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/commit-quality.sh",
             "timeout": 10
           }
         ]
@@ -91,7 +91,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/console-warn.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/console-warn.sh",
             "timeout": 10
           }
         ]
@@ -101,7 +101,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-failure-log.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/post-failure-log.sh",
             "timeout": 5
           }
         ]
@@ -113,7 +113,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-start.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/session-start.sh",
             "timeout": 10
           }
         ]
@@ -125,7 +125,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-end.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/session-end.sh",
             "timeout": 15
           }
         ]
@@ -137,7 +137,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/subagent-audit.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/subagent-audit.sh",
             "timeout": 10
           }
         ]
@@ -149,7 +149,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-compact-backup.sh",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.agents/hooks/pre-compact-backup.sh",
             "timeout": 15
           }
         ]

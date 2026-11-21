@@ -1,0 +1,90 @@
+# ==============================================================================
+# Project Blueprint — Codex のプロジェクト設定(Claude Code の .claude/settings.json に対応する)
+#
+# このファイルは Codex がプロジェクトを「信頼済み」にしたときだけ読み込まれる。信頼していないと、
+# ここの設定・.codex/hooks.json のフック・.codex/rules/ の規則はすべて無視される。
+# フックはさらに、Codex の `/hooks` で内容を確認して信頼するまで実行されない(変更後も同じ)。
+#
+# 対応関係(詳細は .agents/guardrails.md):
+#   フック(Layer 1)        .codex/hooks.json → .agents/hooks/*.sh(Claude Code と同じスクリプト)
+#   禁止・確認(Layer 2)    .codex/rules/default.rules + 下の権限プロファイル
+#   個人の許可(Layer 3)    ~/.codex/config.toml と ~/.codex/rules/(リポジトリには置かない)
+#
+# プロバイダ・認証・通知・profile はプロジェクト設定では無視される(~/.codex/config.toml に書く)。
+# 仕様: https://developers.openai.com/codex/config-reference
+# ==============================================================================
+
+# コマンドの実行前に確認する場面を Codex に任せる。`never` にすると確認なしで進むため使わない
+approval_policy = "on-request"
+
+# 権限プロファイル(beta)。下の [permissions.blueprint] を既定にする。
+# 注意: 読み込まれる設定のどこかに `sandbox_mode` があると(~/.codex/config.toml や --sandbox を含む)、
+# Codex は旧来のサンドボックス設定を使い、このプロファイル(シークレットの読取禁止)は効かなくなる
+default_permissions = "blueprint"
+
+# skill・サブエージェント・ハーネスについて、Codex 固有の読み替えだけを書く。
+# ツール共通の規則は AGENTS.md にあり、Codex はそれを自動で読む
+developer_instructions = """
+このプロジェクトは Project Blueprint のハーネスで動く。規則は AGENTS.md、手順は .agents/skills/ の skill にある。
+- skill は `$name` で呼ぶ。AGENTS.md や skill 本文に `/name` とあれば `$name` と読み替える
+- 専門作業は .codex/agents/ のカスタムエージェントに委譲できる。エージェントから別のエージェントを起動しない
+- 読取専用と書かれたエージェント(explorer / researcher / planner / security-reviewer / performance-analyst / verifier)にファイルを編集させない
+- .agents/ と .codex/ はサンドボックスで読取専用になっている。ハーネス自体の変更は、内容を示して人間の承認を得てから行う
+- 完了を報告する前に検証コマンド(docs/project.md または project-config.md §3)を実行し、結果を示す
+"""
+
+[permissions.blueprint]
+description = "Project Blueprint: ワークスペースへの書込を許し、シークレットの読取とネットワークを止める"
+# ワークスペースへの書込と一時ディレクトリを許す組み込みプロファイルを土台にする
+extends = ":workspace"
+
+[permissions.blueprint.filesystem]
+# Linux / WSL / Windows では deny の glob を起動時に列挙する。その探索の深さ
+glob_scan_max_depth = 4
+
+[permissions.blueprint.filesystem.":workspace_roots"]
+# ハーネス自体は読取専用にする。公式ドキュメントは「:workspace を継げば .git / .agents / .codex の保護が残る」と
+# 書いているが、codex-cli 0.162.1 の実測では継承だけでは書込めたため、ここで明示する。
+# .claude/settings*.json も止め、Codex が Claude Code 側のフック登録と deny を書き換えられないようにする
+".git" = "read"
+".agents" = "read"
+".codex" = "read"
+".claude/settings.json" = "read"
+".claude/settings.local.json" = "read"
+# Claude Code の Read() deny と同じ対象(.claude/settings.json)。片方を変えたらもう片方も直す
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+"secrets" = "deny"
+"**/.npmrc" = "deny"
+"**/credentials.json" = "deny"
+"**/service-account.json" = "deny"
+"**/id_rsa" = "deny"
+"**/id_ed25519" = "deny"
+"**/id_ecdsa" = "deny"
+"**/id_dsa" = "deny"
+"**/*.pem" = "deny"
+"**/*.key" = "deny"
+"**/*.p12" = "deny"
+"**/*.pfx" = "deny"
+"**/*.jks" = "deny"
+"**/*.keystore" = "deny"
+
+[permissions.blueprint.network]
+# 依存の取得などで通信が要るときは、その都度の確認で許可する
+enabled = false
+
+[agents]
+# 同時に開けるサブエージェントの数。Claude Code 側の並列数の目安に合わせている
+max_concurrent_threads_per_session = 4
+# サブエージェントのモデルを固定するとき(未設定なら親セッションのモデルを継ぐ)。project-config.md §13 の方針に合わせる
+# default_subagent_model = "<model>"
+
+# ── MCP サーバー(使うものだけコメントを外す。Claude Code 側は .mcp.json.template)──────────
+# npx で起動するパッケージは name@x.y.z で固定する(サプライチェーン対策。.mcp.json.template と同じ版にする)
+# [mcp_servers.context7]
+# command = "npx"
+# args = ["-y", "@upstash/context7-mcp@4.4.4"]
+#
+# [mcp_servers.playwright]
+# command = "npx"
+# args = ["-y", "@playwright/mcp@0.0.84"]

@@ -2,10 +2,13 @@
 name: performance-analyst
 description: パフォーマンス計測とボトルネック分析が必要なときに使用する。「なぜ遅いか」「バンドル肥大化の原因」「メモリリーク特定」「再レンダリング過剰」等。計測ファースト — 計測なしで改善案を出さない。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
-color: yellow
+model: sonnet
+effort: high
+maxTurns: 40
+memory: project
 skills:
   - performance
+color: orange
 ---
 
 # Performance Analyst Agent — パフォーマンス分析専門

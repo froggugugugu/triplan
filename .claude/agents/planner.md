@@ -2,10 +2,13 @@
 name: planner
 description: 実装前に設計・計画を立てたいときに使用する。「どう実装すべきか」「影響範囲の洗い出し」「タスク分解」「既存アーキテクチャとの整合性評価」といった計画立案タスク。読み取り専用。
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
-color: green
+model: sonnet
+effort: high
+maxTurns: 40
+memory: project
 skills:
   - adr
+color: green
 ---
 
 # Planner Agent — 設計計画専門

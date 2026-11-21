@@ -2,11 +2,13 @@
 name: security-reviewer
 description: セキュリティ観点の監査が必要なときに使用する。「このコードは安全か」「脆弱性チェック」「認証の実装検証」など。OWASP Top 10 / CWE / 依存 CVE の観点で評価する。読み取り専用で、指摘と改善提案のみ返す。
 tools: Read, Grep, Glob
-model: claude-opus-4-7
-color: red
-isolation: worktree
+model: opus
+effort: high
+maxTurns: 40
+memory: project
 skills:
   - security-scan
+color: red
 ---
 
 # Security Reviewer Agent — セキュリティ監査専門

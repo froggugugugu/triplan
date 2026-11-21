@@ -1,0 +1,4 @@
+# Codex 用の skill 設定。SKILL.md の `disable-model-invocation: true`(Claude Code)と同じ意味を Codex に伝える:
+# プロンプトからの自動起動を止め、`$name` で明示したときだけ使う
+policy:
+  allow_implicit_invocation: false
