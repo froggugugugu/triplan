@@ -16,8 +16,10 @@ postgresモードのロールを5段階の線形階層 `admin ⊇ manager ⊇ ed
 | `data:write`（業務データ編集） | ✓ | ✓ | ✓ | - | - |
 | `financials:read`（金額情報の閲覧） | ✓ | ✓ | ✓ | ✓ | - |
 | `data:read`（業務データ閲覧） | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `people:sensitive-read`（担当者の希望など人に関するセンシティブ情報） | ✓ | ✓ | - | - | - |
 
 - `partner`=協力会社等の外部関係者（閲覧のみ・金額マスク）、`manager`=PM/部門長
+- `people:sensitive-read`は`financials:read`とは別軸。1on1由来の希望（MemberPreference）を読めるのは admin / manager と本人のみ（本人判定は`AuthUser.memberId`、行の絞り込みはサーバー側）
 - ガバナンス原則: 最小権限・職務分掌（editorは承認不可）・管理者権限の分離（users:manageはadminのみ）
 - DB enum（`user_role`）へは`manager`/`partner`を末尾追加（`ALTER TYPE ... ADD VALUE`、
   マイグレーション0009。既存3ロール値は不変＝後方互換）

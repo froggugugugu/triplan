@@ -19,6 +19,7 @@ export type Permission =
   | 'data:write'
   | 'financials:read'
   | 'data:read'
+  | 'people:sensitive-read'
 
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   admin: [
@@ -28,6 +29,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'data:write',
     'financials:read',
     'data:read',
+    'people:sensitive-read',
   ],
   manager: [
     'settings:manage',
@@ -35,6 +37,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'data:write',
     'financials:read',
     'data:read',
+    'people:sensitive-read',
   ],
   editor: ['data:write', 'financials:read', 'data:read'],
   viewer: ['financials:read', 'data:read'],

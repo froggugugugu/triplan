@@ -26,6 +26,8 @@ import { DocumentTemplateSchema } from './document-template'
 import { EffortEntrySchema } from './effort'
 import { EstimateSnapshotSchema } from './estimate-snapshot'
 import { MemberSchema } from './member'
+import { MemberPreferenceSchema } from './member-preference'
+import { OrgDesignDraftSchema } from './org-design'
 import { OrgLabelSchema } from './org-labels'
 import { PersonnelPlanEntrySchema } from './personnel-plan'
 import { ProjectSchema } from './project'
@@ -130,6 +132,10 @@ export const DatabaseSchema = z.object({
   // スキル評価履歴（成長記録）・成長ロードマップ目標。いずれも追記専用
   skillEvaluations: z.array(SkillEvaluationSchema).optional(),
   skillRoadmapGoals: z.array(SkillRoadmapGoalSchema).optional(),
+  // 組織設計の試算（/org-design）の案。本番の組織は変えないスナップショット
+  orgDesignDrafts: z.array(OrgDesignDraftSchema).optional(),
+  // 担当者の希望（本人了解済みのみ・自由記述なし）。閲覧はpeople:sensitive-read保持者と本人
+  memberPreferences: z.array(MemberPreferenceSchema).optional(),
   // 案件×週次の出来高（進捗率）スナップショット。EVM（PV/EV/AC）のEV算出に使用する
   projectProgressEntries: z.array(ProjectProgressEntrySchema).optional(),
   projectBaselines: z.array(ProjectBaselineSchema).optional(),

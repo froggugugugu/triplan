@@ -175,6 +175,32 @@
 「現在の目標」は、同一`memberId`×`techTagId`で最も新しい`createdAt`を持つレコードとして導出する（`getSkillRoadmapGoalHistory`の降順ソート先頭＝`getCurrentRoadmapGoal`）。目標を変更した場合も過去の目標は上書きされず履歴（アーカイブ）として残る。
 ロードマップ進捗（%）は`calcSkillRoadmapProgress(currentLevel, targetLevel)`で算出する。`targetLevel`が`'none'`の場合は常に100（達成不要）。`currentLevel`が未評価（`null`）の場合は`'none'`相当（進捗0からの計算）として扱う。
 
+### OrgDesignDraft / OrgDesignTeam（`org-design.ts`）
+
+組織設計の試算（/org-design）の案。作成時点の課構成を複製したスナップショットで、**本番の課・担当者の所属は書き換えない**。
+兼務・稼働率・コスト・希望の充足は保存せず`shared/utils/org-design-utils.ts`で都度導出する。設計は`output/design/org-design-simulator.md`。
+
+| フィールド | 型 | 備考 |
+| ---------- | -- | ---- |
+| `id` / `name`（1〜100、trim） / `fiscalYear` | | 案名・指標の集計年度 |
+| `teams[]` | `OrgDesignTeam` | `id`（案内で採番）・`sourceSectionId`（複製元の課、新設はnull）・`divisionId`・`name`・`sortOrder`・`productIds`（受け持ちルート案件）・`techTagIds`（扱う技術） |
+| `placements` | `Record<memberId, teamId \| null>` | null・キーなし・存在しないチームIDはいずれも「未配置」 |
+| `createdAt` / `updatedAt` | `datetime` | |
+
+本番で削除された担当者が`placements`に残っても指標から除き`missingMemberIds`として返す。
+
+### MemberPreference（`member-preference.ts`）
+
+担当者の希望（1on1で本人の了解を得たものだけ）。1担当者1レコード、更新・削除可（了解の取り下げで削除）。
+
+| フィールド | 型 | 備考 |
+| ---------- | -- | ---- |
+| `memberId` | `uuid` | 更新で付け替え不可 |
+| `desiredProductIds` / `desiredTechTagIds` | `uuid[]`（各最大10） | やりたいプロダクト（ルート案件）・伸ばしたいスキル（技術タグ） |
+| `consentedAt` | `DateOnly`（必須） | 本人の了解を取った日 |
+
+**自由記述欄は持たない**（`z.strictObject`で未知キーを拒否）。1on1の会話内容を入れないための仕様。閲覧は`people:sensitive-read`保持者と本人のみ。
+
 ### AssignmentEntry（`assignment.ts`）
 
 タスク×担当者ごとの月次アサイン。プロジェクト・タスク・メンバーの組み合わせで1レコード。

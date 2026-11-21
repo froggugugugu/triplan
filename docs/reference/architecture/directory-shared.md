@@ -126,6 +126,7 @@ src/
 │       │                         両方を使うため、循環依存を避けて独立ファイルに配置。
 │       │                         元features/budget/utils/expense-budget-utils.tsから移設（リエクスポート維持）
 │       ├── resource-histogram-utils.ts # 山積みグラフ用の集計（isMemberActiveInMonth・
+│       ├── org-design-utils.ts # 組織設計の試算（兼務・稼働率・コスト・希望の充足、案の作成・移動・現組織との比較）。純関数
 │       │                         calcResourceHistogram＝月次の需要（アサイン合計）と供給（在籍メンバーの
 │       │                         capacityRatio合計）・calcProjectMemberHistogram＝案件内の月×メンバー配分）
 │       ├── evm-utils.ts        # EVM（PV/EV/AC）コアアルゴリズム。2026-08-15に「入力させないEVM」

@@ -38,6 +38,8 @@ export const PERMISSIONS = [
   'financials:read',
   // 業務データの閲覧
   'data:read',
+  // 担当者の希望など人に関するセンシティブ情報の閲覧（1on1由来。admin / manager のみ）
+  'people:sensitive-read',
 ] as const
 export type Permission = (typeof PERMISSIONS)[number]
 
@@ -50,6 +52,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
     'data:write',
     'financials:read',
     'data:read',
+    'people:sensitive-read',
   ],
   manager: [
     'settings:manage',
@@ -57,6 +60,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
     'data:write',
     'financials:read',
     'data:read',
+    'people:sensitive-read',
   ],
   editor: ['data:write', 'financials:read', 'data:read'],
   viewer: ['financials:read', 'data:read'],

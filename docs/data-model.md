@@ -16,6 +16,8 @@ Zodスキーマ定義は `src/shared/types/` に配置。
 | Division / Section / Company | `division.ts` `section.ts` `company.ts` | 部門・課・所属会社（全社共通マスタ） | 同上 |
 | Member（UnitPriceEntry / ContractUnitPriceEntry） | `member.ts` | 担当者。単価履歴（見積用）と契約単価履歴（支払用）を別管理 | 同上 |
 | SkillEvaluation / SkillRoadmapGoal | `skill.ts` | スキル評価履歴・成長目標（追記専用） | 同上 |
+| OrgDesignDraft / OrgDesignTeam | `org-design.ts` | 組織設計の試算の案（本番を変えないスナップショット） | [schemas-org-assignment](reference/data-model/schemas-org-assignment.md) |
+| MemberPreference | `member-preference.ts` | 担当者の希望（本人了解済み・自由記述なし・people:sensitive-read） | 同上 |
 | AssignmentEntry | `assignment.ts` | タスク×担当者の月次配分（計画0〜1、実績は上限なし） | 同上 |
 | AssignmentNote / AssignmentSnapshot | `assignment-note.ts` `assignment-snapshot.ts` | 体制メモ・体制の記録 | 同上 |
 | RiskEntry | `risk.ts` | リスク登録簿（重大度は保存せず導出） | 同上 |

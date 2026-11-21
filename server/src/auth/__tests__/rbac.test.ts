@@ -32,6 +32,7 @@ describe('権限マトリクス（の5ロール）', () => {
       'governance:approve': true,
       'data:write': true,
       'financials:read': true,
+      'people:sensitive-read': true,
       'data:read': true,
     },
     manager: {
@@ -40,6 +41,7 @@ describe('権限マトリクス（の5ロール）', () => {
       'governance:approve': true,
       'data:write': true,
       'financials:read': true,
+      'people:sensitive-read': true,
       'data:read': true,
     },
     editor: {
@@ -48,6 +50,7 @@ describe('権限マトリクス（の5ロール）', () => {
       'governance:approve': false,
       'data:write': true,
       'financials:read': true,
+      'people:sensitive-read': false,
       'data:read': true,
     },
     viewer: {
@@ -56,6 +59,7 @@ describe('権限マトリクス（の5ロール）', () => {
       'governance:approve': false,
       'data:write': false,
       'financials:read': true,
+      'people:sensitive-read': false,
       'data:read': true,
     },
     partner: {
@@ -64,6 +68,7 @@ describe('権限マトリクス（の5ロール）', () => {
       'governance:approve': false,
       'data:write': false,
       'financials:read': false,
+      'people:sensitive-read': false,
       'data:read': true,
     },
   }

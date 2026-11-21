@@ -30,6 +30,7 @@ describe('権限マトリクス（ROLE_PERMISSIONS / hasPermission）', () => {
       'governance:approve': true,
       'data:write': true,
       'financials:read': true,
+      'people:sensitive-read': true,
       'data:read': true,
     },
     manager: {
@@ -38,6 +39,7 @@ describe('権限マトリクス（ROLE_PERMISSIONS / hasPermission）', () => {
       'governance:approve': true,
       'data:write': true,
       'financials:read': true,
+      'people:sensitive-read': true,
       'data:read': true,
     },
     editor: {
@@ -46,6 +48,7 @@ describe('権限マトリクス（ROLE_PERMISSIONS / hasPermission）', () => {
       'governance:approve': false,
       'data:write': true,
       'financials:read': true,
+      'people:sensitive-read': false,
       'data:read': true,
     },
     viewer: {
@@ -54,6 +57,7 @@ describe('権限マトリクス（ROLE_PERMISSIONS / hasPermission）', () => {
       'governance:approve': false,
       'data:write': false,
       'financials:read': true,
+      'people:sensitive-read': false,
       'data:read': true,
     },
     partner: {
@@ -62,6 +66,7 @@ describe('権限マトリクス（ROLE_PERMISSIONS / hasPermission）', () => {
       'governance:approve': false,
       'data:write': false,
       'financials:read': false,
+      'people:sensitive-read': false,
       'data:read': true,
     },
   }
@@ -75,6 +80,16 @@ describe('権限マトリクス（ROLE_PERMISSIONS / hasPermission）', () => {
         ).toBe(allowed)
       }
     }
+  })
+
+  // 反証: 担当者の希望（1on1由来・評価に近い情報）を読めるのは admin / manager のみ。
+  // 金額を読める editor / viewer にも付与しない（financials:read とは別軸の権限）
+  it('反証: people:sensitive-read は admin / manager 以外に付与されない', () => {
+    expect(hasPermission('admin', 'people:sensitive-read')).toBe(true)
+    expect(hasPermission('manager', 'people:sensitive-read')).toBe(true)
+    expect(hasPermission('editor', 'people:sensitive-read')).toBe(false)
+    expect(hasPermission('viewer', 'people:sensitive-read')).toBe(false)
+    expect(hasPermission('partner', 'people:sensitive-read')).toBe(false)
   })
 
   // 反証: 協力会社（partner）は金額情報を閲覧できない（要求#2の核心）
