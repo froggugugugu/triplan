@@ -19,6 +19,7 @@ import {
   UserCircle,
   Users,
   Wallet,
+  Workflow,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
@@ -98,6 +99,13 @@ const navSections: { heading: string | null; items: NavItem[] }[] = [
     heading: '計画',
     items: [
       { to: '/team', label: 'チーム', icon: Users, tourId: 'nav-team' },
+      {
+        // 本番の組織は変えない試算画面。チーム管理の直後に置く
+        to: '/org-design',
+        label: '組織設計の試算',
+        icon: Workflow,
+        tourId: 'nav-org-design',
+      },
       {
         to: '/projects',
         label: 'プロジェクト',

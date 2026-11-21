@@ -111,6 +111,7 @@ Node.js 22以上・npm 11以上が必要（2026-08-22にNode 20から引き上�
 | `/` | LandingPage | ランディングページ（アプリ本体へは`/dashboard`等から入る） |
 | `/dashboard` | DashboardPage | アラートセンター・EVMパネル（readOnly）・山積みグラフ |
 | `/team` | TeamPage | チーム管理（組織階層・売上予算・スキル）。`/members`はここへ転送 |
+| `/org-design` | OrgDesignPage | 組織設計の試算（案の中で担当者を動かし指標を現組織と比較。本番は変えない） |
 | `/projects` | ProjectsPage | 案件管理ツリー。EVM・商流・リスク登録簿・見積・What-ifの入口 |
 | `/project-summary` | ProjectSummaryPage | 1案件の健全性（決定論9ルール＋金/モノ/人/リスク/商流）。読み取り専用 |
 | `/portfolio` | PortfolioPage | 全ルート案件を健全性の悪い順に一覧（判定はサマリーと同一実装） |

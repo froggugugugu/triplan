@@ -143,6 +143,11 @@ const StatementsPage = lazy(() =>
     default: m.StatementsPage,
   })),
 )
+const OrgDesignPage = lazy(() =>
+  import('@/features/org-design/pages/OrgDesignPage').then((m) => ({
+    default: m.OrgDesignPage,
+  })),
+)
 const TeamPage = lazy(() =>
   import('@/features/team/pages/TeamPage').then((m) => ({
     default: m.TeamPage,
@@ -302,6 +307,7 @@ function App() {
                   <Routes>
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/team" element={<TeamPage />} />
+                    <Route path="/org-design" element={<OrgDesignPage />} />
                     <Route
                       path="/members"
                       element={<Navigate to="/team" replace />}
