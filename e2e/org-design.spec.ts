@@ -37,11 +37,31 @@ function buildSeedData() {
     version: '1.0.0',
     fiscalYear: 2026,
     divisions: [
-      { id: DIV, name: '開発本部', sortOrder: 0, createdAt: NOW, updatedAt: NOW },
+      {
+        id: DIV,
+        name: '開発本部',
+        sortOrder: 0,
+        createdAt: NOW,
+        updatedAt: NOW,
+      },
     ],
     sections: [
-      { id: SEC1, divisionId: DIV, name: '第1課', sortOrder: 0, createdAt: NOW, updatedAt: NOW },
-      { id: SEC2, divisionId: DIV, name: '第2課', sortOrder: 1, createdAt: NOW, updatedAt: NOW },
+      {
+        id: SEC1,
+        divisionId: DIV,
+        name: '第1課',
+        sortOrder: 0,
+        createdAt: NOW,
+        updatedAt: NOW,
+      },
+      {
+        id: SEC2,
+        divisionId: DIV,
+        name: '第2課',
+        sortOrder: 1,
+        createdAt: NOW,
+        updatedAt: NOW,
+      },
     ],
     projects: [
       {
@@ -114,9 +134,7 @@ test.describe('組織設計の試算（/org-design）', () => {
     await expect(lane1.locator('dl')).toContainText('8%')
     await expect(lane2.locator('dl')).toContainText('0%')
 
-    await page
-      .getByTestId(`org-member-${MEM_A}`)
-      .dragTo(lane2.locator('ul'))
+    await page.getByTestId(`org-member-${MEM_A}`).dragTo(lane2.locator('ul'))
 
     await expect(lane2.getByText('青木')).toBeVisible()
     await expect(lane1.getByText('担当者がいません')).toBeVisible()
@@ -136,7 +154,9 @@ test.describe('組織設計の試算（/org-design）', () => {
 
     // 反証: 本番の所属（members.sectionId）は第1課のまま
     const sectionId = await page.evaluate((id) => {
-      const db = JSON.parse(localStorage.getItem('resource-manager-data') ?? '{}')
+      const db = JSON.parse(
+        localStorage.getItem('resource-manager-data') ?? '{}',
+      )
       return db.members.find((m: { id: string }) => m.id === id)?.sectionId
     }, MEM_A)
     expect(sectionId).toBe(SEC1)
@@ -170,5 +190,49 @@ test.describe('組織設計の試算（/org-design）', () => {
       '1名 → 0名',
     )
     await expect(table.getByTestId(`org-compare-${SEC2}`)).toContainText('▲1')
+  })
+
+  test('チーム画面で本人了解済みの希望を登録すると、試算画面の担当者カードに充足が出る', async ({
+    page,
+  }) => {
+    await seedAndOpen(page)
+    await createDraft(page)
+    // 試算の受け持ちを設定（第1課＝基幹）。希望の判定は受け持ちに対して行う
+    await page
+      .getByRole('combobox', { name: '第1課の受け持ちプロダクト' })
+      .click()
+    await page.getByRole('option', { name: '基幹' }).click()
+    await page.keyboard.press('Escape')
+    await page.getByRole('button', { name: /案を保存/ }).click()
+    await expect(page.getByRole('status')).toHaveCount(0)
+
+    // /team で青木の希望を登録（了解日は必須）
+    await page.getByRole('link', { name: 'チーム' }).click()
+    const row = page.locator('.group').filter({ hasText: '青木' }).first()
+    await row.hover()
+    await row.locator('button[title="編集"]').click()
+    const dialog = page.getByRole('dialog')
+    await dialog.getByRole('tab', { name: '希望（本人了解済み）' }).click()
+    const save = dialog.getByRole('button', { name: '希望を保存' })
+    await dialog.getByRole('combobox', { name: 'やりたいプロダクト' }).click()
+    await page.getByRole('option', { name: '基幹' }).click()
+    await page.keyboard.press('Escape')
+    await expect(save).toBeDisabled()
+    await dialog.getByLabel('本人の了解を得た日').fill('2025-04-10')
+    await save.click()
+    await expect(
+      dialog.getByRole('button', { name: /了解の取り下げ/ }),
+    ).toBeVisible()
+    // 希望はパネル内で保存済み。基本情報は変えていないのでキャンセルで閉じる
+    await dialog.getByRole('button', { name: 'キャンセル' }).click()
+    await expect(dialog).toHaveCount(0)
+
+    await page.getByRole('link', { name: '組織設計の試算' }).click()
+    await expect(page.getByTestId(`org-member-preference-${MEM_A}`)).toHaveText(
+      /希望満たす 1\/1/,
+    )
+    await expect(page.getByTestId('org-preference-overall')).toContainText(
+      '100%',
+    )
   })
 })

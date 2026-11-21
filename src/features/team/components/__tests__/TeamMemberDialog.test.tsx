@@ -1,8 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { Member } from '@/shared/types'
 import {
+  useAuthStore,
   useCompaniesStore,
   useMembersStore,
   useSkillStore,
@@ -21,6 +22,9 @@ vi.mock('@/stores', () => ({
   useBudgetStore: vi.fn((selector: any) =>
     selector({ skillReviewCycleMonths: 3 }),
   ),
+  // localモード（認証なし）では useAdminPermission が常に許可を返す
+  // biome-ignore lint/suspicious/noExplicitAny: テストのモック設定で型推論が複雑なため
+  useAuthStore: vi.fn((selector: any) => selector({ currentUser: null })),
 }))
 
 vi.mock('@/shared/hooks/use-toast', () => ({
@@ -179,6 +183,78 @@ describe('TeamMemberDialog', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('cell', { name: 'React' })).toBeInTheDocument()
+    })
+  })
+
+  describe('希望（本人了解済み）タブの出し分け', () => {
+    const member: Member = {
+      id: 'existing-member',
+      name: '既存太郎',
+      sectionId: SECTION_ID,
+      role: 'エンジニア',
+      isActive: true,
+      techTagIds: [],
+      startDate: null,
+      endDate: null,
+      unitPriceHistory: [],
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    }
+    const loginAs = (role: string | null) => {
+      vi.stubEnv('VITE_STORAGE_MODE', 'postgres')
+      // biome-ignore lint/suspicious/noExplicitAny: テストのモック設定で型推論が複雑なため
+      vi.mocked(useAuthStore).mockImplementation((selector: any) =>
+        selector({
+          currentUser: role ? { id: 'u1', role, memberId: null } : null,
+        }),
+      )
+    }
+    afterEach(() => {
+      vi.unstubAllEnvs()
+      // biome-ignore lint/suspicious/noExplicitAny: テストのモック設定で型推論が複雑なため
+      vi.mocked(useAuthStore).mockImplementation((selector: any) =>
+        selector({ currentUser: null }),
+      )
+    })
+    const renderEdit = () =>
+      render(
+        <TeamMemberDialog
+          open={true}
+          onOpenChange={mockOnOpenChange}
+          member={member}
+        />,
+      )
+
+    test('localモードでは編集時に希望タブが出る', async () => {
+      renderEdit()
+      expect(
+        await screen.findByRole('tab', { name: '希望（本人了解済み）' }),
+      ).toBeInTheDocument()
+    })
+
+    test('postgresモードのmanager（people:sensitive-read あり）には出る', async () => {
+      loginAs('manager')
+      renderEdit()
+      expect(
+        await screen.findByRole('tab', { name: '希望（本人了解済み）' }),
+      ).toBeInTheDocument()
+    })
+
+    test('反証: editor（people:sensitive-read なし）には出ない', async () => {
+      loginAs('editor')
+      renderEdit()
+      await screen.findByRole('tab', { name: /スキル・成長記録/ })
+      expect(
+        screen.queryByRole('tab', { name: '希望（本人了解済み）' }),
+      ).not.toBeInTheDocument()
+    })
+
+    test('新規追加時は出ない（担当者が未作成のため）', async () => {
+      render(<TeamMemberDialog open={true} onOpenChange={mockOnOpenChange} />)
+      await screen.findByRole('dialog')
+      expect(
+        screen.queryByRole('tab', { name: '希望（本人了解済み）' }),
+      ).not.toBeInTheDocument()
     })
   })
 

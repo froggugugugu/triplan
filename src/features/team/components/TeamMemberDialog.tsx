@@ -40,6 +40,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/shared/components/ui/tabs'
+import { useAdminPermission } from '@/shared/hooks/use-admin-permissions'
 import { useCanViewFinancials } from '@/shared/hooks/use-financial-visibility'
 import { useToast } from '@/shared/hooks/use-toast'
 import type {
@@ -66,6 +67,7 @@ import {
   useTeamStore,
   useTechTagsStore,
 } from '@/stores'
+import { MemberPreferencePanel } from './MemberPreferencePanel'
 import { MemberSkillPanel } from './MemberSkillPanel'
 
 /**
@@ -121,6 +123,9 @@ export function TeamMemberDialog({
   } | null>(null)
 
   const isEditing = !!member
+  // 希望は people:sensitive-read 保持者だけに見せる（localモードは常に可）
+  const canReadPreferences = useAdminPermission('people:sensitive-read')
+  const canWrite = useAdminPermission('data:write')
   const roles = getRoles()
 
   const sortedCompanies = useMemo(
@@ -449,6 +454,11 @@ export function TeamMemberDialog({
                 <TabsList>
                   <TabsTrigger value="basic">基本情報</TabsTrigger>
                   <TabsTrigger value="skill">スキル・成長記録</TabsTrigger>
+                  {canReadPreferences && (
+                    <TabsTrigger value="preference">
+                      希望（本人了解済み）
+                    </TabsTrigger>
+                  )}
                 </TabsList>
                 <TabsContent value="basic">
                   <MemberBasicFields
@@ -492,6 +502,14 @@ export function TeamMemberDialog({
                 <TabsContent value="skill">
                   <MemberSkillPanel member={member} />
                 </TabsContent>
+                {canReadPreferences && (
+                  <TabsContent value="preference">
+                    <MemberPreferencePanel
+                      member={member}
+                      readOnly={!canWrite}
+                    />
+                  </TabsContent>
+                )}
               </Tabs>
             ) : (
               <MemberBasicFields

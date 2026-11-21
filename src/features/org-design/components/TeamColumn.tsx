@@ -72,6 +72,7 @@ interface TeamColumnProps {
   metrics: TeamMetrics | undefined
   canEdit: boolean
   canViewFinancials: boolean
+  showPreference: boolean
   productOptions: MultiSelectComboboxOption[]
   techTagOptions: MultiSelectComboboxOption[]
   onDropMember: (memberId: string) => void
@@ -89,6 +90,7 @@ export function TeamColumn({
   metrics,
   canEdit,
   canViewFinancials,
+  showPreference,
   productOptions,
   techTagOptions,
   onDropMember,
@@ -153,6 +155,18 @@ export function TeamColumn({
             <dd className="text-right tabular-nums">
               {metrics?.overloadedMemberCount ?? 0}名
             </dd>
+            {showPreference && (
+              <>
+                <dt className="text-muted-foreground">希望充足</dt>
+                <dd className="text-right tabular-nums">
+                  {formatUtilization(
+                    metrics && metrics.preferenceTotal > 0
+                      ? metrics.preferenceMet / metrics.preferenceTotal
+                      : null,
+                  )}
+                </dd>
+              </>
+            )}
             {canViewFinancials && (
               <>
                 <dt className="text-muted-foreground">コスト</dt>

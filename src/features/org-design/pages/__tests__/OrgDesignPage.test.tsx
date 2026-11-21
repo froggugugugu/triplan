@@ -1,10 +1,13 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { getDataAdapter } from '@/infrastructure/adapters'
 import { DatabaseSchema } from '@/shared/types'
 import {
   useAppStore,
+  useAuthStore,
+  useMemberPreferenceStore,
   useMembersStore,
   useOrgDesignStore,
   useTeamStore,
@@ -59,18 +62,45 @@ function project(id: string, code: string, name: string) {
  * A: 課1所属・受け持ち外のPROJ_OTHERに5月1.0（兼務1・稼働率 1/12≈8%）
  * B: 課2所属・アサインなし
  */
-function seed({ withDraft = true, extraPlacement = false } = {}) {
+function seed({
+  withDraft = true,
+  extraPlacement = false,
+  preferences = [] as unknown[],
+} = {}) {
   const db = {
     version: '1.0.0',
     fiscalYear: 2026,
     divisions: [
-      { id: DIV, name: '開発本部', sortOrder: 0, createdAt: now, updatedAt: now },
+      {
+        id: DIV,
+        name: '開発本部',
+        sortOrder: 0,
+        createdAt: now,
+        updatedAt: now,
+      },
     ],
     sections: [
-      { id: SEC1, divisionId: DIV, name: '第1課', sortOrder: 0, createdAt: now, updatedAt: now },
-      { id: SEC2, divisionId: DIV, name: '第2課', sortOrder: 1, createdAt: now, updatedAt: now },
+      {
+        id: SEC1,
+        divisionId: DIV,
+        name: '第1課',
+        sortOrder: 0,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: SEC2,
+        divisionId: DIV,
+        name: '第2課',
+        sortOrder: 1,
+        createdAt: now,
+        updatedAt: now,
+      },
     ],
-    projects: [project(PROJ, 'P001', '基幹'), project(PROJ_OTHER, 'P002', '別製品')],
+    projects: [
+      project(PROJ, 'P001', '基幹'),
+      project(PROJ_OTHER, 'P002', '別製品'),
+    ],
     members: [member(MEM_A, '青木', SEC1), member(MEM_B, '馬場', SEC2)],
     assignments: [
       {
@@ -119,6 +149,7 @@ function seed({ withDraft = true, extraPlacement = false } = {}) {
           },
         ]
       : [],
+    memberPreferences: preferences,
     metadata: { lastModified: now, createdBy: 'test', version: '1.0.0' },
   }
   localStorage.setItem(
@@ -148,6 +179,7 @@ describe('OrgDesignPage', () => {
   beforeEach(() => {
     localStorage.clear()
     useOrgDesignStore.setState({ drafts: [] })
+    useMemberPreferenceStore.setState({ preferences: [] })
     useAppStore.setState({
       fiscalYear: 2026,
       fiscalYearStartMonth: 4,
@@ -168,20 +200,27 @@ describe('OrgDesignPage', () => {
       expect(teamMetrics(TEAM1).getByText('8%')).toBeInTheDocument(),
     )
     // 受け持ち外のPROJ_OTHERに関与 → 課1の兼務者1名
-    expect(teamMetrics(TEAM1).getByText('1名', { selector: 'dd:nth-of-type(3)' }))
-      .toBeInTheDocument()
+    expect(
+      teamMetrics(TEAM1).getByText('1名', { selector: 'dd:nth-of-type(3)' }),
+    ).toBeInTheDocument()
     expect(teamMetrics(TEAM2).getByText('0%')).toBeInTheDocument()
 
     await user.click(screen.getByRole('combobox', { name: '青木の移動先' }))
-    await user.click(await screen.findByRole('option', { name: '開発本部 / 第2課' }))
+    await user.click(
+      await screen.findByRole('option', { name: '開発本部 / 第2課' }),
+    )
 
     // 課2に移る: 課2の稼働率は(1)/(24)≈4%、PROJ_OTHERは課2の受け持ちなので兼務0
     expect(teamMetrics(TEAM2).getByText('4%')).toBeInTheDocument()
-    expect(teamMetrics(TEAM1).getByText('—', { selector: 'dd:nth-of-type(2)' }))
-      .toBeInTheDocument()
-    expect(within(screen.getByTestId(`org-team-${TEAM2}`)).getByText('青木'))
-      .toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('未保存の変更があります')
+    expect(
+      teamMetrics(TEAM1).getByText('—', { selector: 'dd:nth-of-type(2)' }),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId(`org-team-${TEAM2}`)).getByText('青木'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '未保存の変更があります',
+    )
 
     // 本番（members-store・課）は一切変わらない
     expect(
@@ -194,7 +233,9 @@ describe('OrgDesignPage', () => {
     await user.click(screen.getByRole('button', { name: /案を保存/ }))
     await waitFor(() => expect(savedDraft().placements[MEM_A]).toBe(TEAM2))
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
-    const persisted = JSON.parse(localStorage.getItem('resource-manager-data') ?? '{}')
+    const persisted = JSON.parse(
+      localStorage.getItem('resource-manager-data') ?? '{}',
+    )
     expect(
       persisted.members.find((m: { id: string }) => m.id === MEM_A).sectionId,
     ).toBe(SEC1)
@@ -208,12 +249,14 @@ describe('OrgDesignPage', () => {
 
     await user.click(screen.getByRole('combobox', { name: '青木の移動先' }))
     await user.click(await screen.findByRole('option', { name: '未配置' }))
-    expect(within(screen.getByTestId('org-team-unplaced')).getByText('青木'))
-      .toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('org-team-unplaced')).getByText('青木'),
+    ).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /変更を破棄/ }))
-    expect(within(screen.getByTestId(`org-team-${TEAM1}`)).getByText('青木'))
-      .toBeInTheDocument()
+    expect(
+      within(screen.getByTestId(`org-team-${TEAM1}`)).getByText('青木'),
+    ).toBeInTheDocument()
     expect(savedDraft().placements[MEM_A]).toBe(TEAM1)
   })
 
@@ -225,28 +268,33 @@ describe('OrgDesignPage', () => {
 
     await user.click(screen.getByRole('button', { name: '第1課を案から削除' }))
     expect(screen.queryByTestId(`org-team-${TEAM1}`)).not.toBeInTheDocument()
-    expect(within(screen.getByTestId('org-team-unplaced')).getByText('青木'))
-      .toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('org-team-unplaced')).getByText('青木'),
+    ).toBeInTheDocument()
   })
 
   it('比較タブに現組織→案の差分を記号付きで表示する', async () => {
     seed()
     const user = userEvent.setup()
     renderPage()
-    await user.click(await screen.findByRole('combobox', { name: '青木の移動先' }))
-    await user.click(await screen.findByRole('option', { name: '開発本部 / 第2課' }))
+    await user.click(
+      await screen.findByRole('combobox', { name: '青木の移動先' }),
+    )
+    await user.click(
+      await screen.findByRole('option', { name: '開発本部 / 第2課' }),
+    )
 
     await user.click(screen.getByRole('tab', { name: '現組織と比較' }))
     // 列順: チーム / 人数 / 稼働率 / 兼務者 / 過負荷 / コスト
-    const cells1 = within(screen.getByTestId(`org-compare-${SEC1}`)).getAllByRole(
-      'cell',
-    )
+    const cells1 = within(
+      screen.getByTestId(`org-compare-${SEC1}`),
+    ).getAllByRole('cell')
     expect(cells1[1]).toHaveTextContent('1名 → 0名▼1')
     expect(cells1[2]).toHaveTextContent('8% → ——')
     expect(cells1[3]).toHaveTextContent('1名 → 0名▼1')
-    const cells2 = within(screen.getByTestId(`org-compare-${SEC2}`)).getAllByRole(
-      'cell',
-    )
+    const cells2 = within(
+      screen.getByTestId(`org-compare-${SEC2}`),
+    ).getAllByRole('cell')
     expect(cells2[1]).toHaveTextContent('1名 → 2名▲1')
     expect(cells2[2]).toHaveTextContent('0% → 4%▲4pt')
   })
@@ -256,16 +304,20 @@ describe('OrgDesignPage', () => {
     const user = userEvent.setup()
     renderPage()
 
-    await user.click(await screen.findByRole('button', { name: /現組織から案を作成/ }))
+    await user.click(
+      await screen.findByRole('button', { name: /現組織から案を作成/ }),
+    )
     const dialog = await screen.findByRole('dialog')
     await user.click(within(dialog).getByRole('button', { name: '更新' }))
 
     await waitFor(() => expect(savedDraft()).toBeDefined())
     const created = savedDraft()
-    expect(created.teams.map((t: { sourceSectionId: string }) => t.sourceSectionId))
-      .toEqual([SEC1, SEC2])
-    expect(await screen.findByRole('combobox', { name: '青木の移動先' }))
-      .toBeInTheDocument()
+    expect(
+      created.teams.map((t: { sourceSectionId: string }) => t.sourceSectionId),
+    ).toEqual([SEC1, SEC2])
+    expect(
+      await screen.findByRole('combobox', { name: '青木の移動先' }),
+    ).toBeInTheDocument()
   })
 
   it('本番から消えた担当者が配置に残っていても落ちず、件数を注記する', async () => {
@@ -282,5 +334,93 @@ describe('OrgDesignPage', () => {
     renderPage()
     await screen.findByTestId(`org-team-metrics-${TEAM1}`)
     expect(teamMetrics(TEAM1).queryByText('コスト')).not.toBeInTheDocument()
+  })
+
+  describe('希望の充足', () => {
+    // A: 第1課（受け持ち PROJ）で PROJ を希望 → 満たす 1/1
+    // B: 第2課（受け持ち PROJ_OTHER）で PROJ を希望 → 満たさない 0/1
+    const pref = (id: string, memberId: string) => ({
+      id,
+      memberId,
+      desiredProductIds: [PROJ],
+      desiredTechTagIds: [],
+      consentedAt: '2026-04-01',
+      createdAt: now,
+      updatedAt: now,
+    })
+    const preferences = [
+      pref('00000000-0000-4000-8000-000000000401', MEM_A),
+      pref('00000000-0000-4000-8000-000000000402', MEM_B),
+    ]
+
+    afterEach(() => {
+      vi.unstubAllEnvs()
+      useAuthStore.setState({ currentUser: null })
+    })
+
+    it('担当者カード・課・案全体に充足を表示し、人を動かすと変わる', async () => {
+      seed({ preferences })
+      const user = userEvent.setup()
+      renderPage()
+
+      expect(
+        await screen.findByTestId(`org-member-preference-${MEM_A}`),
+      ).toHaveTextContent('希望満たす 1/1')
+      expect(
+        screen.getByTestId(`org-member-preference-${MEM_B}`),
+      ).toHaveTextContent('希望満たさない 0/1')
+      expect(screen.getByTestId('org-preference-overall')).toHaveTextContent(
+        '50%',
+      )
+
+      await user.click(screen.getByRole('combobox', { name: '馬場の移動先' }))
+      await user.click(
+        await screen.findByRole('option', { name: '開発本部 / 第1課' }),
+      )
+      expect(
+        screen.getByTestId(`org-member-preference-${MEM_B}`),
+      ).toHaveTextContent('希望満たす 1/1')
+      expect(screen.getByTestId('org-preference-overall')).toHaveTextContent(
+        '100%',
+      )
+      expect(teamMetrics(TEAM1).getByText('希望充足')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('tab', { name: '現組織と比較' }))
+      expect(
+        screen.getByRole('columnheader', { name: '希望充足' }),
+      ).toBeInTheDocument()
+    })
+
+    it('反証: people:sensitive-read のない editor には希望を読み込まず、どこにも出さない', async () => {
+      seed({ preferences })
+      // アダプタはキャッシュされるため、env を切り替える前に local で生成しておく
+      getDataAdapter()
+      vi.stubEnv('VITE_STORAGE_MODE', 'postgres')
+      useAuthStore.setState({
+        currentUser: {
+          id: '00000000-0000-4000-8000-000000000501',
+          email: 'editor@example.com',
+          name: 'editor',
+          role: 'editor',
+          memberId: null,
+        },
+      })
+      const user = userEvent.setup()
+      renderPage()
+
+      await screen.findByTestId(`org-team-metrics-${TEAM1}`)
+      expect(useMemberPreferenceStore.getState().preferences).toEqual([])
+      expect(
+        screen.queryByTestId(`org-member-preference-${MEM_A}`),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId('org-preference-overall'),
+      ).not.toBeInTheDocument()
+      expect(teamMetrics(TEAM1).queryByText('希望充足')).not.toBeInTheDocument()
+      await user.click(screen.getByRole('tab', { name: '現組織と比較' }))
+      expect(
+        screen.queryByRole('columnheader', { name: '希望充足' }),
+      ).not.toBeInTheDocument()
+    })
   })
 })

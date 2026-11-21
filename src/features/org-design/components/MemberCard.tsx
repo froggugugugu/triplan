@@ -1,4 +1,11 @@
-import { AlertTriangle, GripVertical, Shuffle } from 'lucide-react'
+import {
+  AlertTriangle,
+  CircleCheck,
+  CircleDashed,
+  CircleX,
+  GripVertical,
+  Shuffle,
+} from 'lucide-react'
 import { useDrag } from 'react-dnd'
 import { cn } from '@/lib/utils'
 import {
@@ -8,7 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select'
-import type { MemberDesignInfo } from '@/shared/utils/org-design-utils'
+import type {
+  MemberDesignInfo,
+  PreferenceStatus,
+} from '@/shared/utils/org-design-utils'
 
 export const MEMBER_CARD_TYPE = 'ORG_DESIGN_MEMBER'
 
@@ -24,6 +34,16 @@ export interface MoveTarget {
 
 export const UNPLACED_VALUE = '__unplaced__'
 
+/** 充足状態はアイコンの形と文言で示す（色だけに頼らない） */
+const PREFERENCE_BADGE: Record<
+  Exclude<PreferenceStatus, 'none'>,
+  { label: string; icon: typeof CircleCheck }
+> = {
+  met: { label: '満たす', icon: CircleCheck },
+  partial: { label: '一部', icon: CircleDashed },
+  unmet: { label: '満たさない', icon: CircleX },
+}
+
 interface MemberCardProps {
   memberId: string
   name: string
@@ -34,11 +54,13 @@ interface MemberCardProps {
   currentValue: string
   moveTargets: MoveTarget[]
   canEdit: boolean
+  /** people:sensitive-read があるときだけ希望の充足を出す */
+  showPreference: boolean
   onMove: (memberId: string, targetValue: string) => void
 }
 
 /**
- * 担当者カード。表示は名前・役割・兼務・過負荷のみ（スキル評価や単価は出さない。設計 §3）。
+ * 担当者カード。表示は名前・役割・兼務・過負荷・希望の充足のみ（スキル評価や単価は出さない。設計 §3）。
  * D&D に加え、キーボードでも動かせるよう「移動先」セレクトを置く（D&D のみにしない）。
  */
 export function MemberCard({
@@ -50,6 +72,7 @@ export function MemberCard({
   currentValue,
   moveTargets,
   canEdit,
+  showPreference,
   onMove,
 }: MemberCardProps) {
   const [{ isDragging }, drag] = useDrag({
@@ -60,6 +83,10 @@ export function MemberCard({
   })
 
   const crossCount = info?.crossProductIds.length ?? 0
+  const preference =
+    showPreference && info && info.preferenceStatus !== 'none'
+      ? PREFERENCE_BADGE[info.preferenceStatus]
+      : null
 
   return (
     <li
@@ -85,7 +112,7 @@ export function MemberCard({
           {role && (
             <div className="truncate text-xs text-muted-foreground">{role}</div>
           )}
-          {(crossCount > 0 || info?.overloaded) && (
+          {(crossCount > 0 || info?.overloaded || preference) && (
             <div className="mt-1 flex flex-wrap gap-1">
               {crossCount > 0 && (
                 <span
@@ -94,6 +121,16 @@ export function MemberCard({
                 >
                   <Shuffle className="h-3 w-3" aria-hidden="true" />
                   兼務 {crossCount}
+                </span>
+              )}
+              {preference && info && (
+                <span
+                  className="inline-flex items-center gap-0.5 rounded border border-border px-1.5 py-0.5 text-xs text-foreground"
+                  data-testid={`org-member-preference-${memberId}`}
+                >
+                  <preference.icon className="h-3 w-3" aria-hidden="true" />
+                  希望{preference.label} {info.preferenceMet}/
+                  {info.preferenceTotal}
                 </span>
               )}
               {info?.overloaded && (

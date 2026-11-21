@@ -46,6 +46,7 @@ import {
 import {
   useAppStore,
   useAssignmentStore,
+  useMemberPreferenceStore,
   useMembersStore,
   useOrgDesignStore,
   useProjectsStore,
@@ -61,6 +62,7 @@ import {
 import { DropLane, TeamColumn } from '../components/TeamColumn'
 import {
   addTeam,
+  formatUtilization,
   groupTeamsByDivision,
   renameTeam,
   updateTeamScope,
@@ -81,6 +83,8 @@ export function OrgDesignPage() {
   const { level1: l1, level2: l2 } = useOrgLabels()
   const canEdit = useAdminPermission('data:write')
   const canViewFinancials = useCanViewFinancials()
+  // 希望は people:sensitive-read 保持者だけが扱える（権限なしでは読み込みも表示もしない）
+  const canReadPreferences = useAdminPermission('people:sensitive-read')
   const fiscalYear = useAppStore((s) => s.fiscalYear)
   const startMonth = useAppStore((s) => s.fiscalYearStartMonth)
 
@@ -96,6 +100,11 @@ export function OrgDesignPage() {
   const techTags = useTechTagsStore((s) => s.techTags)
   const loadTechTags = useTechTagsStore((s) => s.loadTechTags)
 
+  const preferences = useMemberPreferenceStore((s) => s.preferences)
+  const loadPreferences = useMemberPreferenceStore(
+    (s) => s.loadMemberPreferences,
+  )
+
   const drafts = useOrgDesignStore((s) => s.drafts)
   const loadDrafts = useOrgDesignStore((s) => s.loadOrgDesignDrafts)
   const createDraft = useOrgDesignStore((s) => s.createDraft)
@@ -103,6 +112,10 @@ export function OrgDesignPage() {
   const renameDraft = useOrgDesignStore((s) => s.renameDraft)
   const saveDesign = useOrgDesignStore((s) => s.saveDesign)
   const deleteDraft = useOrgDesignStore((s) => s.deleteDraft)
+
+  useEffect(() => {
+    if (canReadPreferences) loadPreferences()
+  }, [canReadPreferences, loadPreferences])
 
   useEffect(() => {
     loadTeam()
@@ -150,13 +163,20 @@ export function OrgDesignPage() {
             members,
             projects,
             assignments,
-            // 希望の充足表示は F05 で配線する（ここでは希望を使わない）
-            preferences: [],
+            preferences: canReadPreferences ? preferences : [],
             fiscalYear: selected.fiscalYear,
             startMonth,
           }
         : null,
-    [selected, members, projects, assignments, startMonth],
+    [
+      selected,
+      members,
+      projects,
+      assignments,
+      canReadPreferences,
+      preferences,
+      startMonth,
+    ],
   )
 
   const metrics = useMemo(
@@ -230,6 +250,7 @@ export function OrgDesignPage() {
         currentValue={laneValue}
         moveTargets={moveTargets}
         canEdit={canEdit}
+        showPreference={canReadPreferences}
         onMove={handleMove}
       />
     )
@@ -384,6 +405,22 @@ export function OrgDesignPage() {
             )}
           </div>
 
+          {canReadPreferences && (
+            <p className="text-sm" data-testid="org-preference-overall">
+              <span className="text-muted-foreground">
+                希望の充足率（案全体）:{' '}
+              </span>
+              <span className="font-semibold tabular-nums">
+                {formatUtilization(metrics.overall.preferenceRate)}
+              </span>
+              {metrics.overall.preferenceRate === null && (
+                <span className="text-muted-foreground">
+                  （希望が登録された担当者がいません）
+                </span>
+              )}
+            </p>
+          )}
+
           {metrics.missingMemberIds.length > 0 && (
             <p className="text-sm text-muted-foreground">
               本番に存在しない担当者 {metrics.missingMemberIds.length}{' '}
@@ -460,6 +497,7 @@ export function OrgDesignPage() {
                                 metrics={tm}
                                 canEdit={canEdit}
                                 canViewFinancials={canViewFinancials}
+                                showPreference={canReadPreferences}
                                 productOptions={productOptions}
                                 techTagOptions={techTagOptions}
                                 onDropMember={(memberId) =>
@@ -510,6 +548,7 @@ export function OrgDesignPage() {
                   <ComparisonTable
                     rows={comparisonRows}
                     canViewFinancials={canViewFinancials}
+                    showPreference={canReadPreferences}
                     teamLabel={l2}
                   />
                 </CardContent>

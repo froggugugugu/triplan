@@ -61,6 +61,7 @@ function ComparedCell({
 interface ComparisonTableProps {
   rows: ComparisonRow[]
   canViewFinancials: boolean
+  showPreference: boolean
   teamLabel: string
 }
 
@@ -68,6 +69,7 @@ interface ComparisonTableProps {
 export function ComparisonTable({
   rows,
   canViewFinancials,
+  showPreference,
   teamLabel,
 }: ComparisonTableProps) {
   if (rows.length === 0) {
@@ -86,6 +88,9 @@ export function ComparisonTable({
           <TableHead className="text-right">稼働率</TableHead>
           <TableHead className="text-right">兼務者</TableHead>
           <TableHead className="text-right">過負荷</TableHead>
+          {showPreference && (
+            <TableHead className="text-right">希望充足</TableHead>
+          )}
           {canViewFinancials && (
             <TableHead className="text-right">コスト（年度）</TableHead>
           )}
@@ -108,6 +113,9 @@ export function ComparisonTable({
               <ComparedCell value={row.utilization} kind="percent" />
               <ComparedCell value={row.crossProductMemberCount} kind="count" />
               <ComparedCell value={row.overloadedMemberCount} kind="count" />
+              {showPreference && (
+                <ComparedCell value={row.preferenceRate} kind="percent" />
+              )}
               {canViewFinancials && (
                 <ComparedCell value={row.annualCost} kind="cost" />
               )}
