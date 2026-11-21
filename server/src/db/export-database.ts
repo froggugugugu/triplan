@@ -191,6 +191,8 @@ export async function exportDatabaseData(): Promise<Database> {
     baselineStaleThreshold: settings?.baselineStaleThreshold ?? undefined,
     hoursPerDay: settings?.hoursPerDay ?? undefined,
     hoursPerFunctionPoint: settings?.hoursPerFunctionPoint ?? undefined,
+    orgLevel1Label: settings?.orgLevel1Label ?? undefined,
+    orgLevel2Label: settings?.orgLevel2Label ?? undefined,
     projects: normalizedProjects,
     members: membersRows,
     efforts: effortsRows,

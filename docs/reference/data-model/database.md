@@ -58,6 +58,7 @@
 | `hoursPerDay` | `number`（0より大きい、任意） | 時間換算（1人日あたりの時間）。CSV取込の時間→人月換算に使用（P1-a）。未設定時は固定値8（`HOURS_PER_DAY`）へフォールバック。システム設定（Layout）から編集、appSettings PATCH対象 |
 | `summaryBudgetProgressGapThreshold` | `number`（0より大きく1以下、任意） | プロジェクトサマリーR4「予算先行」の警告閾値（予算消化率−進捗率の比率）。未設定時は0.15=15pt（`SUMMARY_BUDGET_PROGRESS_GAP_THRESHOLD`）。システム設定から編集、appSettings PATCH対象 |
 | `hoursPerFunctionPoint` | `number`（0より大きい、任意） | 簡易FPの人時/FP。未設定時は固定値10（`HOURS_PER_FUNCTION_POINT`）。全社設定「見積・単価」から編集、appSettings PATCH対象 |
+| `orgLevel1Label` / `orgLevel2Label` | `string`（前後空白を除き1〜20文字、任意。`OrgLabelSchema`） | 組織階層（Division/Section）の画面上の呼称。未設定時は「部門」「課」（`DEFAULT_ORG_LEVEL1_LABEL`/`DEFAULT_ORG_LEVEL2_LABEL`、`shared/types/org-labels.ts`）。全社設定「組織の呼称」から編集、appSettings PATCH対象 |
 | `summarySpiWarningThreshold` | `number`（0より大きく2以下、任意） | プロジェクトサマリーR5「SPI低下」の警告閾値（これ未満で警告）。未設定時は0.9（`SUMMARY_SPI_WARNING_THRESHOLD`）。システム設定から編集、appSettings PATCH対象 |
 | `metadata`        | `Metadata`                  | 必須          |
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Combobox } from '@/shared/components/ui/combobox'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import {
   useAppStore,
   useAssignmentStore,
@@ -57,6 +58,7 @@ function getCurrentFiscalYear(startMonth: number): number {
 }
 
 export function BudgetPage() {
+  const { level1: l1, level2: l2 } = useOrgLabels()
   const fiscalYearStartMonth = useAppStore((s) => s.fiscalYearStartMonth)
 
   const divisions = useTeamStore((s) => s.divisions)
@@ -169,14 +171,14 @@ export function BudgetPage() {
               value={selectedDivisionId}
               onValueChange={setSelectedDivisionId}
               options={[
-                { value: ALL_DIVISIONS_VALUE, label: '全部門' },
+                { value: ALL_DIVISIONS_VALUE, label: `全${l1}` },
                 ...sortedDivisions.map((d) => ({
                   value: d.id,
                   label: d.name,
                 })),
               ]}
-              placeholder="部門を選択してください"
-              searchPlaceholder="部門を検索..."
+              placeholder={`${l1}を選択してください`}
+              searchPlaceholder={`${l1}を検索...`}
               className="w-[220px]"
             />
           )}
@@ -231,7 +233,7 @@ export function BudgetPage() {
           />
         ) : (
           <p className="py-8 text-center text-muted-foreground">
-            部門が登録されていません。
+            {l1}が登録されていません。
           </p>
         ))}
 
@@ -249,7 +251,7 @@ export function BudgetPage() {
           />
         ) : (
           <p className="py-8 text-center text-muted-foreground">
-            部門が登録されていません。
+            {l1}が登録されていません。
           </p>
         ))}
 
@@ -276,12 +278,13 @@ export function BudgetPage() {
             </div>
           ) : (
             <p className="py-8 text-center text-muted-foreground">
-              この部門には課が登録されていません。チーム管理で課を登録してください。
+              この{l1}には{l2}が登録されていません。チーム管理で{l2}
+              を登録してください。
             </p>
           )
         ) : (
           <p className="py-8 text-center text-muted-foreground">
-            部門が登録されていません。
+            {l1}が登録されていません。
           </p>
         ))}
 
@@ -305,7 +308,7 @@ export function BudgetPage() {
           />
         ) : (
           <p className="py-8 text-center text-muted-foreground">
-            部門が登録されていません。
+            {l1}が登録されていません。
           </p>
         ))}
     </div>

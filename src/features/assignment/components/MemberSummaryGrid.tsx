@@ -13,6 +13,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/shared/components/ui/hover-card'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import type { AssignmentEntry } from '@/shared/types/assignment'
 import type { Member } from '@/shared/types/member'
 import type { Project } from '@/shared/types/project'
@@ -82,6 +83,7 @@ export function MemberSummaryGrid({
   onMemberSelectionChange,
   onFiscalYearChange,
 }: MemberSummaryGridProps) {
+  const { level1: l1, level2: l2 } = useOrgLabels()
   const [open, setOpen] = useState(false)
   const [selectedFiscalYear, setSelectedFiscalYear] = useState(fiscalYear)
   const [selectedConfidences, setSelectedConfidences] = useState<Set<string>>(
@@ -390,7 +392,7 @@ export function MemberSummaryGrid({
               </option>
             ))}
           </select>
-          <span className="text-xs text-muted-foreground ml-2">部門:</span>
+          <span className="text-xs text-muted-foreground ml-2">{l1}:</span>
           <select
             value={selectedDivisionId}
             onChange={(e) => handleDivisionChange(e.target.value)}
@@ -406,7 +408,7 @@ export function MemberSummaryGrid({
           </select>
           {availableSections.length > 0 && (
             <>
-              <span className="text-xs text-muted-foreground">課:</span>
+              <span className="text-xs text-muted-foreground">{l2}:</span>
               <select
                 value={selectedSectionId}
                 onChange={(e) => handleSectionChange(e.target.value)}

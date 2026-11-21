@@ -70,6 +70,7 @@ src/
 │   │   ├── use-theme-color.ts
 │   │   └── use-financial-visibility.ts  # 金額情報の表示可否（useCanViewFinancials。
 │   │                                      postgresモード=financials:read権限／localモード=app-storeの表示トグル）
+│   │   ├── use-org-labels.ts  # 組織階層の呼称（useOrgLabels。全社設定orgLevel1Label/orgLevel2Label、既定「部門」「課」）
 │   ├── types/             # Zodスキーマ定義（23ファイル + index.ts、estimate-snapshot.ts（superRefineで方法と根拠の整合を検証、`.partial()`が要る場面はEstimateSnapshotFieldsSchema）含む、budget.ts / company.ts / personnel-plan.ts / skill.ts / project-progress.ts / project-baseline.ts / change-request.ts / billing-milestone.ts / wbs-template.ts（再帰スキーマ、z.lazy使用）含む）
 │   └── utils/             # 共有ユーティリティ
 │       ├── tag-filter.ts       # タグ検索フィルタ

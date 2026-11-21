@@ -119,6 +119,8 @@ export class LocalJsonAdapter implements DataAdapter {
       // 時間換算の設定がリロード後に既定値8へ戻る実バグだった（// updateAppSettings側は汎用ループのため保存自体はされていた=読み出しだけが欠落）
       hoursPerDay: db.hoursPerDay,
       hoursPerFunctionPoint: db.hoursPerFunctionPoint,
+      orgLevel1Label: db.orgLevel1Label,
+      orgLevel2Label: db.orgLevel2Label,
       summaryBudgetProgressGapThreshold: db.summaryBudgetProgressGapThreshold,
       summarySpiWarningThreshold: db.summarySpiWarningThreshold,
     }

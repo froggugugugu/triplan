@@ -30,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import type { AiUsageEntry, AiUsageProvider } from '@/shared/types/budget'
 import { filterMembersByOrganization } from '@/shared/utils/member-filter'
 import {
@@ -97,6 +98,7 @@ export function AiUsageGrid({
   providerId,
   onProviderChange,
 }: AiUsageGridProps) {
+  const { level2: l2 } = useOrgLabels()
   const fiscalYearStartMonth = useAppStore((s) => s.fiscalYearStartMonth)
   const aiUsageEntries = useBudgetStore((s) => s.aiUsageEntries)
   const aiUsageProviders = useBudgetStore((s) => s.aiUsageProviders)
@@ -300,7 +302,7 @@ export function AiUsageGrid({
     <div className="overflow-x-auto rounded-lg border border-border bg-card p-4">
       <div className="mb-4 flex flex-wrap items-end gap-4">
         <div className="space-y-1">
-          <Label htmlFor="ai-usage-grid-section">課</Label>
+          <Label htmlFor="ai-usage-grid-section">{l2}</Label>
           <Combobox
             value={sectionId ?? ''}
             onValueChange={onSectionChange}
@@ -308,8 +310,8 @@ export function AiUsageGrid({
               value: s.id,
               label: s.name,
             }))}
-            placeholder="課を選択"
-            searchPlaceholder="課を検索..."
+            placeholder={`${l2}を選択`}
+            searchPlaceholder={`${l2}を検索...`}
             className="w-[220px]"
           />
         </div>

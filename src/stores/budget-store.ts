@@ -22,6 +22,11 @@ import type {
   UpdateSaasContract,
 } from '@/shared/types/budget'
 import {
+  DEFAULT_ORG_LEVEL1_LABEL,
+  DEFAULT_ORG_LEVEL2_LABEL,
+  OrgLabelSchema,
+} from '@/shared/types/org-labels'
+import {
   calcDivisionExpectedRevenue,
   calcDivisionProperExpectedRevenue,
   calcProjectEstimateBudget,
@@ -98,6 +103,9 @@ interface BudgetState {
   hoursPerDay: number
   // 簡易FPの人時/FP（既定10=HOURS_PER_FUNCTION_POINT）
   hoursPerFunctionPoint: number
+  /** 組織階層の呼称（第1階層=Division / 第2階層=Section の表示名） */
+  orgLevel1Label: string
+  orgLevel2Label: string
   // プロジェクトサマリーの判定閾値。R4 予算先行（比率、既定0.15=15pt）
   summaryBudgetProgressGapThreshold: number
   // R5 SPI低下（既定0.9）
@@ -161,6 +169,8 @@ interface BudgetState {
   // 業務定数の設定（P0-a）。0以下等の不正値は呼び出し側（NumericInput/フォーム）で防ぐ前提
   setWorkdaysPerMonth: (days: number) => void
   setSkillReviewCycleMonths: (months: number) => void
+  /** 組織階層の呼称を保存する。前後空白を除き1〜20文字でなければ何もしない（false を返す） */
+  setOrgLabels: (labels: { level1: string; level2: string }) => boolean
   setBaselineStaleThreshold: (ratio: number) => void
   setHoursPerDay: (hours: number) => void
   setHoursPerFunctionPoint: (hours: number) => void
@@ -583,6 +593,8 @@ export const useBudgetStore = create<BudgetState>()((set, get) => ({
   baselineStaleThreshold: BASELINE_STALE_THRESHOLD,
   hoursPerDay: HOURS_PER_DAY,
   hoursPerFunctionPoint: HOURS_PER_FUNCTION_POINT,
+  orgLevel1Label: DEFAULT_ORG_LEVEL1_LABEL,
+  orgLevel2Label: DEFAULT_ORG_LEVEL2_LABEL,
   summaryBudgetProgressGapThreshold: SUMMARY_BUDGET_PROGRESS_GAP_THRESHOLD,
   summarySpiWarningThreshold: SUMMARY_SPI_WARNING_THRESHOLD,
 
@@ -603,6 +615,8 @@ export const useBudgetStore = create<BudgetState>()((set, get) => ({
           hoursPerDay: settings.hoursPerDay ?? HOURS_PER_DAY,
           hoursPerFunctionPoint:
             settings.hoursPerFunctionPoint ?? HOURS_PER_FUNCTION_POINT,
+          orgLevel1Label: settings.orgLevel1Label ?? DEFAULT_ORG_LEVEL1_LABEL,
+          orgLevel2Label: settings.orgLevel2Label ?? DEFAULT_ORG_LEVEL2_LABEL,
           summaryBudgetProgressGapThreshold:
             settings.summaryBudgetProgressGapThreshold ??
             SUMMARY_BUDGET_PROGRESS_GAP_THRESHOLD,
@@ -1076,6 +1090,20 @@ export const useBudgetStore = create<BudgetState>()((set, get) => ({
     persistAppSettings({ workdaysPerMonth: days }, () =>
       set({ workdaysPerMonth: previous }),
     )
+  },
+
+  setOrgLabels: ({ level1, level2 }) => {
+    const parsed1 = OrgLabelSchema.safeParse(level1)
+    const parsed2 = OrgLabelSchema.safeParse(level2)
+    if (!parsed1.success || !parsed2.success) return false
+    const previous = {
+      orgLevel1Label: get().orgLevel1Label,
+      orgLevel2Label: get().orgLevel2Label,
+    }
+    const next = { orgLevel1Label: parsed1.data, orgLevel2Label: parsed2.data }
+    set(next)
+    persistAppSettings(next, () => set(previous))
+    return true
   },
 
   setSkillReviewCycleMonths: (months) => {

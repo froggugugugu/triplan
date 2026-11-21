@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import { useToast } from '@/shared/hooks/use-toast'
 import type { Project, ProjectLevel } from '@/shared/types'
 import {
@@ -65,6 +66,7 @@ export function ProjectDialog({
   parentProject,
   defaultLevel = 0,
 }: ProjectDialogProps) {
+  const { level1: l1 } = useOrgLabels()
   const { toast } = useToast()
   const projects = useProjectsStore((state) => state.projects)
   const addProject = useProjectsStore((state) => state.addProject)
@@ -382,7 +384,7 @@ export function ProjectDialog({
 
           {level === 0 && (
             <div className="space-y-2">
-              <Label>担当部門</Label>
+              <Label>担当{l1}</Label>
               <Combobox
                 value={watch('divisionId') ?? '__null__'}
                 onValueChange={(v) =>
@@ -395,8 +397,8 @@ export function ProjectDialog({
                     label: d.name,
                   })),
                 ]}
-                placeholder="担当部門を選択"
-                searchPlaceholder="部門を検索..."
+                placeholder={`担当${l1}を選択`}
+                searchPlaceholder={`${l1}を検索...`}
               />
             </div>
           )}

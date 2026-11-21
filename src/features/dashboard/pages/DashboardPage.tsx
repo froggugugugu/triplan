@@ -10,6 +10,7 @@ import {
 } from '@/shared/components/ui/card'
 import { Combobox } from '@/shared/components/ui/combobox'
 import { useCanViewFinancials } from '@/shared/hooks/use-financial-visibility'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import {
   type AppAlert,
   collectBaselineStaleAlerts,
@@ -57,6 +58,7 @@ import { UtilizationRateChart } from '../components/UtilizationRateChart'
 import { getStaleSkillReviewCount } from '../utils/dashboard-utils'
 
 export function DashboardPage() {
+  const { level1: l1, level2: l2 } = useOrgLabels()
   const canViewFinancials = useCanViewFinancials()
   const globalFiscalYear = useAppStore((s) => s.fiscalYear)
   const fiscalYearStartMonth = useAppStore((s) => s.fiscalYearStartMonth)
@@ -434,7 +436,7 @@ export function DashboardPage() {
               <CardTitle className="flex items-center gap-2">
                 売上予算 vs 見込売上
                 <span className="text-xs font-normal text-muted-foreground">
-                  （部門別）
+                  （{l1}別）
                 </span>
               </CardTitle>
             </CardHeader>
@@ -468,9 +470,9 @@ export function DashboardPage() {
           <div className="flex items-center justify-between">
             <CardTitle>メンバー別アサイン</CardTitle>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground">部門:</span>
+              <span className="text-xs text-muted-foreground">{l1}:</span>
               <select
-                aria-label="絞り込む部門"
+                aria-label={`絞り込む${l1}`}
                 value={selectedDivisionId}
                 onChange={(e) => handleDivisionChange(e.target.value)}
                 className="h-7 rounded-md border border-input bg-background px-2 text-xs"
@@ -485,9 +487,9 @@ export function DashboardPage() {
               </select>
               {availableSections.length > 0 && (
                 <>
-                  <span className="text-xs text-muted-foreground">課:</span>
+                  <span className="text-xs text-muted-foreground">{l2}:</span>
                   <select
-                    aria-label="絞り込む課"
+                    aria-label={`絞り込む${l2}`}
                     value={selectedSectionId}
                     onChange={(e) => setSelectedSectionId(e.target.value)}
                     className="h-7 rounded-md border border-input bg-background px-2 text-xs"
@@ -520,7 +522,7 @@ export function DashboardPage() {
           <CardTitle className="flex items-center gap-2">
             アサイン充足率
             <span className="text-xs font-normal text-muted-foreground">
-              （年間平均、部門・課フィルタ連動）
+              （年間平均、{l1}・{l2}フィルタ連動）
             </span>
           </CardTitle>
         </CardHeader>
@@ -581,7 +583,7 @@ export function DashboardPage() {
             <CardTitle className="flex items-center gap-2">
               スキルマップ概況
               <span className="text-xs font-normal text-muted-foreground">
-                （カテゴリ×レベル別人数、部門・課フィルタ連動）
+                （カテゴリ×レベル別人数、{l1}・{l2}フィルタ連動）
               </span>
             </CardTitle>
             <span
@@ -613,9 +615,9 @@ export function DashboardPage() {
             <div className="flex items-center justify-between">
               <CardTitle>EVM（計画・出来高・実コスト）</CardTitle>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">部門:</span>
+                <span className="text-xs text-muted-foreground">{l1}:</span>
                 <select
-                  aria-label="EVMを表示する部門"
+                  aria-label={`EVMを表示する${l1}`}
                   value={evmDivisionId}
                   onChange={(e) => setEvmDivisionId(e.target.value)}
                   className="h-7 rounded-md border border-input bg-background px-2 text-xs"
@@ -639,7 +641,7 @@ export function DashboardPage() {
               />
             ) : (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                部門が登録されていません。
+                {l1}が登録されていません。
               </p>
             )}
           </CardContent>

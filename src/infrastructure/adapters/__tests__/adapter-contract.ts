@@ -179,6 +179,18 @@ export function runAdapterContractTests(
       expect(settings.hoursPerFunctionPoint).toBe(12.5)
     })
 
+    // 組織階層の呼称（部門・課の表示名）。返却列挙の漏れで「保存できたのに
+    // リロードで既定値へ戻る」事故（hoursPerDay と同型）を両モードで検出する
+    it('appSettings: 組織階層の呼称（orgLevel1Label/orgLevel2Label）が往復できる', async () => {
+      await adapter.updateAppSettings({
+        orgLevel1Label: '本部',
+        orgLevel2Label: 'チーム',
+      })
+      const settings = await adapter.loadAppSettings()
+      expect(settings.orgLevel1Label).toBe('本部')
+      expect(settings.orgLevel2Label).toBe('チーム')
+    })
+
     it('capabilities.modeが実装ごとに正しく設定されている', () => {
       expect(['local', 'postgres']).toContain(adapter.capabilities.mode)
     })

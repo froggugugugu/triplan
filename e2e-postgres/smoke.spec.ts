@@ -31,7 +31,7 @@ test('ログイン→部門・プロジェクト作成が実DBへ永続化され
 
   // 部門を作成（チーム画面のNameInputDialog）
   await page.goto('/team')
-  await page.getByRole('button', { name: '部追加' }).click()
+  await page.getByRole('button', { name: '部門追加' }).click()
   const orgDialog = page.getByRole('dialog')
   await orgDialog.locator('#org-name').fill('E2E検証部門')
   await orgDialog.getByRole('button', { name: '追加' }).click()

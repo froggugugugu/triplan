@@ -227,8 +227,8 @@ test.describe('Team Management - Organization Structure CRUD', () => {
   test('Test 1: Add a division', async ({ page }) => {
     await seedAndNavigate(page, buildSeedData())
 
-    // Click "部追加" button
-    await page.getByRole('button', { name: '部追加' }).click()
+    // Click "部門追加" button
+    await page.getByRole('button', { name: '部門追加' }).click()
 
     // Fill in the name dialog
     await submitNameDialog(page, '開発部')
@@ -251,7 +251,7 @@ test.describe('Team Management - Organization Structure CRUD', () => {
     await expect(page.getByText('開発部')).toBeVisible()
 
     // Hover to reveal edit button and click
-    await clickHoverButton(page, '開発部', '部名を編集')
+    await clickHoverButton(page, '開発部', '部門名を編集')
 
     // Edit name in dialog
     await submitNameDialog(page, '技術部', true)
@@ -264,6 +264,27 @@ test.describe('Team Management - Organization Structure CRUD', () => {
     expect(stored.divisions[0].name).toBe('技術部')
   })
 
+  // 全社設定の呼称（orgLevel1Label/orgLevel2Label）が実画面のボタン・操作名へ反映される。
+  // 反証: 既定の呼称（部門追加）が残っていないことも確かめる（ハードコードの取り残し検出）
+  test('Test 2b: 組織の呼称を変えると、ボタンと操作名がその呼称で表示される', async ({
+    page,
+  }) => {
+    const data = {
+      ...buildSeedData({
+        divisions: [makeDivision(DIV_DEV_ID, '開発本部', 0)],
+        sections: [makeSection(SEC_1_ID, DIV_DEV_ID, '第1チーム', 0)],
+      }),
+      orgLevel1Label: '本部',
+      orgLevel2Label: 'チーム',
+    }
+    await seedAndNavigate(page, data)
+
+    await expect(page.getByRole('button', { name: '本部追加' })).toBeVisible()
+    await expect(page.getByRole('button', { name: '部門追加' })).toHaveCount(0)
+    await clickHoverButton(page, '開発本部', '本部名を編集')
+    await expect(page.getByRole('dialog')).toContainText('本部名を編集')
+  })
+
   test('Test 3: Delete a division', async ({ page }) => {
     const data = buildSeedData({
       divisions: [makeDivision(DIV_DEV_ID, '開発部', 0)],
@@ -274,7 +295,7 @@ test.describe('Team Management - Organization Structure CRUD', () => {
     await expect(page.getByText('開発部')).toBeVisible()
 
     // Hover to reveal delete button and click
-    await clickHoverButton(page, '開発部', '部を削除')
+    await clickHoverButton(page, '開発部', '部門を削除')
 
     // Confirm deletion
     await confirmDelete(page)
@@ -616,7 +637,7 @@ test.describe('Team Management - Organization Deletion Cascade', () => {
     await expect(page.getByText('佐藤花子')).toBeVisible()
 
     // Delete the division
-    await clickHoverButton(page, '開発部', '部を削除')
+    await clickHoverButton(page, '開発部', '部門を削除')
     await confirmDelete(page)
 
     // Verify division is gone

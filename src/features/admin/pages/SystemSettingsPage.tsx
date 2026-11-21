@@ -13,6 +13,7 @@ import { Label } from '@/shared/components/ui/label'
 import { NumericInput } from '@/shared/components/ui/numeric-input'
 import { getApplicableExchangeRate } from '@/shared/utils/budget-utils'
 import { useAppStore, useBudgetStore } from '@/stores'
+import { OrgLabelsSettingCard } from '../components/OrgLabelsSettingCard'
 
 /**
  * 全社設定。
@@ -305,6 +306,8 @@ export function SystemSettingsPage() {
           </SettingRow>
         </CardContent>
       </Card>
+
+      <OrgLabelsSettingCard />
 
       {/* 金額の表示（localモードのみ。postgresモードはロールのfinancials:readで制御するため
           トグル自体を出さない＝抜け道を作らない） */}

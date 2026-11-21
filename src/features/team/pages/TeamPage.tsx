@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/components/ui/dialog'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import { useToast } from '@/shared/hooks/use-toast'
 import type { Company } from '@/shared/types/company'
 import type { Division } from '@/shared/types/division'
@@ -63,6 +64,7 @@ function getCurrentFiscalYear(startMonth: number): number {
 
 export function TeamPage() {
   const { toast } = useToast()
+  const { level1: l1, level2: l2 } = useOrgLabels()
   const fiscalYearStartMonth = useAppStore((s) => s.fiscalYearStartMonth)
 
   // Team store
@@ -244,21 +246,21 @@ export function TeamPage() {
 
   // Division CRUD
   const handleAddDivision = useCallback(() => {
-    openNameDialog('部を追加', '', (name) => {
+    openNameDialog(`${l1}を追加`, '', (name) => {
       const div = addDivision(name)
       setExpandedDivisions((prev) => new Set([...prev, div.id]))
-      toast({ title: '部を追加しました' })
+      toast({ title: `${l1}を追加しました` })
     })
-  }, [openNameDialog, addDivision, toast])
+  }, [openNameDialog, addDivision, toast, l1])
 
   const handleEditDivision = useCallback(
     (div: Division) => {
-      openNameDialog('部名を編集', div.name, (name) => {
+      openNameDialog(`${l1}名を編集`, div.name, (name) => {
         updateDivision(div.id, name)
-        toast({ title: '部名を更新しました' })
+        toast({ title: `${l1}名を更新しました` })
       })
     },
-    [openNameDialog, updateDivision, toast],
+    [openNameDialog, updateDivision, toast, l1],
   )
 
   const handleDeleteDivision = useCallback((div: Division) => {
@@ -269,23 +271,23 @@ export function TeamPage() {
   // Section CRUD
   const handleAddSection = useCallback(
     (divisionId: string) => {
-      openNameDialog('課を追加', '', (name) => {
+      openNameDialog(`${l2}を追加`, '', (name) => {
         const sec = addSection(divisionId, name)
         setExpandedSections((prev) => new Set([...prev, sec.id]))
-        toast({ title: '課を追加しました' })
+        toast({ title: `${l2}を追加しました` })
       })
     },
-    [openNameDialog, addSection, toast],
+    [openNameDialog, addSection, toast, l2],
   )
 
   const handleEditSection = useCallback(
     (sec: Section) => {
-      openNameDialog('課名を編集', sec.name, (name) => {
+      openNameDialog(`${l2}名を編集`, sec.name, (name) => {
         updateSection(sec.id, name)
-        toast({ title: '課名を更新しました' })
+        toast({ title: `${l2}名を更新しました` })
       })
     },
-    [openNameDialog, updateSection, toast],
+    [openNameDialog, updateSection, toast, l2],
   )
 
   const handleDeleteSection = useCallback((sec: Section) => {
@@ -317,11 +319,11 @@ export function TeamPage() {
     switch (deleteTarget.type) {
       case 'division':
         deleteDivision(deleteTarget.id)
-        toast({ title: '部を削除しました' })
+        toast({ title: `${l1}を削除しました` })
         break
       case 'section':
         deleteSection(deleteTarget.id)
-        toast({ title: '課を削除しました' })
+        toast({ title: `${l2}を削除しました` })
         break
       case 'member':
         deleteMember(deleteTarget.id)
@@ -330,11 +332,11 @@ export function TeamPage() {
     }
     setDeleteDialogOpen(false)
     setDeleteTarget(null)
-  }, [deleteTarget, deleteDivision, deleteSection, deleteMember, toast])
+  }, [deleteTarget, deleteDivision, deleteSection, deleteMember, toast, l1, l2])
 
   const deleteDescription = deleteTarget
     ? deleteTarget.type === 'division'
-      ? `「${deleteTarget.name}」を削除しますか？配下の課も削除され、所属メンバーは未所属になります。`
+      ? `「${deleteTarget.name}」を削除しますか？配下の${l2}も削除され、所属メンバーは未所属になります。`
       : deleteTarget.type === 'section'
         ? `「${deleteTarget.name}」を削除しますか？所属メンバーは未所属になります。`
         : `「${deleteTarget.name}」を削除しますか？関連する配分データもすべて削除されます。`
@@ -370,7 +372,7 @@ export function TeamPage() {
           </select>
           <Button data-tour="team-add-division" onClick={handleAddDivision}>
             <Plus className="h-4 w-4" />
-            部追加
+            {l1}追加
           </Button>
         </div>
       </div>
@@ -388,7 +390,7 @@ export function TeamPage() {
       <div data-tour="team-tree" className="space-y-2">
         {sortedDivisions.length === 0 && unaffiliatedMembers.length === 0 && (
           <div className="py-12 text-center text-muted-foreground">
-            組織構成がありません。「部追加」ボタンから組織を作成してください。
+            組織構成がありません。「{l1}追加」ボタンから組織を作成してください。
           </div>
         )}
 
@@ -538,6 +540,7 @@ function DivisionNode({
   getMemberTags,
   getMemberCompanyName,
 }: DivisionNodeProps) {
+  const { level1: l1, level2: l2 } = useOrgLabels()
   const divSections = useMemo(
     () =>
       allSections
@@ -617,7 +620,7 @@ function DivisionNode({
               size="icon"
               className="h-7 w-7"
               onClick={onEditDivision}
-              title="部名を編集"
+              title={`${l1}名を編集`}
             >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
@@ -626,7 +629,7 @@ function DivisionNode({
               size="icon"
               className="h-7 w-7 text-destructive hover:text-destructive"
               onClick={onDeleteDivision}
-              title="部を削除"
+              title={`${l1}を削除`}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
@@ -668,7 +671,7 @@ function DivisionNode({
               onClick={onAddSection}
             >
               <Plus className="mr-1 h-3 w-3" />
-              課を追加
+              {l2}を追加
             </Button>
           </div>
         </div>
@@ -714,6 +717,7 @@ function SectionNode({
   getMemberTags,
   getMemberCompanyName,
 }: SectionNodeProps) {
+  const { level2: l2 } = useOrgLabels()
   const sectionMembers = useMemo(
     () => members.filter((m) => m.sectionId === section.id),
     [members, section.id],
@@ -780,7 +784,7 @@ function SectionNode({
               size="icon"
               className="h-6 w-6"
               onClick={onEdit}
-              title="課名を編集"
+              title={`${l2}名を編集`}
             >
               <Pencil className="h-3 w-3" />
             </Button>
@@ -789,7 +793,7 @@ function SectionNode({
               size="icon"
               className="h-6 w-6 text-destructive hover:text-destructive"
               onClick={onDelete}
-              title="課を削除"
+              title={`${l2}を削除`}
             >
               <Trash2 className="h-3 w-3" />
             </Button>

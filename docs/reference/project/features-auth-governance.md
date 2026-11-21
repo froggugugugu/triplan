@@ -57,6 +57,7 @@ postgresモードでは`settings:manage`権限=admin/managerのみ表示、local
 | 予算先行の警告閾値 `summaryBudgetProgressGapThreshold` | 0.15（15pt） | プロジェクトサマリーのR4判定（予算消化率−進捗率） |
 | SPI警告閾値 `summarySpiWarningThreshold` | 0.9 | プロジェクトサマリーのR5判定（これ未満で警告） |
 | 人時/FP `hoursPerFunctionPoint` | 10【仮定】 | 見積画面の簡易FP換算（FP×人時/FP÷時間/日=人日）。完了案件の実績 人時/FP の中央値（校正ヒント）で自社値へ寄せる前提 |
+| 組織階層の呼称 `orgLevel1Label` / `orgLevel2Label` | 「部門」「課」 | 画面の見出し・ラベル・フィルタ（`useOrgLabels()`経由）。前後空白を除き1〜20文字。**CSVの列名はファイル互換のため固定**（呼称を変えても取込・出力は変わらない）。チーム画面の旧表記「部」も既定の「部門」に統一した |
 
 永続化は`DataAdapter.loadAppSettings()/updateAppSettings()`（フィールド単位パッチ）経由で、
 postgresモードは`/api/appSettings`（PATCH=settings:manage、GET=金額系フィールドはpartnerへ

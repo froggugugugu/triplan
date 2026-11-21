@@ -31,6 +31,8 @@ export default async function appSettingsRoutes(fastify: FastifyInstance) {
         baselineStaleThreshold: row?.baselineStaleThreshold ?? undefined,
         hoursPerDay: row?.hoursPerDay ?? undefined,
         hoursPerFunctionPoint: row?.hoursPerFunctionPoint ?? undefined,
+        orgLevel1Label: row?.orgLevel1Label ?? undefined,
+        orgLevel2Label: row?.orgLevel2Label ?? undefined,
         // サマリー判定閾値。無次元の比率のため金額マスク対象外
         summaryBudgetProgressGapThreshold:
           row?.summaryBudgetProgressGapThreshold ?? undefined,
@@ -105,6 +107,8 @@ export default async function appSettingsRoutes(fastify: FastifyInstance) {
         baselineStaleThreshold: row?.baselineStaleThreshold ?? undefined,
         hoursPerDay: row?.hoursPerDay ?? undefined,
         hoursPerFunctionPoint: row?.hoursPerFunctionPoint ?? undefined,
+        orgLevel1Label: row?.orgLevel1Label ?? undefined,
+        orgLevel2Label: row?.orgLevel2Label ?? undefined,
         summaryBudgetProgressGapThreshold:
           row?.summaryBudgetProgressGapThreshold ?? undefined,
         summarySpiWarningThreshold:

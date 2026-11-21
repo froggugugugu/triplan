@@ -19,6 +19,7 @@ import {
 } from '@/shared/components/ui/card'
 import { Combobox } from '@/shared/components/ui/combobox'
 import { useCanViewFinancials } from '@/shared/hooks/use-financial-visibility'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import type { ProjectTreeNode } from '@/shared/types/project'
 import {
   calcProjectEstimateBudget,
@@ -137,6 +138,7 @@ function formatManYen(value: number | null | undefined): string {
  * partnerロール・localトグルOFFでも進捗・体制・納期の確認用途で使える。
  */
 export function ProjectSummaryPage() {
+  const { level1: l1 } = useOrgLabels()
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -610,7 +612,9 @@ export function ProjectSummaryPage() {
             <span>確度: {project.confidence ?? '未設定'}</span>
             <span>契約形態: {project.contractType ?? '未設定'}</span>
             <span>発注元: {project.clientName ?? '未設定'}</span>
-            <span>担当部門: {summary.divisionName ?? '未設定'}</span>
+            <span>
+              担当{l1}: {summary.divisionName ?? '未設定'}
+            </span>
             <span>マスター納期: {project.masterDueDate ?? '未設定'}</span>
             <span>現在の工程: {summary.currentPhaseName ?? '—'}</span>
           </div>

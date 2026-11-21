@@ -21,6 +21,7 @@ import {
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { NumericInput } from '@/shared/components/ui/numeric-input'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import { useToast } from '@/shared/hooks/use-toast'
 import type {
   SaasAmountHistoryEntry,
@@ -41,6 +42,7 @@ export function SaasContractDialog({
   contract,
   defaultDivisionId,
 }: SaasContractDialogProps) {
+  const { level1: l1 } = useOrgLabels()
   const { toast } = useToast()
   const divisions = useTeamStore((s) => s.divisions)
   const addSaasContract = useBudgetStore((s) => s.addSaasContract)
@@ -193,7 +195,7 @@ export function SaasContractDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>対象部門</Label>
+            <Label>対象{l1}</Label>
             <Combobox
               value={divisionId ?? ''}
               onValueChange={(v) => setValue('divisionId', v)}
@@ -201,8 +203,8 @@ export function SaasContractDialog({
                 value: d.id,
                 label: d.name,
               }))}
-              placeholder="部門を選択してください"
-              searchPlaceholder="部門を検索..."
+              placeholder={`${l1}を選択してください`}
+              searchPlaceholder={`${l1}を検索...`}
             />
             {errors.divisionId && (
               <p className="text-sm text-destructive">

@@ -38,7 +38,7 @@ test('共通データ準備: adminが部門とプロジェクトを用意する'
     .isVisible()
     .catch(() => false)
   if (!hasDivision) {
-    await page.getByRole('button', { name: '部追加' }).click()
+    await page.getByRole('button', { name: '部門追加' }).click()
     const dialog = page.getByRole('dialog')
     await dialog.locator('#org-name').fill('ペルソナ検証部門')
     await dialog.getByRole('button', { name: '追加' }).click()

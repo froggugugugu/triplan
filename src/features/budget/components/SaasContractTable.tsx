@@ -29,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import { useToast } from '@/shared/hooks/use-toast'
 import type { SaasContract } from '@/shared/types/budget'
 import {
@@ -68,6 +69,7 @@ export function SaasContractTable({
   startMonth,
   divisionId,
 }: SaasContractTableProps) {
+  const { level1: l1 } = useOrgLabels()
   const { toast } = useToast()
   const divisions = useTeamStore((s) => s.divisions)
   const saasContracts = useBudgetStore((s) => s.saasContracts)
@@ -188,7 +190,7 @@ export function SaasContractTable({
             <TableRow>
               <TableHead>サービス名</TableHead>
               <TableHead>プラン</TableHead>
-              <TableHead>対象部門</TableHead>
+              <TableHead>対象{l1}</TableHead>
               <TableHead>契約形態</TableHead>
               <TableHead>支払いサイクル</TableHead>
               <TableHead className="bg-budget-planned/10 text-right">

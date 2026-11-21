@@ -349,6 +349,8 @@ export async function importDatabaseData(data: Database): Promise<void> {
       baselineStaleThreshold: data.baselineStaleThreshold ?? null,
       hoursPerDay: data.hoursPerDay ?? null,
       hoursPerFunctionPoint: data.hoursPerFunctionPoint ?? null,
+      orgLevel1Label: data.orgLevel1Label ?? null,
+      orgLevel2Label: data.orgLevel2Label ?? null,
       wbsSettings: data.wbsSettings ?? null,
       metadata: data.metadata,
     })

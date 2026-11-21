@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { useCanViewFinancials } from '@/shared/hooks/use-financial-visibility'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import {
   useAppStore,
   useAssignmentStore,
@@ -74,6 +75,7 @@ const OVERALL_BADGE: Record<
  * 金額の表示制御は判定単位（金額系判定のみ除外＝サマリーと同じセクション単位の思想）。
  */
 export function PortfolioPage() {
+  const { level1: l1 } = useOrgLabels()
   const canViewFinancials = useCanViewFinancials()
   const fiscalYear = useAppStore((s) => s.fiscalYear)
   const startMonth = useAppStore((s) => s.fiscalYearStartMonth)
@@ -248,7 +250,7 @@ export function PortfolioPage() {
                   <TableRow>
                     <TableHead className="w-20">総合</TableHead>
                     <TableHead>プロジェクト</TableHead>
-                    <TableHead>部門</TableHead>
+                    <TableHead>{l1}</TableHead>
                     <TableHead className="text-right">進捗率</TableHead>
                     <TableHead className="text-right">SPI</TableHead>
                     <TableHead>マスター納期</TableHead>

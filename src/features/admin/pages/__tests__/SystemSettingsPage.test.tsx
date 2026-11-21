@@ -14,6 +14,7 @@ const mockSetWorkdaysPerMonth = vi.fn()
 const mockSetBaselineStaleThreshold = vi.fn()
 const mockSetFiscalYearStartMonth = vi.fn()
 const mockLoadBudgetData = vi.fn()
+const mockSetOrgLabels = vi.fn(() => true)
 
 const budgetState = {
   loadBudgetData: mockLoadBudgetData,
@@ -39,6 +40,9 @@ const budgetState = {
   setSummaryBudgetProgressGapThreshold: vi.fn(),
   summarySpiWarningThreshold: 0.9,
   setSummarySpiWarningThreshold: vi.fn(),
+  orgLevel1Label: '部門',
+  orgLevel2Label: '課',
+  setOrgLabels: mockSetOrgLabels,
 }
 
 const mockToggleShowFinancials = vi.fn()
@@ -142,5 +146,43 @@ describe('SystemSettingsPage', () => {
       expect(mockOpenSetupWizard).toHaveBeenCalled()
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard')
     })
+  })
+})
+
+describe('SystemSettingsPage 組織の呼称', () => {
+  it('現在の呼称を表示し、入力欄から離れたときに両方まとめて保存する', async () => {
+    const user = userEvent.setup()
+    render(<SystemSettingsPage />)
+    const level2 = screen.getByLabelText('第2階層の呼称')
+    expect(screen.getByLabelText('第1階層の呼称')).toHaveValue('部門')
+    expect(level2).toHaveValue('課')
+
+    await user.clear(level2)
+    await user.type(level2, 'チーム')
+    await user.tab()
+    expect(mockSetOrgLabels).toHaveBeenCalledWith({
+      level1: '部門',
+      level2: 'チーム',
+    })
+  })
+
+  // 反証: 空欄で離れても保存せず、エラーを出す（見出しが消えるのを防ぐ）
+  it('反証: 空欄のまま離れると保存せず、エラーを表示する', async () => {
+    const user = userEvent.setup()
+    render(<SystemSettingsPage />)
+    const level1 = screen.getByLabelText('第1階層の呼称')
+    await user.clear(level1)
+    await user.tab()
+    expect(mockSetOrgLabels).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent('1〜20文字')
+    expect(level1).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('反証: 値を変えずに離れたときは保存しない（無駄な書き込みをしない）', async () => {
+    const user = userEvent.setup()
+    render(<SystemSettingsPage />)
+    await user.click(screen.getByLabelText('第1階層の呼称'))
+    await user.tab()
+    expect(mockSetOrgLabels).not.toHaveBeenCalled()
   })
 })

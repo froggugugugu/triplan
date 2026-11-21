@@ -96,6 +96,8 @@ describe('useBudgetStore', () => {
       workdaysPerMonth: 20,
       skillReviewCycleMonths: 3,
       baselineStaleThreshold: 0.1,
+      orgLevel1Label: '部門',
+      orgLevel2Label: '課',
     })
     useTeamStore.setState({ divisions: [], sections: [] })
     useMembersStore.setState({ members: [] })
@@ -3279,6 +3281,62 @@ describe('useBudgetStore', () => {
       expect(saved.exchangeRateHistory).toEqual([
         { effectiveFrom: '2026-01', rate: 150 },
       ])
+    })
+
+    it('組織階層の呼称: 未設定時は既定値「部門」「課」、設定済みならその値を読み込む', async () => {
+      mockLoad.mockReturnValueOnce({ ...(mockDb as Database) } as Database)
+      useBudgetStore.getState().loadBudgetData()
+      await flushMicrotasks()
+      expect(useBudgetStore.getState().orgLevel1Label).toBe('部門')
+      expect(useBudgetStore.getState().orgLevel2Label).toBe('課')
+
+      mockLoad.mockReturnValueOnce({
+        ...(mockDb as Database),
+        orgLevel1Label: '本部',
+        orgLevel2Label: 'チーム',
+      } as Database)
+      useBudgetStore.getState().loadBudgetData()
+      await flushMicrotasks()
+      expect(useBudgetStore.getState().orgLevel1Label).toBe('本部')
+      expect(useBudgetStore.getState().orgLevel2Label).toBe('チーム')
+    })
+
+    it('組織階層の呼称: setOrgLabelsは前後の空白を除いて保存する', async () => {
+      useBudgetStore
+        .getState()
+        .setOrgLabels({ level1: '  本部 ', level2: 'チーム' })
+      expect(useBudgetStore.getState().orgLevel1Label).toBe('本部')
+      await flushMicrotasks()
+      const saved = getMockDbState() as Database
+      expect(saved.orgLevel1Label).toBe('本部')
+      expect(saved.orgLevel2Label).toBe('チーム')
+    })
+
+    // 反証: 空文字・空白のみ・21文字以上は保存しない（見出しが消える／レイアウト崩れを防ぐ）
+    it('反証: setOrgLabelsは空白のみや21文字以上の呼称を拒否し、状態も保存も変えない', async () => {
+      useBudgetStore
+        .getState()
+        .setOrgLabels({ level1: '   ', level2: 'チーム' })
+      useBudgetStore
+        .getState()
+        .setOrgLabels({ level1: '本部', level2: 'あ'.repeat(21) })
+      expect(useBudgetStore.getState().orgLevel1Label).toBe('部門')
+      expect(useBudgetStore.getState().orgLevel2Label).toBe('課')
+      await flushMicrotasks()
+      const saved = getMockDbState() as Database
+      expect(saved.orgLevel1Label).toBeUndefined()
+    })
+
+    it('反証: 呼称の永続化失敗時は元の値へロールバックされる', async () => {
+      mockSave.mockImplementationOnce(() => {
+        throw new Error('storage full')
+      })
+      useBudgetStore
+        .getState()
+        .setOrgLabels({ level1: '本部', level2: 'チーム' })
+      await flushMicrotasks()
+      expect(useBudgetStore.getState().orgLevel1Label).toBe('部門')
+      expect(useBudgetStore.getState().orgLevel2Label).toBe('課')
     })
 
     it('反証: 業務定数の永続化失敗時は元の値へロールバックされる', async () => {

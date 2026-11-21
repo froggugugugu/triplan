@@ -1310,6 +1310,9 @@ export const appSettings = pgTable('app_settings', {
   hoursPerDay: doublePrecision('hours_per_day'),
   // 簡易FPの人時/FP。NULL=未設定（クライアント既定値10）
   hoursPerFunctionPoint: doublePrecision('hours_per_function_point'),
+  // 組織階層の呼称。NULL=未設定（クライアント既定「部門」「課」）
+  orgLevel1Label: text('org_level1_label'),
+  orgLevel2Label: text('org_level2_label'),
   // プロジェクトサマリーの判定閾値。NULL=未設定（クライアント既定値0.15/0.9）
   summaryBudgetProgressGapThreshold: doublePrecision(
     'summary_budget_progress_gap_threshold',

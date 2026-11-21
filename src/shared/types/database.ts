@@ -26,6 +26,7 @@ import { DocumentTemplateSchema } from './document-template'
 import { EffortEntrySchema } from './effort'
 import { EstimateSnapshotSchema } from './estimate-snapshot'
 import { MemberSchema } from './member'
+import { OrgLabelSchema } from './org-labels'
 import { PersonnelPlanEntrySchema } from './personnel-plan'
 import { ProjectSchema } from './project'
 import { ProjectBaselineSchema } from './project-baseline'
@@ -85,6 +86,9 @@ export const DatabaseSchema = z.object({
   hoursPerDay: z.number().positive().optional(),
   // 簡易FPの人時/FP（既定10=HOURS_PER_FUNCTION_POINT）
   hoursPerFunctionPoint: z.number().positive().optional(),
+  // 組織階層の呼称（第1階層=Division / 第2階層=Section の表示名。未設定は「部門」「課」）
+  orgLevel1Label: OrgLabelSchema.optional(),
+  orgLevel2Label: OrgLabelSchema.optional(),
   // プロジェクトサマリーの判定閾値（既定値=SUMMARY_BUDGET_PROGRESS_GAP_THRESHOLD
   // =0.15 / SUMMARY_SPI_WARNING_THRESHOLD=0.9へフォールバック）
   // R4 予算先行: 予算消化率−進捗率の警告閾値（比率、0.15=15pt）
@@ -171,6 +175,8 @@ export const AppSettingsPatchSchema = z.object({
   hoursPerFunctionPoint: z.number().positive().optional(),
   summaryBudgetProgressGapThreshold: z.number().positive().max(1).optional(),
   summarySpiWarningThreshold: z.number().positive().max(2).optional(),
+  orgLevel1Label: OrgLabelSchema.optional(),
+  orgLevel2Label: OrgLabelSchema.optional(),
 })
 export type AppSettingsPatch = z.infer<typeof AppSettingsPatchSchema>
 

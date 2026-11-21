@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { useOrgLabels } from '@/shared/hooks/use-org-labels'
 import type { BudgetBreakdown } from '@/shared/types/budget'
 import type { Division } from '@/shared/types/division'
 import {
@@ -107,6 +108,7 @@ export function DivisionBudgetPanel({
   fiscalYear,
   startMonth,
 }: DivisionBudgetPanelProps) {
+  const { level1: l1 } = useOrgLabels()
   const divisions = useTeamStore((s) => s.divisions)
   const getBudgetOverview = useBudgetStore((s) => s.getBudgetOverview)
   const getOrCreateDivisionBudget = useBudgetStore(
@@ -298,13 +300,14 @@ export function DivisionBudgetPanel({
 
       {sortedDivisions.length === 0 ? (
         <p className="py-8 text-center text-muted-foreground">
-          部門が登録されていません。先に「チーム」画面から部門を作成してください。
+          {l1}が登録されていません。先に「チーム」画面から{l1}
+          を作成してください。
         </p>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>部門</TableHead>
+              <TableHead>{l1}</TableHead>
               <TableHead className="text-right">
                 プロジェクト予算（万円）
               </TableHead>
@@ -372,7 +375,7 @@ export function DivisionBudgetPanel({
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell className="font-medium">全部門合計</TableCell>
+              <TableCell className="font-medium">全{l1}合計</TableCell>
               <TableCell colSpan={4} />
               <BudgetTriRowCell
                 {...divisionTotalRow}
