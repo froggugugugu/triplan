@@ -63,14 +63,14 @@
     "@axe-core/playwright": "4.14.0",
     "@biomejs/biome": "2.6.8",
     "@playwright/test": "1.65.1",
-    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/jest-dom": "8.0.0",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.13",
     "@types/node": "24.10.9",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "5.1.2",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/coverage-v8": "5.1.2",
     "dependency-cruiser": "17.4.3",
     "husky": "9.1.7",
     "jsdom": "27.4.0",
@@ -78,7 +78,7 @@
     "msw": "2.15.0",
     "typescript": "5.9.3",
     "vite": "7.3.8",
-    "vitest": "4.1.11"
+    "vitest": "5.1.2"
   },
   "engines": {
     "node": ">=22",
