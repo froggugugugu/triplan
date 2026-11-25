@@ -3,6 +3,7 @@ import type {
   CellValueChangedEvent,
   ColDef,
   ICellRendererParams,
+  ProcessUnpinnedColumnsParams,
   RowDragEndEvent,
 } from 'ag-grid-community'
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
@@ -64,6 +65,7 @@ import {
   useWbsSettingsStore,
 } from '@/stores'
 import { buildExternalTaskUrl } from '../utils/external-task-url'
+import { selectColumnsToUnpin } from '../utils/pinned-columns'
 import {
   calcWbsProgress,
   calcWbsProgressWeighted,
@@ -118,6 +120,41 @@ interface FlatRowData {
 }
 
 type SortOrder = 'asc' | 'desc' | null
+
+/**
+ * 固定列が画面に収まらないときに固定を外す順。AG Gridの既定は右固定から外すため、
+ * 1280px程度の画面で「連携」列が真っ先に消えていた。レベルはタスク名のインデントと情報が重なるので最初に外す。
+ * ドラッグハンドル（id）とタスク名（name）は載せない＝常に固定。
+ */
+const WBS_UNPIN_ORDER = [
+  'level',
+  'effortSubtotal',
+  'progress',
+  'id_1',
+  'assignee',
+  'externalTaskId',
+]
+
+function processUnpinnedColumns({
+  api,
+  viewportWidth,
+}: ProcessUnpinnedColumnsParams<FlatRowData>) {
+  const displayed = api.getAllDisplayedColumns()
+  const ids = selectColumnsToUnpin(
+    displayed.map((c) => {
+      const pinned = c.getPinned()
+      return {
+        id: c.getColId(),
+        // getPinned() は true（= left）を返しうる
+        pinned: pinned === true ? 'left' : pinned || null,
+        width: c.getActualWidth(),
+      }
+    }),
+    viewportWidth,
+    WBS_UNPIN_ORDER,
+  )
+  return displayed.filter((c) => ids.includes(c.getColId()))
+}
 
 function flattenTree(
   nodes: ProjectTreeNode[],
@@ -1672,6 +1709,7 @@ export function ProjectTreeGrid({
           onCellKeyDown={onCellKeyDown}
           onRowDragEnd={onRowDragEnd}
           getRowStyle={getRowStyle}
+          processUnpinnedColumns={processUnpinnedColumns}
           tooltipShowDelay={300}
           rowDragManaged={false}
           rowHeight={40}
