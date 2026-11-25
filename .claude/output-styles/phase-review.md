@@ -1,5 +1,6 @@
 ---
 name: phase-review
+keep-coding-instructions: true
 description: レビュー / QA フェーズ用。重大度分類・根拠提示・改善提案に最適化した出力姿勢。
 ---
 

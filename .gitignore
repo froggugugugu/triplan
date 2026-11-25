@@ -9,11 +9,11 @@ dist/
 *.tsbuildinfo
 
 # Claude Code internal files
-.claude/tasks/
+.agents/tasks/
 .claude/projects/
 .claude/plans/
 .claude/settings.local.json
-.claude/skills/*/plan.md
+.agents/skills/*/plan.md
 
 # --- project-blueprint harness ---
 # Auto memory (per-machine, project-scope)
@@ -52,3 +52,9 @@ Thumbs.db
 
 # 本番セルフホスト用の環境変数（秘密情報）
 deploy/prod.env
+.blueprint-migrate-backup/
+testreport/
+.agents/skills/*-workspace/
+.claude/worktrees/
+.claude/agent-memory-local/
+.claude/skills/*-workspace/

@@ -4,7 +4,7 @@
 `project-config.md`(可変パラメータ)の上位に位置し、AI が破ろうとした場合は
 `scan-harness.sh` フックが検知する。
 
-> 変更が必要な場合は、PR で明示的に議論し、`.claude/.constitution.sha256` も同時更新すること。
+> 変更が必要な場合は、PR で明示的に議論し、`.agents/.constitution.sha256` も同時更新すること。
 > AI が単独で書き換えることは禁止。
 
 ---
@@ -29,9 +29,9 @@ PRD 完了 / 設計完了 / タスク分解完了 / 実装完了 / 検証完了�
 
 ## 4. 三層分離(skill / team / agent)を守る
 
-- **Skill**: 1 つのフェーズ単位の作業手順(`.claude/skills/`)
-- **Team**: 複数 skill を組み合わせるオーケストレーション(`.claude/teams/`)
-- **Agent**: 単発の専門家委任(`.claude/agents/`)
+- **Skill**: 1 つのフェーズ単位の作業手順(`.agents/skills/`)
+- **Team**: 複数 skill を組み合わせるオーケストレーション(`.claude/teams/`。Claude Code の拡張)
+- **Agent**: 単発の専門家委任(`.claude/agents/`、Codex 用は同じ定義から生成した `.codex/agents/`)
 
 層を混ぜない。skill が team を呼ぶ、agent が agent を spawn する、等の循環は禁止。
 
@@ -41,14 +41,20 @@ Layer 1: フック(常時有効) / Layer 2: deny ルール(共有) / Layer 3: al
 `--dangerously-skip-permissions` でも Layer 1 は有効。フック群を停止・無効化する変更は禁止。
 新しい hook を追加する変更は許容。
 
-## 6. CLAUDE.md は 200 行以内を目安、220 行を超えたら切り出し
+3 層は Claude Code と Codex の両方に置く(Codex 側の Layer 2 は `.codex/rules/` と権限プロファイル)。
+片方のエージェントでだけ層を外す・緩める変更も弱体化として扱う。
+
+## 6. 常時 load する指示(CLAUDE.md + AGENTS.md)は合計 200 行以内を目安、220 行を超えたら切り出し
 
 肥大化するとルールが埋もれて遵守率が落ちる(pitfalls.md #1, #18)。
+Claude Code は `CLAUDE.md` と、その冒頭の `@AGENTS.md` で取り込む `AGENTS.md`(ツール共通ルール)を毎セッション全文読むため、
+2 ファイルの**合計**で数える。片方へ移すだけでは削減にならない。Codex は `AGENTS.md` だけを毎セッション読む。
 
-- **目安**: 200 行以内
-- **ハード上限**: 220 行(超過したら次回の編集で必ず切り出し)
-- **切り出し先**: `.claude/rules/<topic>.md`、`.claude/skills/<name>/SKILL.md`、`docs/<topic>.md`
-- **判定**: 1 つのトピックが 20 行を超えたら切り出し候補。`@import` で参照に置換
+- **目安**: 合計 200 行以内
+- **ハード上限**: 合計 220 行(超過したら次回の編集で必ず切り出し)
+- **切り出し先**: `.agents/rules/<topic>.md`(`paths:` 付き)、`.agents/skills/<name>/SKILL.md`、`docs/<topic>.md`
+- **判定**: 1 つのトピックが 20 行を超えたら切り出し候補。`@import` は毎セッション全文 load され削減にならないため、
+  パスと読む条件の記述で参照する
 
 ## 7. シークレットは絶対にコミットしない
 
@@ -61,14 +67,14 @@ Layer 1: フック(常時有効) / Layer 2: deny ルール(共有) / Layer 3: al
 ## 変更プロトコル
 
 1. 本ファイルの変更を提案する PR を作成
-2. **PR 内で**以下のコマンドで hash を再計算し、`.claude/.constitution.sha256` を
+2. **PR 内で**以下のコマンドで hash を再計算し、`.agents/.constitution.sha256` を
    同 PR にコミットする(別 PR で後追い禁止):
 
    ```bash
    # Linux / GNU coreutils
-   sha256sum constitution.md | cut -d' ' -f1 > .claude/.constitution.sha256
+   sha256sum constitution.md | cut -d' ' -f1 > .agents/.constitution.sha256
    # macOS / BSD (sha256sum 不在環境のフォールバック)
-   shasum -a 256 constitution.md | cut -d' ' -f1 > .claude/.constitution.sha256
+   shasum -a 256 constitution.md | cut -d' ' -f1 > .agents/.constitution.sha256
    ```
 
 3. レビューで合意 → マージ
@@ -81,6 +87,8 @@ skill 起動をブロックする(standard プロファイルでは警告のみ)
 ## 関連ドキュメント
 
 - `@project-blueprint/project-config.md` — 可変パラメータ(13 セクション)
-- `@project-blueprint/.claude/CLAUDE.md` — 開発ガイド(横断ルール)
-- `@project-blueprint/.claude/guardrails.md` — 3 層防御の詳細
-- `@project-blueprint/.claude/pitfalls.md` — 失敗パターンと対策
+- `@project-blueprint/AGENTS.md` — ツール共通の開発ルール(Claude Code は CLAUDE.md から取り込む)
+- `@project-blueprint/.claude/CLAUDE.md` — Claude Code 固有の開発ガイド
+- `@project-blueprint/.codex/config.toml` — Codex 固有の設定と読み替え
+- `@project-blueprint/.agents/guardrails.md` — 3 層防御の詳細
+- `@project-blueprint/.agents/pitfalls.md` — 失敗パターンと対策

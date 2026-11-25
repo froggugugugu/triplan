@@ -2,9 +2,12 @@
 name: explorer
 description: コードベースの広範な探索・構造把握・依存関係調査が必要なときに使用する。「〜がどこにあるか」「〜はどう実装されているか」といった調査系のタスクを軽量に実行する。読み取り専用。
 tools: Read, Grep, Glob
-model: claude-haiku-4-5
-color: blue
+model: haiku
+effort: low
+maxTurns: 30
 memory: project
+omitClaudeMd: true
+color: blue
 ---
 
 # Explorer Agent — コードベース探索専門

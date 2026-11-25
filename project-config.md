@@ -356,9 +356,9 @@ output/reports/                ← 人間向けサマリー（Git管理）
 
 ### ハーネス側の安全機構(本テンプレート提供)
 
-- **3 層防御**: フック(Layer 1) → deny ルール(Layer 2) → allow ルール(Layer 3)。詳細は `@.claude/guardrails.md`
+- **3 層防御**: フック(Layer 1) → deny ルール(Layer 2) → allow ルール(Layer 3)。詳細は `@.agents/guardrails.md`
 - **Self-SAST**: `scan-harness.sh`(PreToolUse: Skill)が secret 混入 / constitution 改竄 / settings.local の deny 弱体化を検出
-- **不変原則**: `@constitution.md` の 7 原則が `.claude/.constitution.sha256` で hash 監視される
+- **不変原則**: `@constitution.md` の 7 原則が `.agents/.constitution.sha256` で hash 監視される
 - **Hook profile**: `BLUEPRINT_HOOK_PROFILE=minimal|standard|strict` で検査の厳しさを切替可能
 - **高リスク skill 抑止**: `deploy*` 系 skill は `scan-harness.sh` で常時ブロック(profile=minimal でのみ通過)
 - **3 階層 permission 運用**: allowlist / auto / sandbox の使い分けは `@.claude/permissions-guide.md` 参照
@@ -479,7 +479,7 @@ PJM（リーダー）は判断精度が重要なので Critical を推奨。
 1. **Operational を積極活用**: 探索・同期・定型生成は Haiku で十分。Opus を使う必要はない
 2. **並行実行時はTier分散**: `TEAM_PJM --parallel` で全員 Opus にしない。役割に応じて Tier を混在
 3. **Subagent は Haiku 優先**: 単発の委譲は軽量運用。必要に応じて Critical に昇格
-4. **コスト上限を API キーに設定**: `@.claude/pitfalls.md` #6 参照
+4. **コスト上限を API キーに設定**: `@.agents/pitfalls.md` #6 参照
 5. **月次使用量レビュー**: Anthropic Console で確認。想定と乖離したら Tier を見直す
 
 ### 13.6 未記入時の挙動

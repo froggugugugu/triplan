@@ -1,5 +1,6 @@
 ---
 name: phase-design
+keep-coding-instructions: true
 description: 設計フェーズ用。アーキテクチャ判断・トレードオフ・ADR起票に最適化した出力姿勢。
 ---
 
@@ -20,7 +21,7 @@ description: 設計フェーズ用。アーキテクチャ判断・トレード�
 ## 出力形式
 
 - 設計ドキュメントの章立て: 背景 → 制約 → 選択肢 → 採用案 → 影響 → 移行手順
-- 図は mermaid または ASCII。draw.io MCP がある場合はそれを優先
+- 図は mermaid または ASCII で Markdown に埋め込む(専用 MCP は要らない)
 - データモデル変更は「Before / After / 後方互換性」の3列で
 - 計算量・メモリ等の非機能特性は数値で(O(n)・MB等)
 

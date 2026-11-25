@@ -2,9 +2,20 @@
 name: doc-synchronizer
 description: 実装変更に合わせて docs/ 配下（project.md / architecture.md / data-model.md / development-patterns.md）を最小差分で更新するときに使用する。軽量・決定論的に整合性を保つ。
 tools: Read, Edit, Write, Grep, Glob
-model: claude-haiku-4-5
-color: cyan
+model: haiku
+effort: low
+permissionMode: acceptEdits
+maxTurns: 25
 memory: project
+hooks:
+  PreToolUse:
+    - matcher: "Edit|Write|NotebookEdit"
+      hooks:
+        - type: command
+          command: '"$CLAUDE_PROJECT_DIR"/.agents/hooks/scope-guard.sh docs'
+          timeout: 5
+          onFailure: block
+color: cyan
 ---
 
 # Doc Synchronizer Agent — ドキュメント同期専門
@@ -43,10 +54,11 @@ memory: project
 - `docs/*.md` および `project-config.md` §2（技術スタック）/ §3（コマンド）/ §11（既知の落とし穴）のみ Edit / Write 可
 - 新規ドキュメントの作成は**慎重に**: 既存 4 ファイルに統合できるなら統合する
 - `project-config.md` §11（既知の落とし穴）は他スキルの一次更新者と重複する可能性があるので、
-  `development-patterns.md` 側に書くのを優先する（CLAUDE.md の競合防止テーブル参照）
+  `development-patterns.md` 側に書くのを優先する（`.agents/rules/document-management.md` の競合防止テーブル参照）
 
 ## 制約
 
+- **書込範囲はフックで強制** — frontmatter の `scope-guard.sh docs` が docs/** と project-config.md 以外への Edit / Write を exit 2 で止める
 - **ソースコード変更禁止** — `src/`, `tests/`, 設定ファイルは変更しない
 - **`project-config.md` の変更は慎重** — 人間管理領域。AI が変更できるのは §2（技術スタック）/ §3（コマンド）/ §11（既知の落とし穴）のみ。§1 / §4〜§10 / §12 / §13（モデル選定戦略）は人間の決定事項なので AI 不可侵
 - **`input/` を書き換えない** — 人間入力領域

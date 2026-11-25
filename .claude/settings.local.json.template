@@ -14,37 +14,93 @@
     "- MCP: 使用するMCPプラグインに合わせて変更",
     "",
     "安全機構（多層防御）:",
+    "- Layer 0: sandbox（既定 OFF。_comment_sandbox を参照して opt-in）",
     "- Layer 1: フック群（settings.json で定義、--dangerously-skip-permissions でも有効）",
-    "    PreToolUse(Bash/Edit/Write/Skill) + UserPromptSubmit + SessionStart + SessionEnd",
-    "    + PostToolUse + SubagentStop + PreCompact + Stop/Notification",
-    "- Layer 2: deny ルール（settings.json に定義済み。このファイルでは上書きしないこと）",
+    "    PreToolUse(Bash/Edit|Write|NotebookEdit/Skill) + PostToolUse + PostToolUseFailure",
+    "    + UserPromptSubmit + SessionStart/SessionEnd + SubagentStart/SubagentStop",
+    "    + PreCompact/PostCompact + Stop(verify-gate 検証ゲート / notify) / Notification + PermissionDenied(拒否記録) + TaskCompleted(検証ゲート) + ConfigChange(config-guard: 防御層を弱める設定変更の阻止)",
+    "    + UserPromptExpansion(scan-harness: /skill 直接入力) + PermissionRequest(ダイアログ記録) + StopFailure(API エラー記録・通知) + TeammateIdle(検証ゲート) + FileChanged(constitution 監視) + InstructionsLoaded(rule の load 記録)",
+    "    ブロック系 4 本(safety-check / protect-files / config-guard / scope-guard)は onFailure: block で、フック自身の故障時も操作を止める",
+    "- Layer 2: deny / ask ルール（settings.json に定義済み。このファイルでは上書きしないこと）",
     "- Layer 3: allow ルール（このファイル、通常モード時に有効）",
     "- meta : scan-harness.sh による self-SAST（constitution hash / secret 混入 / deny 弱体化検出）",
     "",
-    "teammateMode: エージェントチームの実行方式を制御する",
-    "- 'in-process': 同一プロセス内で実行（デフォルト、高速）",
-    "- 'worktree': git worktree で分離実行（並行開発時に推奨）",
-    "",
-    "enableAllProjectMcpServers: プロジェクトの .mcp.json で定義されたMCPサーバーを自動有効化する",
-    "",
-    "env: 環境変数の設定",
-    "- CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: Agent Teams 機能の有効化（'1' で有効）"
+    "評価順は deny > ask > allow。settings.json の ask にある操作は、",
+    "ここで allow に書いても確認ダイアログが出る（意図的な設計）。"
+  ],
+  "_comment_file_rules": [
+    "重要: ファイルパス権限は Edit(path) と Read(path) だけが参照される。",
+    "Write(path) / NotebookEdit(path) / Glob(path) / MultiEdit(path) は受理されるが",
+    "一切参照されず、起動時に警告が出る。Write 系を許可したいときも Edit(path) を書くこと。"
+  ],
+  "_comment_auto_mode": [
+    "auto mode(v2.1.283 以降は全プラン・全プロバイダで既定の権限モード。初回セッションで /auto-mode-setup を実行し環境を教える)との関係:",
+    "- settings.json の deny は分類器より前に効き、ask は auto mode でも必ず確認ダイアログを出す",
+    "- `permissions.defaultMode: \"auto\"` と `autoMode.*` は project / local settings からは読まれない(公式仕様)。",
+    "  個人の ~/.claude/settings.json か managed settings に書く。下書きは /auto-mode-setup が生成する",
+    "- autoMode の environment / allow / soft_deny には必ず \"$defaults\" を残す。無いと組み込みの文脈・例外・force push / 本番デプロイの既定ブロックが置き換わる",
+    "- 分類器は CLAUDE.md も読む。プロジェクト固有の禁止事項は CLAUDE.md 本体にも書く(import 先の AGENTS.md だけに置かない)",
+    "- 分類器の拒否は permission-denied-log.sh が testreport/denials/ に記録する。繰り返し拒否される",
+    "  正当な操作はこのファイルの allow に追加する"
+  ],
+  "_comment_stop_gate": [
+    "検証ゲート(Stop フック)の使い分け:",
+    "- 既定: verify-gate.sh(決定論的)。standard=警告 / strict=編集後に検証コマンドが無ければ 1 回差し戻し",
+    "- 会話内で完了条件を自走させたい: /goal <条件>(モデルが毎ターン判定、セッション限り)",
+    "- 常設のモデル判定ゲートが欲しい場合は prompt 型 Stop フックをこのファイルに追加する:",
+    "  \"hooks\": { \"Stop\": [ { \"hooks\": [ { \"type\": \"prompt\",",
+    "    \"prompt\": \"Evaluate if Claude should stop: $ARGUMENTS. Block only if tests were not run after code changes.\" } ] } ] }",
+    "  ※ 8 回連続ブロックで Claude Code が強制終了する(CLAUDE_CODE_STOP_HOOK_BLOCK_CAP で変更、0 で無制限)。stop_hook_active を見て 1 回で通す設計にする"
+  ],
+  "_comment_telemetry": [
+    "可観測性 / コスト(組織展開時): OpenTelemetry の変数は project / local settings の env に書いても無視される(v2.1.282 以降。",
+    "リポジトリ経由でテレメトリ先を書き換えられないため)。~/.claude/settings.json の env・managed settings・シェル環境に置く:",
+    "  CLAUDE_CODE_ENABLE_TELEMETRY=1 / OTEL_METRICS_EXPORTER=otlp / OTEL_LOGS_EXPORTER=otlp /",
+    "  OTEL_EXPORTER_OTLP_PROTOCOL=grpc / OTEL_EXPORTER_OTLP_ENDPOINT=http://<collector>:4317 /",
+    "  OTEL_LOG_TOOL_DETAILS=1(skill 名を記録し、未使用 skill を特定できる)",
+    "契約価格で /usage の金額を合わせるには managed settings の modelPricing を使う。",
+    "組織全体で固定する例は .claude/managed-settings.example.json を参照(deny / sandbox / credentials / OTel / requiredMinimumVersion)。"
+  ],
+  "_comment_plugins": [
+    "任意の公式プラグイン(/plugin install <名>@claude-plugins-official)。必要なものだけ enabledPlugins に足す:",
+    "- security-guidance: 編集ごとのパターン警告 + Stop 時の差分セキュリティレビュー(LLM。verify-gate と補完関係、トークンを使う)",
+    "- typescript-lsp / pyright-lsp / gopls-lsp など: 型付き言語のコードインテリジェンス(grep より少ない読込でシンボル解決)",
+    "- skill-creator: evals/evals.json を回して skill を改善する(dynamic workflows が使えない環境の /skill-eval 代替)",
+    "- session-report: セッションのトークン・キャッシュ効率・高コストなプロンプトを HTML で可視化",
+    "- claude-md-management: CLAUDE.md の監査と、セッションの学びの取り込み",
+    "存在しない名前は起動時に黙って無視される。validator がローカルの marketplace キャッシュと突き合わせて WARN する。"
   ],
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "BLUEPRINT_HOOK_PROFILE": "standard"
   },
   "_comment_hook_profile": [
-    "BLUEPRINT_HOOK_PROFILE: 新世代 hook (user-prompt-submit / session-end / scan-harness) の挙動切替",
+    "BLUEPRINT_HOOK_PROFILE: 拡張 hook の挙動切替",
+    "  対応: user-prompt-submit / session-end / scan-harness / post-compact-restore / subagent-audit / verify-gate / permission-denied-log / config-guard / instructions-log",
     "  - 'minimal':  パススルー(検査スキップ)。CI / 自動化向け",
     "  - 'standard': 検出時は警告のみ(non-blocking、既定)",
     "  - 'strict':   検出時に skill / プロンプトをブロック。高リスク作業向け"
   ],
+  "_comment_limits": [
+    "無人実行のコスト上限(公式の推奨は決定論的な上限): CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1 は settings.json で固定済み。",
+    "同時 subagent 数は CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS(既定 20)、workflow は CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS と workflowSizeGuideline、",
+    "CI は claude -p の --max-turns / --max-budget-usd で絞る。ここの env に書くなら \"CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS\": \"4\" のように整数の文字列で。",
+    "他セッションからのメッセージ: isolatePeerMachines は settings.json で true。受信も止めるなら \"crossSessionInbound\": \"refuse\"(project 設定は厳しい側だけ有効)。",
+    "subagent の既定 effort: frontmatter に effort の無い agent はセッションの effort を継承する。固定するなら \"CLAUDE_CODE_SUBAGENT_EFFORT\": \"medium\"(v2.1.316)。",
+    "無人の端末セッション・/loop・teammate を確認待ちで止めないなら permissions.denyInsteadOfPrompting: true(v2.1.319)。確認が要る呼び出しは拒否されターンは続く。",
+    "  ~/.claude/settings.json か --settings でしか効かない(このファイルや settings.json に書いても無視される)。",
+    "subagent の進捗要約を止めてリクエストを減らすなら \"CLAUDE_CODE_DISABLE_AGENT_PROGRESS_SUMMARIES\": \"1\"(v2.1.318)。"
+  ],
+  "_comment_working_dir_fence": [
+    "作業ディレクトリ外の読み書きを全権限モードで拒否する(任意。project settings からも効き、true は他の settings で打ち消せない):",
+    "  \"permissions\": { \"blockReadsOutsideWorkingDirectories\": true, \"blockWritesOutsideWorkingDirectories\": true }",
+    "blockWrites は v2.1.314 以降。~/.claude 配下の skill / rules / CLAUDE.md は読める。別ディレクトリも扱うなら --add-dir か",
+    "~/.claude/settings.json の additionalDirectories に足す(project settings の additionalDirectories は作業ディレクトリに数えない)。"
+  ],
   "permissions": {
     "allow": [
-      "Edit(**/*.{css,js,ts,tsx,json,md})",
-      "Write(**/*.{css,js,ts,tsx,json,md})",
       "Read(**/*)",
+      "Edit(**/*.{css,js,jsx,ts,tsx,json,md,yml,yaml})",
       "Bash(npm run *)",
       "Bash(npm install *)",
       "Bash(npm uninstall *)",
@@ -62,7 +118,6 @@
       "Bash(git log *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)",
       "Bash(git pull *)",
       "Bash(git fetch *)",
       "Bash(git branch *)",
@@ -73,17 +128,43 @@
       "Bash(git reset *)",
       "Bash(git restore *)",
       "Bash(git remote *)",
-      "Bash(gh pr *)",
-      "Bash(gh repo *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr create *)",
+      "Bash(gh repo view *)",
       "Bash(node *)",
       "Bash(ls *)",
+      "Workflow(review-sweep)",
+      "Workflow(skill-eval)",
+    "Skill(code-review)",
       "WebSearch",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:github.com)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__query-docs",
-      "mcp__plugin_playwright_playwright__*",
-      "WebFetch(domain:*)"
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "mcp__playwright__*",
+      "mcp__plugin_playwright_playwright__*"
     ]
   },
+  "_comment_allow_notes": [
+    "git push / gh pr merge / gh release は settings.json の ask に載せているため、",
+    "ここに allow を書いても確認ダイアログが出る。外向き操作は毎回確認する方針。",
+    "",
+    "WebFetch はドメイン単位で許可する。全許可したい場合は 'WebFetch(domain:*)' に",
+    "置き換えるが、任意 URL への到達を許すことになる点に注意。",
+    "",
+    "Skill(code-review) は読取専用の /code-review を確認なしで起動させる。v2.1.325 以降、/loop と予約タスクは allowed-tools か hooks を宣言した skill を起動前に確認するため、",
+    "これが無いと .claude/loop.md の手順 4 で無人ループが止まる。書込みを伴う skill は allow に載せない。",
+    "",
+    "Workflow(<名前>) は保存済み workflow の実行確認を省く。同梱の review-sweep / skill-eval を allow に載せている。",
+    "規模の目安は workflowSizeGuideline(既定 medium = 10 体未満、Pro は small)で調整する。",
+    "",
+    "Manual モードで確認が多いときは /fewer-permission-prompts が直近の transcript から読取専用の Bash / MCP 呼び出しを拾って",
+    ".claude/settings.json の allow に書く。共有 settings.json に allow を置かない方針なので、生成された行はこのファイルへ移す。"
+  ],
   "_comment_pkg_manager": [
     "パッケージマネージャの切り替え — allow 内の npm/npx ブロックを入れ替える",
     "",
@@ -97,6 +178,44 @@
     "eslint + prettier: Bash(npx eslint *), Bash(npx prettier *)",
     "jest（vitest の代替）: Bash(npx jest *)"
   ],
+  "_comment_sandbox": [
+    "Layer 0: OS サンドボックス。Bash を隔離実行し、任意のサブプロセスによる",
+    "ファイル・ネットワークアクセスまで OS レベルで制限する。",
+    "deny ルール（Read/Edit）が届かない Python/Node スクリプト経由の読み書きも塞げる。",
+    "",
+    "有効化するには次のブロックをトップレベルに貼る:",
+    "  \"sandbox\": {",
+    "    \"enabled\": true,",
+    "    \"network\": { \"allowedDomains\": [\"registry.npmjs.org\", \"github.com\"] }",
+    "  }",
+    "",
+    "サンドボックス内で失敗するコマンドは sandbox.excludedCommands で個別に除外する。",
+    "v2.1.325 以降、サンドボックス内の Bash も通常の権限フロー(allow / ask / deny)に従う。以前のように確認なしで走らせるなら",
+    "  \"sandbox\": { \"enabled\": true, \"autoAllowBashIfSandboxed\": true }",
+    "を書く(ask / deny ルールはそのまま効く)。",
+    "",
+    "認証情報には組み込みの deny リストが無い(~/.aws/credentials や ~/.ssh は既定で読める)。明示的に塞ぐ:",
+    "  \"sandbox\": { \"credentials\": {",
+    "    \"files\": [ { \"path\": \"~/.aws/credentials\", \"mode\": \"deny\" }, { \"path\": \"~/.ssh\", \"mode\": \"deny\" } ],",
+    "    \"envVars\": [ { \"name\": \"GITHUB_TOKEN\", \"mode\": \"deny\" }, { \"name\": \"NPM_TOKEN\", \"mode\": \"deny\" } ] } }",
+    "auto mode でサンドボックス外の再試行(dangerouslyDisableSandbox)を毎回確認したいなら ask に Bash(dangerouslyDisableSandbox:true) を足す。"
+  ],
+  "_comment_teammate": [
+    "teammateMode: エージェントチームの teammate を「どこに表示するか」を制御する。",
+    "  - 'in-process': メインのターミナルペイン内で実行（既定）",
+    "  - 'auto'      : tmux / iTerm2 が使えれば分割ペイン、無理なら in-process",
+    "  - 'tmux'      : tmux / iTerm2 の分割ペイン",
+    "  - 'iterm2'    : iTerm2 ネイティブ分割ペイン",
+    "※ 'worktree' は teammateMode の値ではない。リポジトリを分離したい場合は",
+    "   subagent 側の frontmatter に isolation: worktree を書くか、worktree.* を設定する。",
+    "",
+    "worktree.baseRef: worktree の分岐元",
+    "  - 'fresh'（既定）: origin/<default-branch> から分岐（リモート同等のクリーンな木）",
+    "  - 'head'         : 現在のローカル HEAD から分岐（未 push のコミットを含む）"
+  ],
   "enableAllProjectMcpServers": true,
-  "teammateMode": "in-process"
+  "teammateMode": "in-process",
+  "worktree": {
+    "baseRef": "head"
+  }
 }

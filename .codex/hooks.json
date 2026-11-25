@@ -1,0 +1,152 @@
+{
+  "description": "Project Blueprint: 共有フック(.agents/hooks/)を Codex から呼ぶ登録。入力の違いは lib/codex-adapter.sh が吸収する。初回と変更後は Codex の /hooks で内容を確認して信頼する(信頼するまで実行されない)",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" session-start.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" user-prompt-submit.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" scan-harness.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" --fail-closed safety-check.sh",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" --fail-closed protect-files.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" permission-denied-log.sh request",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" commit-quality.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" verify-gate.sh track",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" console-warn.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" verify-gate.sh track",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" subagent-audit.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" subagent-audit.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" pre-compact-backup.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" verify-gate.sh gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/hooks/lib/codex-adapter.sh\" session-end.sh",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

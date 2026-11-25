@@ -68,6 +68,7 @@
 ### レビュアー
 
 - 開発者の実装完了後にコードレビューを実施
+- 最初に `verifier` agent で差分を TASK の受け入れ条件と照合し、gap があれば開発者へ戻す(1 タスク 1 回)
 - 使用スキル: `/code-review`
 - レビュー観点・チェックリスト・レポートフォーマットはスキル定義に従う
 - 具体的なフィードバックを開発者に送る
@@ -132,7 +133,7 @@ PL: 全体確認 → 完了判定
 
 ## 技術スタック参照
 
-チーム全員が`.claude/CLAUDE.md`を読み、プロジェクトの技術スタック・規約に従うこと。
+チーム全員が `CLAUDE.md` とそれが取り込む `AGENTS.md` を読み、プロジェクトの技術スタック・規約に従うこと。
 
 ## タスクファイル連携ルール
 
@@ -149,7 +150,9 @@ TEAM_PJM の並行モード（`--parallel`）から起動された場合、以�
 - 他の TEAM_FEATURE インスタンスとは直接連携しない（PJM が統合管理を担当する）
 - 完了時に PJM に完了を報告する（PJM が TaskUpdate で進捗を管理する）
 
-## 関連参照(必要に応じて Claude が load)
+## 関連参照
 
-@.claude/teams/README.md
-@.claude/agents/README.md
+起動したら最初に次の 2 ファイルを Read する:
+
+- `.claude/teams/README.md` — チーム選定・起動パターン・subagent dispatch ガイド
+- `.claude/agents/README.md` — subagent の使い分けと権限

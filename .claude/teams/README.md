@@ -3,7 +3,39 @@
 ## 概要
 
 プロジェクトの活動フェーズに応じた6つの専門チームテンプレートを提供する。
-各チームは`.claude/skills/`配下のスキルにマッピングされている。
+各チームは`.agents/skills/`配下のスキルにマッピングされている。
+
+### 公式 Agent Teams 機能との関係
+
+`TEAM_*.md` は**プロンプトレベルのオーケストレーション定義**であり、
+Claude Code 公式の Agent Teams 機能とは別レイヤーにある。両者は組み合わせて使う。
+
+| | `TEAM_*.md`（本テンプレート） | 公式 Agent Teams |
+| --- | --- | --- |
+| 実体 | Markdown のロール定義・フェーズ手順 | 複数の Claude Code インスタンス |
+| 起動 | ファイルパスを渡して読ませる | 自然言語で teammate を依頼する |
+| コンテキスト | メインセッション + subagent | teammate ごとに独立 |
+| 有効化 | 不要（常に使える） | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` が必要 |
+| コスト | 低〜中 | 高（teammate ごとに別インスタンス） |
+
+- **既定は `TEAM_*.md` 単独**で足りる。逐次フェーズや同一ファイルの編集が多い作業では
+  むしろ公式 Agent Teams より効率が良い
+- **並行探索の価値が高い作業**（競合仮説のデバッグ、レイヤー横断の同時実装、
+  複数観点の同時レビュー）でのみ公式 Agent Teams を併用する
+- 併用時は `settings.local.json` の `teammateMode` で teammate の**表示先**を選ぶ
+  （`in-process` / `auto` / `tmux` / `iterm2`）。`worktree` は teammateMode の値ではない
+- 公式 Agent Teams 有効時は、Claude が名前を付けた subagent が teammate として起動する。
+  意図せずチームが形成されることがある点に注意
+- 品質ゲートを teammate にも効かせたい場合は `TeammateIdle` / `TaskCompleted` フックを使う
+- `TaskCreate` 系の Task ツールは Claude 5 系モデルでは既定で無効。本テンプレートは `settings.json` の env `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` で
+  有効化しているので、`TEAM_*.md` の「TaskCreate でタスクリスト」はそのまま動く
+- 数十〜数百の subagent を並列に回す作業(コードベース全体の監査、大量ファイルの一括移行)には
+  公式の **dynamic workflows**(プロンプトに `ultracode` を含める / `/batch`)が向く。計画をスクリプトに
+  移すので中間結果がコンテキストに載らない。`TEAM_*.md` は人間ゲート付きのライフサイクル運用に使い分ける。
+  規模の目安は `workflowSizeGuideline`(既定 medium = 10 体未満、Pro は small)。保存済み workflow は `Workflow(<名前>)` の allow ルールで実行確認を省ける
+- 同梱の saved workflow `/review-sweep`(`.claude/workflows/review-sweep.js`、full プロファイルのみ)は、差分を 4 観点で並列レビューし、
+  MUST 指摘を 3 票の反証で検証してから 1 本のレポートにまとめる。TEAM_QA のレビュー工程を、実装者の文脈を持たない agent で自動化したもの
+- `/skill-eval skill=<名>`(同ディレクトリ)は skill の `evals/evals.json` を skill あり / なしで回し、pass rate を比べる
 
 ## クイックスタート
 
@@ -177,7 +209,7 @@ project-root/
 │
 ├── project-config.md              人間が記入する設定ファイル
 ├── .claude/teams/                 チーム定義
-└── .claude/skills/                スキル定義
+└── .agents/skills/                スキル定義
 ```
 
 ### 各ディレクトリの役割
@@ -224,7 +256,7 @@ project-root/
 
 ## サブエージェント dispatch ガイド
 
-チーム内のメンバーは、必要に応じて以下の subagent に単発委譲できる(`@.claude/agents/README.md` 参照)。
+チーム内のメンバーは、必要に応じて以下の subagent に単発委譲できる(`.claude/agents/README.md` 参照)。
 
 | Agent | PJM | Feature | QA | Planning | Design | Refactor |
 | ----- | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -236,6 +268,7 @@ project-root/
 | `doc-synchronizer` | Developer | Developer | — | — | — | Refactorer |
 | `doc-writer` | Analyst/Reviewer | — | Reviewer | Analyst | — | — |
 | `test-writer` | Developer/Tester | Developer | Tester | — | — | Tester |
+| `verifier` | Reviewer | Reviewer | Reviewer | — | — | Reviewer |
 
 ### 典型 dispatch 例
 
@@ -244,6 +277,7 @@ project-root/
 - **TEAM_FEATURE 実装中**: Developer が未知の依存を触る前に `researcher` で公式仕様を確認(車輪の再発明防止)
 - **TEAM_QA**: Security 役が `security-reviewer` agent + `researcher`(CVE 最新情報)を組み合わせて監査
 - **TEAM_PLANNING**: Architect が `researcher` で複数候補フレームワークの比較情報を収集 → 設計判断の根拠に
+- **実装ゲート(全チーム)**: Reviewer が `/code-review` の前に `verifier` を 1 回呼び、差分を TASK の受け入れ条件と照合する(gap が無いことを確かめてからバグ探索に入る)
 
 agent と team は層が異なる(三層分離原則)。team 内のメンバーが必要時に単発で呼び出す形を取り、agent から team を起動するような循環は禁止。
 
@@ -301,6 +335,6 @@ agent と team は層が異なる(三層分離原則)。team 内のメンバー�
 チームテンプレートを直接編集するか、コピーして別名で保存する。
 
 - 役割の追加・削除: チーム構成テーブルと各役割の責務セクションを編集
-- スキルの変更: 各役割の使用スキルを変更（`.claude/skills/`配下のスキル名を指定）
+- スキルの変更: 各役割の使用スキルを変更（`.agents/skills/`配下のスキル名を指定）
 - ワークフロー変更: ワークフローと依存関係ルールを編集
 - ゲートの追加・削除: フェーズワークフローのゲートポイントを編集

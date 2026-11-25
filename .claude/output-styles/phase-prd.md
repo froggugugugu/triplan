@@ -1,5 +1,6 @@
 ---
 name: phase-prd
+keep-coding-instructions: true
 description: PRD フェーズ用。要求引き出し・選択肢提示・曖昧さの可視化に最適化した出力姿勢。
 ---
 
