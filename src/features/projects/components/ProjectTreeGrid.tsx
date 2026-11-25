@@ -37,6 +37,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/components/ui/popover'
+import { useGridContext } from '@/shared/hooks/use-grid-context'
 import { useToast } from '@/shared/hooks/use-toast'
 import type { Project, ProjectLevel, ProjectTreeNode } from '@/shared/types'
 import { MAX_PROJECT_LEVEL, PROJECT_LEVEL_LABELS } from '@/shared/types/project'
@@ -1464,7 +1465,7 @@ export function ProjectTreeGrid({
     [],
   )
 
-  const context = useMemo(
+  const contextValue = useMemo(
     () => ({
       toggleExpand,
       onAddChild,
@@ -1484,6 +1485,7 @@ export function ProjectTreeGrid({
       assigneeOf,
     ],
   )
+  const context = useGridContext(contextValue, gridRef)
 
   const onCellValueChanged = useCallback(
     (event: CellValueChangedEvent<FlatRowData>) => {
