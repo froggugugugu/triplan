@@ -210,7 +210,9 @@ async function scrollToMonthColumn(
       async () => {
         await page.evaluate(
           ({ dir }) => {
-            const viewport = document.querySelector('.ag-center-cols-viewport')
+            const viewport = document.querySelector(
+              '.ag-body-horizontal-scroll-viewport',
+            )
             if (!viewport) return
             viewport.scrollLeft = dir === 'right' ? viewport.scrollWidth : 0
           },
@@ -223,14 +225,14 @@ async function scrollToMonthColumn(
     .toBeGreaterThan(0)
 }
 
-/** Read cell text value from AG Grid (center-cols body region) */
+/** Read cell text value from AG Grid */
 async function readAgGridCellText(
   page: Page,
   rowId: string,
   colField: string,
 ): Promise<string> {
   const cell = page.locator(
-    `.ag-center-cols-container .ag-row[row-id="${rowId}"] .ag-cell[col-id="${colField}"]`,
+    `.ag-row[row-id="${rowId}"] .ag-cell[col-id="${colField}"]`,
   )
   return (await cell.innerText()).trim()
 }
@@ -398,7 +400,7 @@ test.describe('Assignment Feature - Basic Operations', () => {
 
     // 担当者列（memberId）はAG Gridのピン留め左列に描画される
     const memberCell = page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="member-${assignment.id}"] .ag-cell[col-id="memberId"]`,
+      `.ag-row[row-id="member-${assignment.id}"] .ag-cell[col-id="memberId"]`,
     )
     await expect(memberCell).toContainText('Member A（Developer）')
   })
@@ -424,7 +426,7 @@ test.describe('Assignment Feature - Basic Operations', () => {
     // Open the member select editor in pinned left container
     const newMemberRowId = `new-member-${PROJECT_X_TASK1_ID}`
     const memberCell = page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="memberId"]`,
+      `.ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="memberId"]`,
     )
     await memberCell.dblclick()
 
@@ -470,7 +472,7 @@ test.describe('Assignment Feature - Basic Operations', () => {
 
     // Double-click the month cell to start editing (center-cols region)
     const centerCell = page.locator(
-      `.ag-center-cols-container .ag-row[row-id="member-${assignment.id}"] .ag-cell[col-id="month_2025-04"]`,
+      `.ag-row[row-id="member-${assignment.id}"] .ag-cell[col-id="month_2025-04"]`,
     )
     await centerCell.dblclick()
     // Verify inline edit mode is activated
@@ -563,7 +565,7 @@ test.describe('Assignment Feature - Basic Operations', () => {
 
     // 契約開始月より前（2025-04）への入力はブロックされる
     const centerCell = page.locator(
-      `.ag-center-cols-container .ag-row[row-id="member-${assignment.id}"] .ag-cell[col-id="month_2025-04"]`,
+      `.ag-row[row-id="member-${assignment.id}"] .ag-cell[col-id="month_2025-04"]`,
     )
     await centerCell.dblclick()
     const input = centerCell.locator('input').first()
@@ -607,7 +609,7 @@ test.describe('Assignment Feature - Column Structure (Master Schedule)', () => {
     })
     await seedAndNavigate(page, data)
 
-    // Scroll to reveal 12月 column (AG Grid v33 column virtualisation)
+    // Scroll to reveal 12月 column (AG Grid column virtualisation)
     await scrollToMonthColumn(page, 'month_2025-12')
     await expect(
       page.locator('.ag-header-cell[col-id="month_2025-12"]'),
@@ -798,11 +800,8 @@ test.describe('Assignment Feature - Column Structure (Master Schedule)', () => {
     )
     expect(cellText4).toBe('0.30')
 
-    // Scroll AG Grid to the right to reveal 12月 column (AG Grid v33 column virtualisation)
-    await page.evaluate(() => {
-      const viewport = document.querySelector('.ag-center-cols-viewport')
-      if (viewport) viewport.scrollLeft = viewport.scrollWidth
-    })
+    // Scroll AG Grid to the right to reveal 12月 column (AG Grid column virtualisation)
+    await scrollToMonthColumn(page, 'month_2025-12')
     await expect(
       page.locator('.ag-header-cell[col-id="month_2025-12"]'),
     ).toBeVisible()
@@ -828,7 +827,7 @@ test.describe('Assignment Feature - Validation: Member Not Selected', () => {
     // Double-click the member cell in pinned left container to enter edit mode
     const newMemberRowId = `new-member-${PROJECT_X_TASK1_ID}`
     const cell = page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="memberId"]`,
+      `.ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="memberId"]`,
     )
     await cell.dblclick()
 
@@ -864,7 +863,7 @@ test.describe('Assignment Feature - Validation: Member Not Selected', () => {
 
     // Double-click a month cell on the new-member row (center region)
     const monthCell = page.locator(
-      `.ag-center-cols-container .ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="month_2025-04"]`,
+      `.ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="month_2025-04"]`,
     )
     await monthCell.dblclick()
 
@@ -882,7 +881,7 @@ test.describe('Assignment Feature - Validation: Member Not Selected', () => {
 
     const newMemberRowId = `new-member-${PROJECT_X_TASK1_ID}`
     const memberCell = page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="memberId"]`,
+      `.ag-row[row-id="${newMemberRowId}"] .ag-cell[col-id="memberId"]`,
     )
     await memberCell.dblclick()
 
@@ -1509,9 +1508,7 @@ test.describe('Assignment Feature - Delete Assignment', () => {
     await seedAndNavigate(page, data)
 
     // Verify the member row is visible
-    const memberRow = page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="member-${assignment.id}"]`,
-    )
+    const memberRow = page.locator(`.ag-row[row-id="member-${assignment.id}"]`)
     await expect(memberRow).toBeVisible()
     await expect(
       page.locator('.ag-cell').filter({ hasText: 'Member A' }),
@@ -1565,7 +1562,7 @@ test.describe('Assignment Feature - Delete Assignment', () => {
 
     // Delete Member A's assignment
     const memberARow = page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="member-${assignmentA.id}"]`,
+      `.ag-row[row-id="member-${assignmentA.id}"]`,
     )
     const memberACell = memberARow.locator('.ag-cell[col-id="memberId"]')
     await memberACell.hover()
@@ -1616,9 +1613,7 @@ test.describe('Assignment Feature - Delete Assignment', () => {
     ).toBeVisible()
 
     // Delete the assignment on Project X
-    const memberRow = page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="member-${assignmentX.id}"]`,
-    )
+    const memberRow = page.locator(`.ag-row[row-id="member-${assignmentX.id}"]`)
     const memberCell = memberRow.locator('.ag-cell[col-id="memberId"]')
     await memberCell.hover()
     await memberCell.getByRole('button', { name: '担当者を削除' }).click()
@@ -1711,10 +1706,10 @@ test.describe('アサイン画面の双方向連携・編集中の上下キー�
     await seedAndNavigate(page, data)
 
     const cellA = page.locator(
-      `.ag-center-cols-container .ag-row[row-id="member-${assignmentA.id}"] .ag-cell[col-id="month_2025-04"]`,
+      `.ag-row[row-id="member-${assignmentA.id}"] .ag-cell[col-id="month_2025-04"]`,
     )
     const cellB = page.locator(
-      `.ag-center-cols-container .ag-row[row-id="member-${assignmentB.id}"] .ag-cell[col-id="month_2025-04"]`,
+      `.ag-row[row-id="member-${assignmentB.id}"] .ag-cell[col-id="month_2025-04"]`,
     )
 
     await cellA.dblclick()

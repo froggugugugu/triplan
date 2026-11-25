@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  type PinnedColumnInfo,
-  selectColumnsToUnpin,
-} from '../pinned-columns'
+import { type PinnedColumnInfo, selectColumnsToUnpin } from '../pinned-columns'
 
 // WBSグリッドの実際の列幅（ProjectTreeGridの列定義）。左940 + 右130 = 1070
 const WBS_COLUMNS: PinnedColumnInfo[] = [

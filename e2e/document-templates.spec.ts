@@ -152,9 +152,7 @@ test.describe('ドキュメントテンプレート管理（/document-templates�
 
     // 「ドキュメント」列の紐づけボタンから選択ダイアログが開ける
     await page
-      .locator(
-        '.ag-center-cols-container [title="ドキュメントテンプレートを紐づけ"]',
-      )
+      .locator('[title="ドキュメントテンプレートを紐づけ"]')
       .first()
       .click()
     await expect(

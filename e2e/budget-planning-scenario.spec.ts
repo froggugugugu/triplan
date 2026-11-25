@@ -136,9 +136,7 @@ async function selectComboboxOption(
 
 function agGridCell(page: Page, rowId: string, colId: string) {
   return page
-    .locator(
-      `.ag-center-cols-container .ag-row[row-id="${rowId}"] .ag-cell[col-id="${colId}"]`,
-    )
+    .locator(`.ag-row[row-id="${rowId}"] .ag-cell[col-id="${colId}"]`)
     .first()
 }
 

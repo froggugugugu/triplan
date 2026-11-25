@@ -132,9 +132,7 @@ async function seedAndOpen(page: Page) {
 
 /** 担当者列は左固定。pinned-leftコンテナから取る（bodyと行DOMが重複するため） */
 function assigneeCell(page: Page, rowId: string) {
-  return page.locator(
-    `.ag-pinned-left-cols-container .ag-row[row-id="${rowId}"] .ag-cell[col-id="assignee"]`,
-  )
+  return page.locator(`.ag-row[row-id="${rowId}"] .ag-cell[col-id="assignee"]`)
 }
 
 test.describe('WBS 担当者列', () => {
@@ -158,7 +156,7 @@ test.describe('WBS 担当者列', () => {
   }) => {
     await seedAndOpen(page)
     await expect(
-      page.locator('.ag-pinned-left-header .ag-header-cell', {
+      page.locator('.ag-header-cell[col-id="assignee"]', {
         hasText: '担当者',
       }),
     ).toBeVisible()
