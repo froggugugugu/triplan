@@ -7,14 +7,28 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!**/node_modules", "!**/dist", "!.claude/workflows"]
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!.claude/workflows",
+      "!**/*.md",
+      "!**/*.yml",
+      "!**/*.yaml"
+    ]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
