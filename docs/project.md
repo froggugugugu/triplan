@@ -72,8 +72,8 @@ Node.js 22以上・npm 11以上が必要（2026-08-22にNode 20から引き上�
 | フレームワーク | React 19, TypeScript 5.9（Strict）, Vite 7    |
 | スタイリング   | Tailwind CSS 4, shadcn/ui（Radix UI）, cmdk 1  |
 | 状態管理       | Zustand 5（localStorage永続化）               |
-| グリッド       | AG Grid 33                                    |
-| ガントチャート | @svar-ui/react-gantt 2.7（2.7以降はDOMのid属性値に「:」が前置される。`normalizeGanttId`で剥がす） |
+| グリッド       | AG Grid 36                                    |
+| ガントチャート | @svar-ui/react-gantt 2.8（2.7以降はDOMのid属性値に「:」が前置される。`normalizeGanttId`で剥がす） |
 | チャート       | Recharts 2.15                                 |
 | バリデーション | Zod 4.6（id検証は`z.guid()`＝v3の`.uuid()`と同じ緩い判定。v4の`.uuid()`はRFC準拠のみ受理）, React Hook Form 7, @hookform/resolvers 5 |
 | ルーティング   | React Router DOM 7                            |
@@ -81,11 +81,11 @@ Node.js 22以上・npm 11以上が必要（2026-08-22にNode 20から引き上�
 | D&D            | react-dnd 16                                  |
 | アイコン       | lucide-react                                  |
 | フォント       | Inter Variable, Noto Sans JP（@fontsourceでセルフホスト、CDN非依存） |
-| コード品質     | Biome 2.5（リンター / フォーマッター）        |
+| コード品質     | Biome 2.6（リンター / フォーマッター。Markdown・YAMLは対象外） |
 | 依存方向チェック | dependency-cruiser 17                        |
 | Git Hooks      | husky 9, lint-staged 16                       |
-| テスト         | Vitest 4, Testing Library, Playwright 1.52    |
-| アクセシビリティ | @axe-core/playwright 4.13（E2Eで全画面・主要ダイアログをWCAG 2.1 AA検査） |
+| テスト         | Vitest 5, Testing Library（jest-dom 8）, Playwright 1.65 |
+| アクセシビリティ | @axe-core/playwright 4.14（E2Eで全画面・主要ダイアログをWCAG 2.1 AA検査） |
 | モック         | MSW 2                                         |
 
 ### サーバー（`server/`、postgresモード用）
@@ -96,10 +96,10 @@ Node.js 22以上・npm 11以上が必要（2026-08-22にNode 20から引き上�
 | データベース | PostgreSQL 16+, Drizzle ORM 0.45      |
 | 認証         | Argon2（パスワードハッシュ）, Jose JWT 6.2 |
 | バリデーション | Zod 4.6                               |
-| テスト       | Vitest 4, Testcontainers PostgreSQL    |
+| テスト       | Vitest 5, Testcontainers PostgreSQL    |
 | 開発ツール   | tsx 4.23, drizzle-kit 0.31             |
 | 圧縮         | @fastify/compress 9.2（全レスポンス、閾値1KB、br/gzip/deflate） |
-| コード品質   | Biome 2.5, dependency-cruiser 17       |
+| コード品質   | Biome 2.6, dependency-cruiser 17       |
 
 ## ルーティング
 
