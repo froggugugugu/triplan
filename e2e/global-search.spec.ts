@@ -198,9 +198,7 @@ test.describe('WBSグリッドのツリー内絞り込み', () => {
   }
 
   function row(page: Page, id: string) {
-    return page.locator(
-      `.ag-pinned-left-cols-container .ag-row[row-id="${id}"]`,
-    )
+    return page.locator(`.ag-row[row-id="${id}"]`)
   }
 
   test('一致したタスクとその祖先だけが残る（階層を壊さない）', async ({

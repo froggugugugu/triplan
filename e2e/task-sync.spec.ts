@@ -102,12 +102,12 @@ async function getStoredProjects(page: Page) {
 }
 
 /**
- * 「連携」列のセル。右端固定列（pinned: 'right'）に置いているため
- * `.ag-pinned-right-cols-container` で特定する（AG Gridはpinned/bodyで行DOMが重複する）
+ * 「連携」列のセル。右端固定列（pinned: 'right'）に置いている。
+ * AG Grid 36 から固定列も同じ行要素に描かれる（行DOMが重複しない）ので、行IDと列IDで一意に決まる
  */
 function linkCell(page: Page, rowId: string) {
   return page.locator(
-    `.ag-pinned-right-cols-container .ag-row[row-id="${rowId}"] .ag-cell[col-id="externalTaskId"]`,
+    `.ag-row[row-id="${rowId}"] .ag-cell[col-id="externalTaskId"]`,
   )
 }
 
@@ -341,9 +341,9 @@ test.describe('外部タスクリンク（/wbs の「連携」列）', () => {
     await expect(page.getByRole('combobox').first()).toContainText('P710')
     // プロジェクトを選んだ直後はAG Gridがまだ行を描いていないことがあり、
     // 並列実行の負荷が高いと各testの既定タイムアウト内に間に合わず落ちる（実際にflakeを観測）。
-    // 「連携」列は右端固定コンテナに描かれるため、そこに行が出るまで待ってから検証に入る
+    // 「連携」列（右端固定）のセルが描かれるまで待ってから検証に入る
     await expect(
-      page.locator('.ag-pinned-right-cols-container .ag-row').first(),
+      page.locator('.ag-row .ag-cell[col-id="externalTaskId"]').first(),
     ).toBeVisible({ timeout: 15000 })
   })
 

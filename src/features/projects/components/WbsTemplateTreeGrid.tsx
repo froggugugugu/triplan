@@ -21,6 +21,7 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { gridTheme } from '@/shared/ag-grid-theme'
 import { Button } from '@/shared/components/ui/button'
+import { useGridContext } from '@/shared/hooks/use-grid-context'
 import { useToast } from '@/shared/hooks/use-toast'
 import {
   addChildEditorNode,
@@ -341,7 +342,7 @@ export function WbsTemplateTreeGrid({
     [onDocumentLinkRequest],
   )
 
-  const context = useMemo(
+  const contextValue = useMemo(
     () => ({
       toggleExpand,
       onAddChild: handleAddChild,
@@ -350,6 +351,7 @@ export function WbsTemplateTreeGrid({
     }),
     [toggleExpand, handleAddChild, handleDelete, handleEditDocuments],
   )
+  const context = useGridContext(contextValue, gridRef)
 
   const onCellValueChanged = useCallback(
     (event: CellValueChangedEvent<FlatRow>) => {

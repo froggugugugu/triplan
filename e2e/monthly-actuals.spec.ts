@@ -143,9 +143,7 @@ async function getStoredConfirmations(page: Page) {
 
 /** AG Gridの実績セル（詳細行）。ピン留めなし構成のためcenter-cols指定 */
 function actualCell(page: Page, rowId: string) {
-  return page.locator(
-    `.ag-center-cols-container .ag-row[row-id="${rowId}"] .ag-cell[col-id="actual"]`,
-  )
+  return page.locator(`.ag-row[row-id="${rowId}"] .ag-cell[col-id="actual"]`)
 }
 
 test.describe('月次実績メンテナンス画面（/monthly-actuals）', () => {

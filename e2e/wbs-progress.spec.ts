@@ -95,9 +95,7 @@ test.describe('WBS - 完了チェック操作とツリーアコーディオン�
 
     // Task Aのアコーディオンを折りたたむ
     const taskAExpandButton = page
-      .locator(
-        `.ag-pinned-left-cols-container .ag-row[row-id="${TASK_A_ID}"] .ag-cell[col-id="name"] button`,
-      )
+      .locator(`.ag-row[row-id="${TASK_A_ID}"] .ag-cell[col-id="name"] button`)
       .first()
     await taskAExpandButton.click()
     await expect(page.getByLabel('SubTask A1を完了にする')).not.toBeVisible()
@@ -129,15 +127,11 @@ test.describe('WBS - 完了チェック操作とツリーアコーディオン�
 
     // Task A・Task Bの両方を折りたたむ
     const taskAExpandButton = page
-      .locator(
-        `.ag-pinned-left-cols-container .ag-row[row-id="${TASK_A_ID}"] .ag-cell[col-id="name"] button`,
-      )
+      .locator(`.ag-row[row-id="${TASK_A_ID}"] .ag-cell[col-id="name"] button`)
       .first()
     await taskAExpandButton.click()
     const taskBExpandButton = page
-      .locator(
-        `.ag-pinned-left-cols-container .ag-row[row-id="${TASK_B_ID}"] .ag-cell[col-id="name"] button`,
-      )
+      .locator(`.ag-row[row-id="${TASK_B_ID}"] .ag-cell[col-id="name"] button`)
       .first()
     await taskBExpandButton.click()
     await expect(page.getByLabel('SubTask A1を完了にする')).not.toBeVisible()

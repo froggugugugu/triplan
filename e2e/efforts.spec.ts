@@ -81,9 +81,7 @@ async function selectProject(page: Page) {
 
 function effortCell(page: Page) {
   return page
-    .locator(
-      `.ag-center-cols-container .ag-row[row-id="${TASK_ID}"] .ag-cell[col-id="effort_effort-1"]`,
-    )
+    .locator(`.ag-row[row-id="${TASK_ID}"] .ag-cell[col-id="effort_effort-1"]`)
     .first()
 }
 
@@ -96,6 +94,11 @@ async function getStoredEfforts(page: Page) {
 }
 
 test.describe('WBS画面の工数列インライン編集（/wbs）', () => {
+  // 1280px幅では左右の固定列が表示幅の大半を占め、工数セルが固定列の下に隠れて
+  // ダブルクリックが固定セルに奪われる（AG Grid 36は固定セルを同じ行に重ねて描く）。
+  // このファイルは永続化の検証が目的なので、工数列が見える幅で開く
+  test.use({ viewport: { width: 1600, height: 900 } })
+
   test('新規入力した工数が実localStorageへ永続化され、リロード後も残る', async ({
     page,
   }) => {

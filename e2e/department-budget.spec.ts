@@ -173,15 +173,14 @@ async function gotoTab(page: Page, label: string) {
 
 function agGridCell(page: Page, rowId: string, colId: string) {
   return page
-    .locator(
-      `.ag-center-cols-container .ag-row[row-id="${rowId}"] .ag-cell[col-id="${colId}"]`,
-    )
+    .locator(`.ag-row[row-id="${rowId}"] .ag-cell[col-id="${colId}"]`)
     .first()
 }
 
-// 合計行（pinnedBottomRowData）は本体行と異なるDOMコンテナ（.ag-floating-bottom）に描画される
+// 合計行（pinnedBottomRowData）は本体行と異なるDOMコンテナに描画される（AG Grid 36: .ag-grid-pinned-bottom-rows）
+const PINNED_BOTTOM = '.ag-grid-pinned-bottom-rows'
 function agGridPinnedBottomCell(page: Page, colId: string) {
-  return page.locator(`.ag-floating-bottom .ag-cell[col-id="${colId}"]`).first()
+  return page.locator(`${PINNED_BOTTOM} .ag-cell[col-id="${colId}"]`).first()
 }
 
 async function fillAgGridCell(
@@ -964,7 +963,7 @@ test.describe('部門予算管理', () => {
     expect(headerTexts).toContain('受注金額（万円）')
 
     // 合計行のスタイル: その他費用/SaaS費用タブ(TableFooter: bg-muted/50 border-t font-medium)と統一
-    const pinnedRow = page.locator('.ag-floating-bottom .ag-row').first()
+    const pinnedRow = page.locator(`${PINNED_BOTTOM} .ag-row`).first()
     const style = await pinnedRow.evaluate((el) => {
       const s = getComputedStyle(el)
       return {

@@ -11,6 +11,7 @@
 | `document-template.test.ts` | `shared/types/__tests__/`               | DocumentTemplateスキーマ（phase/description null許容・content空文字許容・100000文字上限・sourceRefs省略可・Create/Update派生型）・DatabaseSchema統合（後方互換: documentTemplatesなしの既存データもparse成功）。**反証**: phaseフィールド欠落は拒否（nullableだがoptionalではない）／配列内の不正レコード検出 |
 | `document-template-master.test.ts` | `shared/data/__tests__/`         | プリセットの整合性。全33エントリのCreateDocumentTemplateSchema適合・IPA出典保持・OKF準拠（frontmatterにtype/title/status/sources、本文h2開始）・`createEmptyOkfContent`。**反証**: 固定UUIDが16進数のみの正しい形式（E2Eシードの静かな失敗予防）／id重複なし／STANDARD_WBS_TEMPLATEの全documentTemplateIdsがマスタに実在（参照切れなし）／要件定義・基本設計の全ドキュメントノードに紐づけあり（デフォルトで使える状態）／運用設計工程の補完 |
 | `use-financial-visibility.test.tsx` | `shared/hooks/__tests__/`       | 金額表示可否フック。localモード=表示トグル・postgresモード=ロール権限。**反証**: partnerはfalse／未ログインはフェイルクローズでfalse／postgresモードでは表示トグルの抜け道が効かない／localモードではロールに影響されない |
+| `use-grid-context.test.ts` | `shared/hooks/__tests__/` | AG Gridの`context`用フック。再レンダーしても同一オブジェクト・値の変化で中身を最新化し`refreshCells`。**反証**: 同一参照の値では描き直さない／グリッド準備前（apiなし）でも落ちない |
 | `FinancialAccessGuard.test.tsx` | `shared/components/__tests__/`      | 金額専用ページのガード。可視ならchildren描画。**反証**: 不可視時はchildrenを一切描画せず案内カード表示（localトグルOFF・postgresのpartner両方） |
 | `CsvMappingExportDialog.test.tsx` | `shared/components/__tests__/`      | マッピングエディタ。**反証**: 無効列がプレビューから消える／空名は保存不可／全列無効でダウンロード不可／並び替え・改名の反映／保存内容（enabled/改名）のstore永続化 |
 | `csv-mapping-utils.test.ts`   | `shared/utils/__tests__/`             | 変換コア＋請求データソース。**反証**: 存在しないfieldは空欄=弱参照／0を欠損扱いしない／BOM非含有契約／参照切れマイルストン除外／カタログkeyと行キーの整合 |

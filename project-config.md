@@ -81,10 +81,10 @@ flowchart LR
 | バリデーション   | Zod 3.24, react-hook-form 7.54（@hookform/resolvers 3.9）|
 | ルーティング     | React Router DOM 7.2                          |
 | アイコン         | lucide-react                                 |
-| コード品質       | Biome 2.3                                    |
+| コード品質       | Biome 2.6（Markdown・YAMLは対象外）          |
 | 依存方向チェック | dependency-cruiser 17                        |
 | Git Hooks        | husky 9, lint-staged 16                       |
-| テスト           | Vitest 4, Playwright 1.52, Testing Library, MSW 2, jsdom |
+| テスト           | Vitest 5, Playwright 1.65, Testing Library（jest-dom 8）, MSW 2, jsdom |
 
 > ドメイン UI: ag-grid 33（データグリッド）, @svar-ui/react-gantt 2.5（ガント）, recharts 2.15（チャート）,
 > react-dnd 16（D&D）, react-joyride 3（オンボーディング）, cmdk 1.1（コマンドパレット）。
@@ -373,7 +373,7 @@ output/reports/                ← 人間向けサマリー（Git管理）
 ### 既知の落とし穴
 
 > 既知の落とし穴・過去の問題事例は [docs/development-patterns.md](docs/development-patterns.md) の
-> 「9. 過去の問題事例」および各セクション（Zustand セレクタ無限ループ / AG Grid 重複行 / 数値精度 等）を正典とする。
+> 「9. 過去の問題事例」および各セクション（Zustand セレクタ無限ループ / AG Grid の context・固定列 / 数値精度 等）を正典とする。
 > 開発中に新たに発見した問題は AI が下表または docs/development-patterns.md に追記する。
 
 | 問題 | 原因 | 対策 |
@@ -383,7 +383,7 @@ output/reports/                ← 人間向けサマリー（Git管理）
 | 年度月の表示ずれ | fiscalMonth / calendarMonth の混同 | 変換関数（`fiscalMonthToCalendarMonth()` 等）を必ず経由（§4） |
 | ダークモードで文字が見えない | ハードコードされた色値 | セマンティックカラー（`text-foreground` 等）使用（§6） |
 | 既存データ読み込みエラー | 新フィールドを required で追加 | optional + デフォルト値（§5） |
-| DOM 要素の重複選択（E2E） | AG Grid の pinned/body 重複行 | コンテナ指定セレクタ使用（§7） |
+| E2E で AG Grid のセルが見つからない | AG Grid 36 で固定列コンテナ（`.ag-*-cols-container`）が廃止された | `.ag-row[row-id] .ag-cell[col-id]` で指定（docs/development-patterns.md §8.2） |
 | タイムゾーンでテスト失敗 | `new Date('YYYY-MM-DD')` が UTC 解釈 | `new Date(year, month, day)` を使用（§7） |
 
 ### フレームワーク固有パターン

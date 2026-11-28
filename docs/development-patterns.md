@@ -91,7 +91,7 @@ persist(
 
 ---
 
-## 2. AG Grid (v33)
+## 2. AG Grid (v36)
 
 ### 2.1 列定義のメモ化
 
@@ -139,11 +139,14 @@ function MyCellRenderer(props: ICellRendererParams) {
 }
 ```
 
-### 2.4 v33 固有の注意点
+### 2.4 v36 の注意点
 
-- **DOM重複行**: ピン留め列（pinned-left）と本体（center-cols）で同じ `row-id` の行が重複レンダーされる
-  - セレクタ例: `.ag-center-cols-container .ag-row[row-id="..."] .ag-cell[col-id="..."]`
-  - Playwright等では `.first()` やコンテナ指定セレクタを使う
+- **DOM構造**: 左固定・中央・右固定のコンテナ（`.ag-*-cols-container`）は廃止。1つの `.ag-row` に全セルを描くので行DOMは重複しない
+  - セレクタ例: `.ag-row[row-id="..."] .ag-cell[col-id="..."]`
+  - 合計行（`pinnedBottomRowData`）は `.ag-grid-pinned-bottom-rows`、横スクロールは `.ag-body-horizontal-scroll-viewport`
+  - 固定セルは同じ行に重ねて描かれる。狭い画面では非固定セルが固定セルの下に隠れ、クリックを奪われる
+- **`context` は初期化時だけ有効**（`@initial`）: 後から別オブジェクトを渡しても反映されない。`useGridContext`（`@/shared/hooks/use-grid-context`）を通して渡す
+- **固定列が収まらないと右固定から外される**: 外す順を決めたいときは `processUnpinnedColumns` を使う（WBSは `selectColumnsToUnpin`）
 - **クラス名**: インライン編集中は `ag-cell-inline-editing`（`ag-cell-editing` ではない）
 - **API変更**: `columnApi` は非推奨、`gridApi` 経由でアクセスする
 - **テーマAPI**:
@@ -271,20 +274,12 @@ await page.evaluate((d) => {
 }, seedData)
 ```
 
-### 8.2 AG Grid 操作ヘルパー（コンテナ指定セレクタ）
+### 8.2 AG Grid のセル指定（行ID＋列ID）
 
-AG Grid はピン留め列で DOM 行が重複するため、コンテナを指定する:
+AG Grid 36 は固定列も同じ行要素に描くため、行IDと列IDだけで一意に決まる（コンテナ指定は不要）:
 
 ```typescript
-// Center-cols のセル
-const cell = page.locator(
-  '.ag-center-cols-container .ag-row[row-id="0"] .ag-cell[col-id="value"]'
-)
-
-// Pinned-left のセル
-const cell = page.locator(
-  '.ag-pinned-left-cols-container .ag-row[row-id="0"] .ag-cell[col-id="name"]'
-)
+const cell = page.locator('.ag-row[row-id="0"] .ag-cell[col-id="value"]')
 ```
 
 テキストマッチの注意: `hasText: '1月'` は "1月", "11月", "12月" にもマッチするため、`col-id` セレクタを使うこと。
@@ -320,11 +315,11 @@ await page.getByRole('link', { name: /アサイン/ }).click()
 
 | ファイル | 分野 | 件数 | 主な内容 |
 | -------- | ---- | ---: | -------- |
-| [reference/patterns/pitfalls-ui-grid.md](reference/patterns/pitfalls-ui-grid.md) | UI・AG Grid・スタイル | 18 | AG Grid（valueSetter・列仮想化・行ID・ツリー）、ダークモード・テーマ・色トークン、Radix Dialog、a11y |
+| [reference/patterns/pitfalls-ui-grid.md](reference/patterns/pitfalls-ui-grid.md) | UI・AG Grid・スタイル | 21 | AG Grid（valueSetter・列仮想化・行ID・ツリー）、ダークモード・テーマ・色トークン、Radix Dialog、a11y |
 | [reference/patterns/pitfalls-stores-persistence.md](reference/patterns/pitfalls-stores-persistence.md) | ストア・永続化・DataAdapter | 15 | Zustandセレクタ・購読漏れ、persistの既定値変更、シードの二重発火、楽観的更新のロールバック、Zodの後方互換、appSettings追加の6箇所 |
 | [reference/patterns/pitfalls-testing.md](reference/patterns/pitfalls-testing.md) | テスト・E2E | 16 | シードデータのUUID形式・年度ずれ、AG GridのDOM重複、Testing Libraryのクエリ、jsdomの制約、cmdkのdetach、トースト検証の偽陰性 |
 | [reference/patterns/pitfalls-server-auth.md](reference/patterns/pitfalls-server-auth.md) | サーバー・DB・認証・権限・外部API | 10 | ON DELETE CASCADEと404、TRUNCATE CASCADE、timestamptzの精度、CORSプリフライト、リフレッシュトークン競合、読み取り403、権限のズレ、Jira ADF |
-| [reference/patterns/pitfalls-tooling-deps.md](reference/patterns/pitfalls-tooling-deps.md) | ツール・依存更新・ビルド | 10 | Biome（check・biome-ignore・依存配列）、npm audit／npm ci／dependabot、メジャー更新の意味反転、サーバーtscのshared検査、zod 3→4の挙動差 |
+| [reference/patterns/pitfalls-tooling-deps.md](reference/patterns/pitfalls-tooling-deps.md) | ツール・依存更新・ビルド | 13 | Biome（check・biome-ignore・依存配列）、npm audit／npm ci／dependabot、メジャー更新の意味反転、サーバーtscのshared検査、zod 3→4の挙動差 |
 | [reference/patterns/pitfalls-domain-design.md](reference/patterns/pitfalls-domain-design.md) | ドメインロジック・設計 | 8 | 年度月変換、EVMのPVスケール、デモデータの妥当性、shared→features依存の回避、O(n²)の索引構築、列定義の正本化、語彙の一括置換 |
 
 ### 分野を問わず効く教訓

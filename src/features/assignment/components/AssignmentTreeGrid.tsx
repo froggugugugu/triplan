@@ -11,6 +11,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { gridTheme } from '@/shared/ag-grid-theme'
+import { useGridContext } from '@/shared/hooks/use-grid-context'
 import { useToast } from '@/shared/hooks/use-toast'
 import type { AssignmentEntry } from '@/shared/types/assignment'
 import type { Member } from '@/shared/types/member'
@@ -936,7 +937,7 @@ export function AssignmentTreeGrid({
     [],
   )
 
-  const context = useMemo(
+  const contextValue = useMemo(
     () => ({
       toggleExpand,
       addMemberRow,
@@ -952,6 +953,7 @@ export function AssignmentTreeGrid({
       closedMonths,
     ],
   )
+  const context = useGridContext(contextValue, gridRef)
 
   const getRowId = useCallback(
     (params: { data: FlatRowData }) => params.data.rowId,

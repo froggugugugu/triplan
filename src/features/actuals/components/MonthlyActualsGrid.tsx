@@ -6,9 +6,10 @@ import type {
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
 import { AgGridReact } from 'ag-grid-react'
 import { Undo2 } from 'lucide-react'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { gridTheme } from '@/shared/ag-grid-theme'
+import { useGridContext } from '@/shared/hooks/use-grid-context'
 import { toast } from '@/shared/hooks/use-toast'
 import { parseAllocationInput } from '@/shared/utils/allocation-input-utils'
 import type {
@@ -142,6 +143,7 @@ export function MonthlyActualsGrid({
   onActualChange,
   readOnly = false,
 }: MonthlyActualsGridProps) {
+  const gridRef = useRef<AgGridReact<MonthlyActualsRow>>(null)
   const handleClear = useCallback(
     (assignmentId: string) => {
       onActualChange(assignmentId, null)
@@ -149,10 +151,11 @@ export function MonthlyActualsGrid({
     [onActualChange],
   )
 
-  const context = useMemo(
+  const contextValue = useMemo(
     () => ({ onClear: handleClear, readOnly }),
     [handleClear, readOnly],
   )
+  const context = useGridContext(contextValue, gridRef)
 
   const onCellValueChanged = useCallback(
     (event: CellValueChangedEvent<MonthlyActualsRow>) => {
@@ -264,6 +267,7 @@ export function MonthlyActualsGrid({
   return (
     <div style={{ height: Math.min(640, 80 + rows.length * 40) }}>
       <AgGridReact<MonthlyActualsRow>
+        ref={gridRef}
         theme={gridTheme}
         rowData={rows}
         columnDefs={columnDefs}

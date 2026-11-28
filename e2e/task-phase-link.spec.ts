@@ -140,9 +140,7 @@ test.describe('WBSタスクと工程の紐づけ（/wbs → /schedule）', () =>
 
     // 工程ノード（P800-01）の編集ダイアログを開く
     await page
-      .locator(
-        `.ag-pinned-left-cols-container .ag-row[row-id="${PHASE_NODE_ID}"] [title="編集"]`,
-      )
+      .locator(`.ag-row[row-id="${PHASE_NODE_ID}"] [title="編集"]`)
       .click()
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByText('所属工程')).toBeVisible()
@@ -180,9 +178,7 @@ test.describe('WBSタスクと工程の紐づけ（/wbs → /schedule）', () =>
 
     // 配下のタスクを工程未指定のまま編集・保存する
     await page
-      .locator(
-        `.ag-pinned-left-cols-container .ag-row[row-id="${TASK_TODO_ID}"] [title="編集"]`,
-      )
+      .locator(`.ag-row[row-id="${TASK_TODO_ID}"] [title="編集"]`)
       .click()
     const dialog = page.getByRole('dialog')
     await dialog.getByRole('button', { name: '更新' }).click()

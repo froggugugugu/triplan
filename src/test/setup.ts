@@ -1,5 +1,6 @@
 // テスト環境のセットアップファイル
-import '@testing-library/jest-dom'
+// Vitest 用のエントリー（matchers の登録と vitest の Assertion 型の拡張を両方行う）
+import '@testing-library/jest-dom/vitest'
 
 // localStorage mock
 const localStorageMock = (() => {
