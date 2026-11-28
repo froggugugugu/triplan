@@ -219,7 +219,10 @@ export function runAdapterContractTests(
       const listed = await adapter.list('orgDesignDrafts')
       const found = listed.find((d) => d.id === created.id)
       expect(found?.teams[0]?.productIds).toHaveLength(1)
-      expect(found?.placements).toEqual({ [placedId]: teamId, [unplacedId]: null })
+      expect(found?.placements).toEqual({
+        [placedId]: teamId,
+        [unplacedId]: null,
+      })
     })
 
     it('capabilities.modeが実装ごとに正しく設定されている', () => {

@@ -374,7 +374,11 @@ function compared(
 ): ComparedValue<number> {
   const c = current ?? null
   const d = draft ?? null
-  return { current: c, draft: d, delta: c !== null && d !== null ? round2(d - c) : null }
+  return {
+    current: c,
+    draft: d,
+    delta: c !== null && d !== null ? round2(d - c) : null,
+  }
 }
 
 /** 現組織と案をチーム単位で並べる。対応づけは複製元の課（sourceSectionId） */
@@ -434,7 +438,9 @@ export function compareOrgDesigns(
     .filter((t) => !matchedDraftIds.has(t.id))
     .sort((a, b) => a.sortOrder - b.sortOrder)
   for (const dt of added) {
-    rows.push(row(dt.id, dt, 'added', undefined, metricsOf(draft.metrics, dt.id)))
+    rows.push(
+      row(dt.id, dt, 'added', undefined, metricsOf(draft.metrics, dt.id)),
+    )
   }
   return rows
 }

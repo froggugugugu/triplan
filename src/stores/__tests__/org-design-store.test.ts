@@ -113,12 +113,10 @@ describe('useOrgDesignStore', () => {
       .getState()
       .createDraft({ name: '案A', fiscalYear: 2026, sections, members })
     const draft = useOrgDesignStore.getState().drafts.find((d) => d.id === id)
-    useOrgDesignStore
-      .getState()
-      .saveDesign(id, {
-        teams: draft?.teams ?? [],
-        placements: { [MEM]: null },
-      })
+    useOrgDesignStore.getState().saveDesign(id, {
+      teams: draft?.teams ?? [],
+      placements: { [MEM]: null },
+    })
     expect(JSON.stringify({ sections, members })).toBe(before)
   })
 
@@ -138,12 +136,10 @@ describe('useOrgDesignStore', () => {
       .createDraft({ name: '案A', fiscalYear: 2026, sections, members })
     await flush()
     const draft = useOrgDesignStore.getState().drafts[0]
-    useOrgDesignStore
-      .getState()
-      .saveDesign(id, {
-        teams: draft?.teams ?? [],
-        placements: { [MEM]: null },
-      })
+    useOrgDesignStore.getState().saveDesign(id, {
+      teams: draft?.teams ?? [],
+      placements: { [MEM]: null },
+    })
     expect(useOrgDesignStore.getState().drafts[0]?.placements[MEM]).toBeNull()
     await flush()
     expect(mockUpdate).toHaveBeenCalledWith(
@@ -161,12 +157,10 @@ describe('useOrgDesignStore', () => {
     await flush()
     const before = useOrgDesignStore.getState().drafts[0]
     mockUpdate.mockRejectedValueOnce(new Error('boom'))
-    useOrgDesignStore
-      .getState()
-      .saveDesign(id, {
-        teams: before?.teams ?? [],
-        placements: { [MEM]: null },
-      })
+    useOrgDesignStore.getState().saveDesign(id, {
+      teams: before?.teams ?? [],
+      placements: { [MEM]: null },
+    })
     await flush()
     expect(useOrgDesignStore.getState().drafts[0]?.placements[MEM]).toBe(
       before?.teams[0]?.id,

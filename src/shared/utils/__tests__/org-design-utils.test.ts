@@ -17,8 +17,7 @@ import {
 // ─── fixtures ────────────────────────────────────────────────────────────────
 const NOW = '2026-04-01T00:00:00.000Z'
 let seq = 0
-const id = () =>
-  `00000000-0000-4000-8000-${String(++seq).padStart(12, '0')}`
+const id = () => `00000000-0000-4000-8000-${String(++seq).padStart(12, '0')}`
 
 const DIV = id()
 const PROD_A = id() // ルート案件A
@@ -139,7 +138,11 @@ describe('computeOrgDesignMetrics: 兼務', () => {
       c,
     )
     const after = computeOrgDesignMetrics(
-      moveMember({ teams: [tA, tB], placements: { [m.id]: tA.id } }, m.id, tB.id),
+      moveMember(
+        { teams: [tA, tB], placements: { [m.id]: tA.id } },
+        m.id,
+        tB.id,
+      ),
       c,
     )
     expect(before.overall.crossProductMemberCount).toBe(1)
@@ -167,7 +170,10 @@ describe('computeOrgDesignMetrics: 兼務', () => {
     const t = team({ productIds: [] })
     const result = computeOrgDesignMetrics(
       { teams: [t], placements: { [m.id]: t.id } },
-      ctx({ members: [m], assignments: [assignment(m.id, PROD_B, { '2026-05': 1 })] }),
+      ctx({
+        members: [m],
+        assignments: [assignment(m.id, PROD_B, { '2026-05': 1 })],
+      }),
     )
     expect(result.teams[0]?.productsUnset).toBe(true)
     expect(result.teams[0]?.crossProductMemberCount).toBe(0)
@@ -177,7 +183,10 @@ describe('computeOrgDesignMetrics: 兼務', () => {
     const m = member()
     const result = computeOrgDesignMetrics(
       { teams: [], placements: {} },
-      ctx({ members: [m], assignments: [assignment(m.id, PROD_B, { '2026-05': 1 })] }),
+      ctx({
+        members: [m],
+        assignments: [assignment(m.id, PROD_B, { '2026-05': 1 })],
+      }),
     )
     expect(result.unplacedMemberIds).toEqual([m.id])
     expect(result.overall.crossProductMemberCount).toBe(0)
@@ -192,25 +201,39 @@ describe('computeOrgDesignMetrics: 稼働率', () => {
     const t = team()
     const result = computeOrgDesignMetrics(
       { teams: [t], placements: { [m1.id]: t.id, [m2.id]: t.id } },
-      ctx({ members: [m1, m2], assignments: [assignment(m1.id, PROD_A, { '2026-04': 1 })] }),
+      ctx({
+        members: [m1, m2],
+        assignments: [assignment(m1.id, PROD_A, { '2026-04': 1 })],
+      }),
     )
     // 合計比 = 1 / 13 = 0.0769 → 0.08。月平均の平均なら (0.5+0×11)/12 = 0.04 になる
     expect(result.teams[0]?.utilization).toBe(0.08)
-    expect(result.teams[0]?.monthly[0]).toEqual({ month: '2026-04', utilization: 0.5 })
+    expect(result.teams[0]?.monthly[0]).toEqual({
+      month: '2026-04',
+      utilization: 0.5,
+    })
   })
 
   it('capacityRatio を供給に反映する', () => {
     const m = member({ capacityRatio: 0.5 })
     const t = team()
     const months = Object.fromEntries(
-      ['04', '05', '06', '07', '08', '09', '10', '11', '12'].map((mm) => [`2026-${mm}`, 0.5]),
+      ['04', '05', '06', '07', '08', '09', '10', '11', '12'].map((mm) => [
+        `2026-${mm}`,
+        0.5,
+      ]),
     )
     const result = computeOrgDesignMetrics(
       { teams: [t], placements: { [m.id]: t.id } },
       ctx({
         members: [m],
         assignments: [
-          assignment(m.id, PROD_A, { ...months, '2027-01': 0.5, '2027-02': 0.5, '2027-03': 0.5 }),
+          assignment(m.id, PROD_A, {
+            ...months,
+            '2027-01': 0.5,
+            '2027-02': 0.5,
+            '2027-03': 0.5,
+          }),
         ],
       }),
     )
@@ -219,9 +242,14 @@ describe('computeOrgDesignMetrics: 稼働率', () => {
 
   it('反証: 0人のチームは稼働率 null（0除算しない）', () => {
     const t = team()
-    const result = computeOrgDesignMetrics({ teams: [t], placements: {} }, ctx({}))
+    const result = computeOrgDesignMetrics(
+      { teams: [t], placements: {} },
+      ctx({}),
+    )
     expect(result.teams[0]?.utilization).toBeNull()
-    expect(result.teams[0]?.monthly.every((p) => p.utilization === null)).toBe(true)
+    expect(result.teams[0]?.monthly.every((p) => p.utilization === null)).toBe(
+      true,
+    )
     expect(result.teams[0]?.annualCost).toBe(0)
   })
 
@@ -273,7 +301,10 @@ describe('computeOrgDesignMetrics: コスト', () => {
     const m2 = member()
     const t = team()
     const c = ctx({ members: [m1, m2] })
-    const a = computeOrgDesignMetrics({ teams: [t], placements: { [m1.id]: t.id } }, c)
+    const a = computeOrgDesignMetrics(
+      { teams: [t], placements: { [m1.id]: t.id } },
+      c,
+    )
     const b = computeOrgDesignMetrics(
       { teams: [t], placements: { [m1.id]: t.id, [m2.id]: t.id } },
       c,
@@ -289,7 +320,10 @@ describe('computeOrgDesignMetrics: 希望の充足', () => {
     const t = team({ productIds: [PROD_A], techTagIds: [TAG_TS] })
     const result = computeOrgDesignMetrics(
       { teams: [t], placements: { [m.id]: t.id } },
-      ctx({ members: [m], preferences: [pref(m.id, [PROD_A, PROD_B], [TAG_TS, TAG_GO])] }),
+      ctx({
+        members: [m],
+        preferences: [pref(m.id, [PROD_A, PROD_B], [TAG_TS, TAG_GO])],
+      }),
     )
     expect(result.members[m.id]).toMatchObject({
       preferenceMet: 2,
@@ -308,7 +342,11 @@ describe('computeOrgDesignMetrics: 希望の充足', () => {
       { teams: [t], placements: { [m1.id]: t.id, [m2.id]: t.id } },
       ctx({
         members: [m1, m2, m3],
-        preferences: [pref(m1.id, [PROD_A]), pref(m2.id, [PROD_B]), pref(m3.id, [PROD_A])],
+        preferences: [
+          pref(m1.id, [PROD_A]),
+          pref(m2.id, [PROD_B]),
+          pref(m3.id, [PROD_A]),
+        ],
       }),
     )
     expect(result.members[m1.id]?.preferenceStatus).toBe('met')
@@ -332,9 +370,15 @@ describe('computeOrgDesignMetrics: 希望の充足', () => {
     const t = team({ productIds: [PROD_A] })
     const result = computeOrgDesignMetrics(
       { teams: [t], placements: { [m.id]: t.id } },
-      ctx({ members: [m], preferences: [pref(m.id, [PROD_A, PROD_A, PROD_B])] }),
+      ctx({
+        members: [m],
+        preferences: [pref(m.id, [PROD_A, PROD_A, PROD_B])],
+      }),
     )
-    expect(result.members[m.id]).toMatchObject({ preferenceMet: 1, preferenceTotal: 2 })
+    expect(result.members[m.id]).toMatchObject({
+      preferenceMet: 1,
+      preferenceTotal: 2,
+    })
   })
 })
 
@@ -353,7 +397,10 @@ describe('computeOrgDesignMetrics: 本番データとのずれ', () => {
 
   it('反証: 案作成後に追加された担当者（配置キーなし）は未配置として扱う', () => {
     const m = member()
-    const result = computeOrgDesignMetrics({ teams: [team()], placements: {} }, ctx({ members: [m] }))
+    const result = computeOrgDesignMetrics(
+      { teams: [team()], placements: {} },
+      ctx({ members: [m] }),
+    )
     expect(result.unplacedMemberIds).toEqual([m.id])
   })
 
@@ -408,7 +455,10 @@ describe('createDesignFromCurrentOrg', () => {
       techTagIds: [],
     })
     expect(design.teams[0]?.id).not.toBe(s1.id)
-    expect(design.placements).toEqual({ [m1.id]: design.teams[0]?.id, [m2.id]: null })
+    expect(design.placements).toEqual({
+      [m1.id]: design.teams[0]?.id,
+      [m2.id]: null,
+    })
   })
 
   it('反証: 元の配列（本番データ）を書き換えない', () => {
@@ -450,7 +500,11 @@ describe('deriveCurrentOrgDesign / compareOrgDesigns', () => {
   it('現組織は課と所属から導出し、受け持ちは案の対応チームから借りる', () => {
     const s1 = section()
     const m1 = member({ sectionId: s1.id })
-    const draftTeam = team({ sourceSectionId: s1.id, productIds: [PROD_A], techTagIds: [TAG_TS] })
+    const draftTeam = team({
+      sourceSectionId: s1.id,
+      productIds: [PROD_A],
+      techTagIds: [TAG_TS],
+    })
     const current = deriveCurrentOrgDesign([draftTeam], [s1], [m1])
     expect(current.teams[0]).toMatchObject({
       id: s1.id,
@@ -467,13 +521,21 @@ describe('deriveCurrentOrgDesign / compareOrgDesigns', () => {
     const m1 = member({ sectionId: kept.id })
     const m2 = member({ sectionId: dropped.id })
     const keptTeam = team({ sourceSectionId: kept.id, name: '残す課' })
-    const newTeam = team({ sourceSectionId: null, name: '新チーム', sortOrder: 2 })
+    const newTeam = team({
+      sourceSectionId: null,
+      name: '新チーム',
+      sortOrder: 2,
+    })
     const draft = {
       teams: [keptTeam, newTeam],
       placements: { [m1.id]: keptTeam.id, [m2.id]: newTeam.id },
     }
     const c = ctx({ members: [m1, m2] })
-    const current = deriveCurrentOrgDesign(draft.teams, [kept, dropped], [m1, m2])
+    const current = deriveCurrentOrgDesign(
+      draft.teams,
+      [kept, dropped],
+      [m1, m2],
+    )
     const rows = compareOrgDesigns(
       { design: current, metrics: computeOrgDesignMetrics(current, c) },
       { design: draft, metrics: computeOrgDesignMetrics(draft, c) },
@@ -484,7 +546,15 @@ describe('deriveCurrentOrgDesign / compareOrgDesigns', () => {
       ['新チーム', 'added'],
     ])
     expect(rows[0]?.memberCount).toEqual({ current: 1, draft: 1, delta: 0 })
-    expect(rows[1]?.memberCount).toEqual({ current: 1, draft: null, delta: null })
-    expect(rows[2]?.memberCount).toEqual({ current: null, draft: 1, delta: null })
+    expect(rows[1]?.memberCount).toEqual({
+      current: 1,
+      draft: null,
+      delta: null,
+    })
+    expect(rows[2]?.memberCount).toEqual({
+      current: null,
+      draft: 1,
+      delta: null,
+    })
   })
 })

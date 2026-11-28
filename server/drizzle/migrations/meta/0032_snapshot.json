@@ -129,12 +129,8 @@
           "name": "ai_usage_entries_division_id_divisions_id_fk",
           "tableFrom": "ai_usage_entries",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -142,12 +138,8 @@
           "name": "ai_usage_entries_section_id_sections_id_fk",
           "tableFrom": "ai_usage_entries",
           "tableTo": "sections",
-          "columnsFrom": [
-            "section_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["section_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -155,12 +147,8 @@
           "name": "ai_usage_entries_provider_id_ai_usage_providers_id_fk",
           "tableFrom": "ai_usage_entries",
           "tableTo": "ai_usage_providers",
-          "columnsFrom": [
-            "provider_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["provider_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -259,12 +247,8 @@
           "name": "ai_usage_member_allocations_division_id_divisions_id_fk",
           "tableFrom": "ai_usage_member_allocations",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -272,12 +256,8 @@
           "name": "ai_usage_member_allocations_member_id_members_id_fk",
           "tableFrom": "ai_usage_member_allocations",
           "tableTo": "members",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["member_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -285,12 +265,8 @@
           "name": "ai_usage_member_allocations_provider_id_ai_usage_providers_id_fk",
           "tableFrom": "ai_usage_member_allocations",
           "tableTo": "ai_usage_providers",
-          "columnsFrom": [
-            "provider_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["provider_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -370,12 +346,8 @@
           "name": "ai_usage_providers_division_id_divisions_id_fk",
           "tableFrom": "ai_usage_providers",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -437,9 +409,7 @@
         "api_keys_key_hash_unique": {
           "name": "api_keys_key_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "key_hash"
-          ]
+          "columns": ["key_hash"]
         }
       },
       "policies": {},
@@ -628,12 +598,8 @@
           "name": "assignment_notes_project_id_projects_id_fk",
           "tableFrom": "assignment_notes",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -699,12 +665,8 @@
           "name": "assignment_snapshots_project_id_projects_id_fk",
           "tableFrom": "assignment_snapshots",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -779,12 +741,8 @@
           "name": "assignments_project_id_projects_id_fk",
           "tableFrom": "assignments",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -792,12 +750,8 @@
           "name": "assignments_task_id_projects_id_fk",
           "tableFrom": "assignments",
           "tableTo": "projects",
-          "columnsFrom": [
-            "task_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["task_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -805,12 +759,8 @@
           "name": "assignments_member_id_members_id_fk",
           "tableFrom": "assignments",
           "tableTo": "members",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["member_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -990,12 +940,8 @@
           "name": "billing_milestones_project_id_projects_id_fk",
           "tableFrom": "billing_milestones",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1063,12 +1009,8 @@
           "name": "budget_adjustments_budget_id_division_budgets_id_fk",
           "tableFrom": "budget_adjustments",
           "tableTo": "division_budgets",
-          "columnsFrom": [
-            "budget_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["budget_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1167,12 +1109,8 @@
           "name": "budget_breakdowns_budget_id_division_budgets_id_fk",
           "tableFrom": "budget_breakdowns",
           "tableTo": "division_budgets",
-          "columnsFrom": [
-            "budget_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["budget_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1180,12 +1118,8 @@
           "name": "budget_breakdowns_project_id_projects_id_fk",
           "tableFrom": "budget_breakdowns",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1299,12 +1233,8 @@
           "name": "change_requests_project_id_projects_id_fk",
           "tableFrom": "change_requests",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1504,12 +1434,8 @@
           "name": "division_budgets_division_id_divisions_id_fk",
           "tableFrom": "division_budgets",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1519,10 +1445,7 @@
         "division_budgets_division_fiscal_year_unique": {
           "name": "division_budgets_division_fiscal_year_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "division_id",
-            "fiscal_year"
-          ]
+          "columns": ["division_id", "fiscal_year"]
         }
       },
       "policies": {},
@@ -1677,12 +1600,8 @@
           "name": "efforts_project_id_projects_id_fk",
           "tableFrom": "efforts",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1804,12 +1723,8 @@
           "name": "estimate_snapshots_project_id_projects_id_fk",
           "tableFrom": "estimate_snapshots",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1819,10 +1734,7 @@
         "estimate_snapshots_project_id_version_unique": {
           "name": "estimate_snapshots_project_id_version_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "version"
-          ]
+          "columns": ["project_id", "version"]
         }
       },
       "policies": {},
@@ -1964,12 +1876,8 @@
           "name": "member_preferences_member_id_members_id_fk",
           "tableFrom": "member_preferences",
           "tableTo": "members",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["member_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1979,9 +1887,7 @@
         "member_preferences_member_id_unique": {
           "name": "member_preferences_member_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "member_id"
-          ]
+          "columns": ["member_id"]
         }
       },
       "policies": {},
@@ -2105,12 +2011,8 @@
           "name": "members_section_id_sections_id_fk",
           "tableFrom": "members",
           "tableTo": "sections",
-          "columnsFrom": [
-            "section_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["section_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2118,12 +2020,8 @@
           "name": "members_company_id_companies_id_fk",
           "tableFrom": "members",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2165,9 +2063,7 @@
         "monthly_actuals_confirmations_month_unique": {
           "name": "monthly_actuals_confirmations_month_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "month"
-          ]
+          "columns": ["month"]
         }
       },
       "policies": {},
@@ -2370,12 +2266,8 @@
           "name": "notification_logs_channel_id_notification_channels_id_fk",
           "tableFrom": "notification_logs",
           "tableTo": "notification_channels",
-          "columnsFrom": [
-            "channel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["channel_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2511,12 +2403,8 @@
           "name": "personnel_plans_division_id_divisions_id_fk",
           "tableFrom": "personnel_plans",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2526,11 +2414,7 @@
         "personnel_plans_unique": {
           "name": "personnel_plans_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "division_id",
-            "fiscal_year",
-            "category"
-          ]
+          "columns": ["division_id", "fiscal_year", "category"]
         }
       },
       "policies": {},
@@ -2580,12 +2464,8 @@
           "name": "phase_dependencies_project_id_projects_id_fk",
           "tableFrom": "phase_dependencies",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2595,11 +2475,7 @@
         "phase_dependencies_unique": {
           "name": "phase_dependencies_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "from_phase_key",
-            "to_phase_key"
-          ]
+          "columns": ["project_id", "from_phase_key", "to_phase_key"]
         }
       },
       "policies": {},
@@ -2675,12 +2551,8 @@
           "name": "project_baselines_project_id_projects_id_fk",
           "tableFrom": "project_baselines",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2690,10 +2562,7 @@
         "project_baselines_project_id_version_unique": {
           "name": "project_baselines_project_id_version_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "version"
-          ]
+          "columns": ["project_id", "version"]
         }
       },
       "policies": {},
@@ -2745,12 +2614,8 @@
           "name": "project_progress_entries_project_id_projects_id_fk",
           "tableFrom": "project_progress_entries",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2760,9 +2625,7 @@
         "project_progress_entries_project_id_unique": {
           "name": "project_progress_entries_project_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id"
-          ]
+          "columns": ["project_id"]
         }
       },
       "policies": {},
@@ -2944,12 +2807,8 @@
           "name": "projects_parent_id_projects_id_fk",
           "tableFrom": "projects",
           "tableTo": "projects",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2957,12 +2816,8 @@
           "name": "projects_division_id_divisions_id_fk",
           "tableFrom": "projects",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3022,12 +2877,8 @@
           "name": "refresh_tokens_user_id_users_id_fk",
           "tableFrom": "refresh_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3037,9 +2888,7 @@
         "refresh_tokens_token_hash_unique": {
           "name": "refresh_tokens_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -3136,12 +2985,8 @@
           "name": "risk_entries_project_id_projects_id_fk",
           "tableFrom": "risk_entries",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3266,12 +3111,8 @@
           "name": "saas_contracts_division_id_divisions_id_fk",
           "tableFrom": "saas_contracts",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3324,12 +3165,8 @@
           "name": "schedule_entries_project_id_projects_id_fk",
           "tableFrom": "schedule_entries",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3339,10 +3176,7 @@
         "schedule_entries_project_phase_unique": {
           "name": "schedule_entries_project_phase_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "phase_key"
-          ]
+          "columns": ["project_id", "phase_key"]
         }
       },
       "policies": {},
@@ -3387,12 +3221,8 @@
           "name": "schedule_settings_entries_project_id_projects_id_fk",
           "tableFrom": "schedule_settings_entries",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3402,9 +3232,7 @@
         "schedule_settings_entries_project_unique": {
           "name": "schedule_settings_entries_project_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id"
-          ]
+          "columns": ["project_id"]
         }
       },
       "policies": {},
@@ -3462,12 +3290,8 @@
           "name": "sections_division_id_divisions_id_fk",
           "tableFrom": "sections",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3548,12 +3372,8 @@
           "name": "skill_evaluations_member_id_members_id_fk",
           "tableFrom": "skill_evaluations",
           "tableTo": "members",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["member_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3561,12 +3381,8 @@
           "name": "skill_evaluations_tech_tag_id_tech_tags_id_fk",
           "tableFrom": "skill_evaluations",
           "tableTo": "tech_tags",
-          "columnsFrom": [
-            "tech_tag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tech_tag_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3633,12 +3449,8 @@
           "name": "skill_roadmap_goals_member_id_members_id_fk",
           "tableFrom": "skill_roadmap_goals",
           "tableTo": "members",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["member_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3646,12 +3458,8 @@
           "name": "skill_roadmap_goals_tech_tag_id_tech_tags_id_fk",
           "tableFrom": "skill_roadmap_goals",
           "tableTo": "tech_tags",
-          "columnsFrom": [
-            "tech_tag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tech_tag_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3733,9 +3541,7 @@
         "sso_provider_configs_provider_unique": {
           "name": "sso_provider_configs_provider_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "provider"
-          ]
+          "columns": ["provider"]
         }
       },
       "policies": {},
@@ -3928,12 +3734,8 @@
           "name": "tech_tag_sub_categories_category_id_tech_tag_categories_id_fk",
           "tableFrom": "tech_tag_sub_categories",
           "tableTo": "tech_tag_categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4006,12 +3808,8 @@
           "name": "tech_tags_category_id_tech_tag_categories_id_fk",
           "tableFrom": "tech_tags",
           "tableTo": "tech_tag_categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -4019,12 +3817,8 @@
           "name": "tech_tags_sub_category_id_tech_tag_sub_categories_id_fk",
           "tableFrom": "tech_tags",
           "tableTo": "tech_tag_sub_categories",
-          "columnsFrom": [
-            "sub_category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sub_category_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4115,9 +3909,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -4168,12 +3960,8 @@
           "name": "wbs_column_settings_entries_project_id_projects_id_fk",
           "tableFrom": "wbs_column_settings_entries",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4183,9 +3971,7 @@
         "wbs_column_settings_entries_project_unique": {
           "name": "wbs_column_settings_entries_project_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id"
-          ]
+          "columns": ["project_id"]
         }
       },
       "policies": {},
@@ -4244,48 +4030,27 @@
     "public.auth_provider": {
       "name": "auth_provider",
       "schema": "public",
-      "values": [
-        "local",
-        "azure_ad",
-        "google_workspace"
-      ]
+      "values": ["local", "azure_ad", "google_workspace"]
     },
     "public.budget_adjustment_type": {
       "name": "budget_adjustment_type",
       "schema": "public",
-      "values": [
-        "increase",
-        "decrease"
-      ]
+      "values": ["increase", "decrease"]
     },
     "public.budget_breakdown_category": {
       "name": "budget_breakdown_category",
       "schema": "public",
-      "values": [
-        "project_personnel",
-        "project_expense",
-        "general_expense"
-      ]
+      "values": ["project_personnel", "project_expense", "general_expense"]
     },
     "public.dependency_type": {
       "name": "dependency_type",
       "schema": "public",
-      "values": [
-        "FS",
-        "SS",
-        "FF",
-        "SF"
-      ]
+      "values": ["FS", "SS", "FF", "SF"]
     },
     "public.estimate_method": {
       "name": "estimate_method",
       "schema": "public",
-      "values": [
-        "function_point",
-        "wbs",
-        "manual",
-        "actual"
-      ]
+      "values": ["function_point", "wbs", "manual", "actual"]
     },
     "public.estimate_stage": {
       "name": "estimate_stage",
@@ -4302,12 +4067,7 @@
     "public.member_contract_type": {
       "name": "member_contract_type",
       "schema": "public",
-      "values": [
-        "請負",
-        "準委任",
-        "派遣",
-        "正社員"
-      ]
+      "values": ["請負", "準委任", "派遣", "正社員"]
     },
     "public.personnel_plan_category": {
       "name": "personnel_plan_category",
@@ -4322,102 +4082,57 @@
     "public.project_confidence": {
       "name": "project_confidence",
       "schema": "public",
-      "values": [
-        "S",
-        "A",
-        "B",
-        "C"
-      ]
+      "values": ["S", "A", "B", "C"]
     },
     "public.project_priority": {
       "name": "project_priority",
       "schema": "public",
-      "values": [
-        "high",
-        "medium",
-        "low"
-      ]
+      "values": ["high", "medium", "low"]
     },
     "public.project_status": {
       "name": "project_status",
       "schema": "public",
-      "values": [
-        "not_started",
-        "active",
-        "completed"
-      ]
+      "values": ["not_started", "active", "completed"]
     },
     "public.risk_level": {
       "name": "risk_level",
       "schema": "public",
-      "values": [
-        "high",
-        "medium",
-        "low"
-      ]
+      "values": ["high", "medium", "low"]
     },
     "public.risk_status": {
       "name": "risk_status",
       "schema": "public",
-      "values": [
-        "open",
-        "realized",
-        "closed"
-      ]
+      "values": ["open", "realized", "closed"]
     },
     "public.saas_contract_type": {
       "name": "saas_contract_type",
       "schema": "public",
-      "values": [
-        "annual",
-        "monthly"
-      ]
+      "values": ["annual", "monthly"]
     },
     "public.saas_payment_cycle": {
       "name": "saas_payment_cycle",
       "schema": "public",
-      "values": [
-        "monthly",
-        "annual"
-      ]
+      "values": ["monthly", "annual"]
     },
     "public.skill_evaluator_type": {
       "name": "skill_evaluator_type",
       "schema": "public",
-      "values": [
-        "self",
-        "manager"
-      ]
+      "values": ["self", "manager"]
     },
     "public.skill_level": {
       "name": "skill_level",
       "schema": "public",
-      "values": [
-        "none",
-        "beginner",
-        "intermediate",
-        "advanced",
-        "expert"
-      ]
+      "values": ["none", "beginner", "intermediate", "advanced", "expert"]
     },
     "public.sso_provider_type": {
       "name": "sso_provider_type",
       "schema": "public",
-      "values": [
-        "azure_ad",
-        "google_workspace"
-      ]
+      "values": ["azure_ad", "google_workspace"]
     },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": [
-        "admin",
-        "editor",
-        "viewer",
-        "manager",
-        "partner"
-      ]
+      "values": ["admin", "editor", "viewer", "manager", "partner"]
     }
   },
   "schemas": {},
